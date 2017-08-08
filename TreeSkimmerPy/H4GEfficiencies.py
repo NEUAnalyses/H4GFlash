@@ -59,6 +59,8 @@ def main(argv):
    cut10 = n.zeros(1, dtype=float)
    cut11 = n.zeros(1, dtype=float)
    cut12 = n.zeros(1, dtype=float)
+   cut13 = n.zeros(1, dtype=float)
+   #cut14 = n.zeros(1, dtype=float)
    outTree.Branch('totevs', totevs, 'totevs/D')
    outTree.Branch('cut0', cut0, 'cut0/D')
    outTree.Branch('cut1', cut1, 'cut1/D')
@@ -73,7 +75,8 @@ def main(argv):
    outTree.Branch('cut10', cut10, 'cut10/D')
    outTree.Branch('cut11', cut11, 'cut11/D')
    outTree.Branch('cut12', cut12, 'cut12/D')
-
+   outTree.Branch('cut13', cut13, 'cut13/D')
+   #outTree.Branch('cut14', cut14, 'cut14/D')
    evtCounter = 0
    totevs[0] = tree.GetEntries()
 
@@ -98,7 +101,8 @@ def main(argv):
       cut10[0] = 0 # abs (eta) < 2.5
       cut11[0] = 0 # abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < 0.2
       cut12[0] = 0 # abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < 0.2
-
+      cut13[0] = 0 # pass electron veto
+      #cut14[0] = 0 # cut2+cut12
       Phos = []
       Phos_id = []
 
@@ -135,8 +139,8 @@ def main(argv):
              cut12[0]=1
           if tree.v_pho_passElectronVeto!=0:
              cut13[0]=1
-          if abs(pho.Eta()) > 1.5 and tree.v_pho_mva > 0.2 and len(Phos) > 3:
-             cut14[0]=1
+          #if abs(pho.Eta()) > 1.5 and tree.v_pho_mva > 0.2 and len(Phos) > 3:
+             #cut14[0]=1
 			
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
 #      sPhos,sPhos_id = treeSkimmer.MakePhotonSelectionCutBased(Phos, Phos_id, tree.rho, tree.v_pho_chargedHadronIso, tree.v_pho_neutralHadronIso, tree.v_pho_photonIso, tree.v_pho_hadronicOverEm, tree.v_pho_full5x5_sigmaIetaIeta, tree.v_pho_passElectronVeto)
