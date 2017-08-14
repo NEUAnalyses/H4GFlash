@@ -897,7 +897,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tmpVec.SetE( pho->energy() );
      LorentzVector thisPhoV4( tmpVec );
      v_pho_p4.push_back( thisPhoV4 );
-     v_pho_mva.push_back( pho->userFloat("PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values") );
+     v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") ); //old -> PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values
      
      v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );  
 //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() ); 
