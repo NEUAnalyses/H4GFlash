@@ -616,6 +616,9 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<edm::View<flashgg::DiPhotonCandidate> > diphotons;
    iEvent.getByToken(diphotonsToken_, diphotons);
+
+   edm::Handle<edm::View<flashgg::SinglePhotonView> > singlephotonview;
+   iEvent.getByToken(singlephotonviewToken_, singlephotonview);
       
     //Trigger
     myTriggerResults.clear();
@@ -900,8 +903,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      tmpVec.SetE( pho->energy() );
      LorentzVector thisPhoV4( tmpVec );
      v_pho_p4.push_back( thisPhoV4 );
-     v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") ); //old -> PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values
-     
+     //v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") ); //old -> PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values
+     v_pho_mva.push_back( singlephotonview->phoIdMvaWrtChosenVtx());
      v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );  
 //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() ); 
 //      v_pho_neutralHadronIso.push_back  ( pho->neutralHadronIso() ); 
