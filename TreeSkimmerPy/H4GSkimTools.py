@@ -118,8 +118,8 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15: continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < 0.2: continue # old -> 0.374
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < 0.2: continue # old -> 0.336
+         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9: continue # old -> 0.374
+         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9: continue # old -> 0.336
          if el[Phos_id[i]] == 0: continue
 
          sPhos.append(pho)
@@ -147,8 +147,8 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15: continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] > 0.2: continue #old -> 0.374
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] > 0.2: continue #old -> 0.336
+         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] > -0.9: continue #old -> 0.374
+         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] > -0.9: continue #old -> 0.336
          if el[Phos_id[i]] == 0: continue
 
          fPhos.append(pho)
