@@ -352,7 +352,7 @@ H4GFlash::H4GFlash(const edm::ParameterSet& iConfig):
     diphotonsToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "diphotons", edm::InputTag( "flashggDiPhotons" ) ) ) ),
     genPhotonsToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genphotons", edm::InputTag( "prunedGenParticles" ) ) ) ),
     genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genparticles", edm::InputTag( "prunedGenParticles" ) ) ) ),
-    singlephotonviewToken_( consumes<edm::View<flashgg::SinglePhotonView> >( iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) ) ) )
+    //singlephotonviewToken_( consumes<edm::View<flashgg::SinglePhotonView> >( iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) ) ) )
     
     
 {
@@ -843,7 +843,9 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      const flashgg::Photon * pho1 = dipho->leadingPhoton();
      const flashgg::Photon * pho2 = dipho->subLeadingPhoton();
-
+      
+	   
+      float leadmva_ = pho1->phoIdMvaDWrtVtx();	   
      // Kinematics
      
      // ---- conside only di-photon candidates with photons pt>15 GeV
@@ -904,7 +906,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      LorentzVector thisPhoV4( tmpVec );
      v_pho_p4.push_back( thisPhoV4 );
      //v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") ); //old -> PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values
-     v_pho_mva.push_back( singlephotonview->phoIdMvaWrtChosenVtx());
+     //v_pho_mva.push_back( singlephotonview->phoIdMvaWrtChosenVtx());
      v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );  
 //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() ); 
 //      v_pho_neutralHadronIso.push_back  ( pho->neutralHadronIso() ); 
