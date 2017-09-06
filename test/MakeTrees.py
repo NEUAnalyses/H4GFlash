@@ -16,6 +16,7 @@ process.h4gflash.puBins=cms.vdouble()
 process.h4gflash.dataPu=cms.vdouble()
 process.h4gflash.mcPu=cms.vdouble()
 
+process.h4gflash.vtxTag = cms.InputTag("goodPrimaryVertices");
 print "I'M HERE 1"
 
 print "1.01"
@@ -39,6 +40,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 2000 )
 
 print "2.1"
+process.TriggerAnalyzer = cms.EDAnalyzer("MiniAODTriggerAnalyzer",
+      bits = cms.InputTag("TriggerResults","","HLT")
+      )
+process.TriggerAnalyzerPath = cms.Path(process.TriggerAnalyzer)
+
+
 
 # import flashgg customization
 from flashgg.MetaData.JobConfig import customize
@@ -60,7 +67,7 @@ customize.register('PURW',
 customize(process)
 
 print "3"
-
+#vtxTag              = cms.InputTag("goodPrimaryVertices")
 process.h4gflash.puReWeight=cms.bool( customize.PURW )
 if customize.PURW == False:
 	process.h4gflash.puTarget = cms.vdouble()
@@ -80,8 +87,8 @@ print "4"
 if customize.processId == "Data":
         from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
         process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
-                                                                "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v1",
-                                                                "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v1"
+                                                                "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*",
+                                                                "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*"
                                                                 ))
         process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
