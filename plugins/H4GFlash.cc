@@ -912,7 +912,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 phosTemp.push_back(pho2);
             }
         }
-        if ( pho1->pt() > 15 || pho2->pt() > 15){
+        if ( i==diphotons->size()-1 || pho1->pt() > 15 || pho2->pt() > 15){
           vtx_to_use = diphotons->ptrAt(i)->vtx();
            }
     }
@@ -948,7 +948,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         LorentzVector thisPhoV4( tmpVec );
         v_pho_p4.push_back( thisPhoV4 );
         //v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") );
-        v_pho_mva.push_back( pho->phoIdMvaDWrtChosenVtx(vtx));
+        v_pho_mva.push_back( pho->phoIdMvaDWrtChosenVtx(vtx_to_use));
         //std::cout << "This is the EGMPhotonMVA" << pho->userFloat("EGMPhotonMVA") << std::endl;
         //std::cout<< "This is the other MVA value" << pho->userFloat("phoIdMvaWrtChosenVtx") <<std::endl;
        // std::cout<< "HELLO" << ->phoIdMvaWrtChosenVtx() << std::endl;
