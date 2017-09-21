@@ -7,7 +7,7 @@ How to run
 e.g.
 
     ./H4GTreeAnalyzer.py -i ../test/FIX_3_mX_750GeV_mA_370GeV.root -o test.root
-    ./gen750GeV.py -i ../test/FIX_3_mX_750GeV_mA_370GeV.root -o test.root
+    ./geninfoGeV.py -i ../test/FIX_3_mX_750GeV_mA_370GeV.root -o test.root
     
     
     
