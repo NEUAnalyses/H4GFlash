@@ -47,7 +47,7 @@ class SkimmedTreeTools:
       self.lumi = n.zeros(1,dtype=int)
       self.nvtx = n.zeros(1,dtype=int)
       self.npu = n.zeros(1,dtype=float)
-      
+      self.genTotalWeight = n.zeros(1,dtype=float)      
 
    def MakeSkimmedTree(self):
       outTree = TTree("H4GSel", "H4G Selected Events")
@@ -95,6 +95,7 @@ class SkimmedTreeTools:
       outTree.Branch('lumi', self.lumi, 'lumi/I')
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
+      outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
 
       return outTree
 

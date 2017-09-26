@@ -64,6 +64,8 @@ def main(argv):
       treeSkimmer.lumi[0] = tree.lumi
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
+      treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
+
 
       Phos = []
       Phos_id = []
