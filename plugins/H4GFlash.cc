@@ -73,7 +73,6 @@ bool DEBUG = 0;
 // from  edm::one::EDAnalyzer<> and also remove the line from
 // constructor "usesResource("TFileService");"
 // This will improve performance in multithreaded jobs.
-
 class H4GFlash : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
     explicit H4GFlash(const edm::ParameterSet&);
@@ -368,7 +367,7 @@ genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntracke
     genInfoInputTag_ = iConfig.getUntrackedParameter<edm::InputTag>( "genInfo", edm::InputTag("generator") );
     genInfoToken_ = consumes<GenEventInfoProduct>( genInfoInputTag_ );
     vtxTag_ = iConfig.getUntrackedParameter<edm::InputTag>("vtxTag");
-    vtxHT_  = consumes<reco::Vertex>(vtxTag_);
+    vtxHT_  = consumes<reco::Vertex> (vtxTag_);
 
     //singlephotonviewToken_ = iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) );
     //singlephotonviewToken_ = consumes<SinglePhotonView>(singlephotonviewTag_);
@@ -619,7 +618,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
     
     using namespace edm;
@@ -633,11 +632,11 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
     //edm::Handle<edm::View<flashgg::SinglePhotonView> > singlephotonview;
     //iEvent.getByToken(singlephotonviewToken_, singlephotonview);
-    edm::Handle<reco::VertexCollection> vtxH;
+    edm::Handle<reco::Vertex> vtxH;
     iEvent.getByToken(vtxHT_,vtxH);
     
     //int nvtx_ = vtxH -> size();
-    //cout << "This is the vertex" << nvtx_ << endl; 
+    //cout << "This is the vertex" << vtxH << endl; 
     //Trigger
     myTriggerResults.clear();
     if (myTriggers.size() > 0){
@@ -862,30 +861,27 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //edm::Ptr<reco::Vertex> vtx = diphotons->ptrAt(i)->vtx(); 
     // Loop over diphotons
     
-    edm::Ptr<reco::Vertex> vtx_to_use;
+    //const edm::Ptr<reco::Vertex> vtx;
 
-   
-    for (size_t i = 0; i < diphotons->size(); ++i){
+
+    edm ::Ptr<reco::Vertex> vtx;  
+    edm::Ptr<reco::Vertex> vtx_to_use;
+    //float leadmva_;
+    //float mva_to_use = 0;
+    //float mva_to_use2 = 0;
+    //size_t  i = 0;
+    //const flashgg::Photon * pho1 ;
+    for (size_t i = 0; i < (diphotons->size()); ++i){
         edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
-        edm::Ptr<reco::Vertex> vtx = diphotons->ptrAt(i)->vtx();
+        vtx = diphotons->ptrAt(i)->vtx();
         const flashgg::Photon * pho1 = dipho->leadingPhoton();
         const flashgg::Photon * pho2 = dipho->subLeadingPhoton();
- 
-
-        float leadmva_    = pho1->phoIdMvaDWrtVtx(vtx);
-        std::cout << "the photon MVA is " << leadmva_ << std::endl;
-        float subleadmva_ = pho2->phoIdMvaDWrtVtx(vtx);
-        std::cout << "the second photon MVA is " << subleadmva_ << std::endl;
-           
-        // ---- conside only di-photon candidates with photons pt>15 GeV
+        if ( i==diphotons->size()-diphotons->size()){
+          vtx_to_use = diphotons->ptrAt(i)->vtx();}
         if( pho1->pt() < 15 || pho2->pt() < 15)
             continue;
-        
-        // ---- conside only di-photon candidates with photon eta in ECAL acceptance
         if( fabs(pho1->superCluster()->eta()) > 2.5 || fabs(pho2->superCluster()->eta()) > 2.5 )
             continue;
-        
-        // ---- create the list of photons, unique list from all the di-photon candidates
         if ( phosTemp.size() == 0 ){
             phosTemp.push_back(pho1);
             phosTemp.push_back(pho2);
@@ -911,31 +907,11 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 n_pho++;
                 phosTemp.push_back(pho2);
             }
-        }
-        if ( i==diphotons->size()-1 || pho1->pt() > 15 || pho2->pt() > 15){
-          vtx_to_use = diphotons->ptrAt(i)->vtx();
-           }
-    }
-    
+        }}
     // ---- now use the list of photons just created to iterate
     for ( size_t i = 0; i < phosTemp.size(); ++i) {
         
-       // const flashgg::Photon * pho = phosTemp[i];
-     //   edm::Ptr<reco::Vertex> vtx = phosTemp->ptrAt(i)->vtx();   
         const flashgg::Photon * pho = phosTemp[i];
-        //float phomva = pho->phoIdMvaDWrtVtx(vtx);
-        //std::cout << "HELLO" << phomva << std::endl;
-        //
-        // Save photon kinematics
-        
-
-//
-      //for( size_t i  = 0; i < diPhotons->size() ; ++i ) {
-        //edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
-        //edm::Ptr<reco::Vertex> vtx = diPhotons->ptrAt( i )->vtx();
-        
-               
-
         v_pho_pt.push_back( pho->pt() );
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
@@ -948,12 +924,13 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         LorentzVector thisPhoV4( tmpVec );
         v_pho_p4.push_back( thisPhoV4 );
         //v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") );
-        v_pho_mva.push_back( pho->phoIdMvaDWrtChosenVtx(vtx_to_use));
+        //v_pho_mva.push_back( pho->phoIdMvaDWrtChosenVtx(vtxHT));
         //std::cout << "This is the EGMPhotonMVA" << pho->userFloat("EGMPhotonMVA") << std::endl;
         //std::cout<< "This is the other MVA value" << pho->userFloat("phoIdMvaWrtChosenVtx") <<std::endl;
        // std::cout<< "HELLO" << ->phoIdMvaWrtChosenVtx() << std::endl;
+        v_pho_mva.push_back(pho->phoIdMvaDWrtVtx(vtx_to_use));
         //v_pho_mva.push_back(leadmva_);
-        //v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
+        v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
         //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() );
         //      v_pho_neutralHadronIso.push_back  ( pho->neutralHadronIso() );
         //      v_pho_photonIso.push_back         ( pho->photonIso() );
