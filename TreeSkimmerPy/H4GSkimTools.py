@@ -47,7 +47,7 @@ class SkimmedTreeTools:
       self.lumi = n.zeros(1,dtype=int)
       self.nvtx = n.zeros(1,dtype=int)
       self.npu = n.zeros(1,dtype=float)
-      self.genTotalWeight = n.zeros(1,dtype=float)      
+      self.genTotalWeight = n.zeros(1,dtype=float) 
 
    def MakeSkimmedTree(self):
       outTree = TTree("H4GSel", "H4G Selected Events")
@@ -96,7 +96,6 @@ class SkimmedTreeTools:
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
-
       return outTree
 
 
@@ -117,17 +116,16 @@ class SkimmedTreeTools:
       sPhos = []
       sPhos_id = []
       for i,pho in enumerate(Phos):
-         if pho.Pt() < 15: continue
+         if pho.Pt() < 15:continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9: continue # old -> 0.374
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9: continue # old -> 0.336
+         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9: continue
+         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9: continue
          if el[Phos_id[i]] == 0: continue
-
+        # print (i,pho)
          sPhos.append(pho)
          sPhos_id.append(Phos_id[i])
-
       return sPhos, sPhos_id
-
+      #print "counter" ,len(sPhos)
    def MakePhotonSelectionCutBased(self, Phos, Phos_id, rho, chiso, nhiso, phiso, hoe, sieie, el):
       sPhos = []
       sPhos_id = []
@@ -148,8 +146,8 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15: continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] > -0.9: continue #old -> 0.374
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] > -0.9: continue #old -> 0.336
+         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] > -0.9: continue
+         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] > -0.9: continue
          if el[Phos_id[i]] == 0: continue
 
          fPhos.append(pho)
