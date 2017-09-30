@@ -1304,5 +1304,6 @@ H4GFlash::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     descriptions.addDefault(desc);
 }
 
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(H4GFlash);
