@@ -6,8 +6,9 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = ''
-   outputfile = 'output.root'
+   inputfiles = '/eos/cms/store/user/twamorka/4gamma/DiphoJets80_Inf.root'
+   outputfile = 'sep14_skim/DiphoJets80_Inf_gen.root'
+
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -55,8 +56,8 @@ def main(argv):
    if maxEvts < 0:
       eventsToRun = tree.GetEntries()
    #Tree Loop:
-   for evt in range(0, eventsToRun):
-      if evt%1000 == 0: print "## Analyzing event ", evt
+   for evt in range(0,eventsToRun):
+      if evt%1 == 0: print "## Analyzing event ", evt
       tree.GetEntry(evt)
 
       treeSkimmer.event[0] = tree.event
@@ -65,8 +66,6 @@ def main(argv):
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
       treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
-
-
       Phos = []
       Phos_id = []
 
@@ -81,15 +80,20 @@ def main(argv):
         if minDR > 0.001:
            Phos.append(p4)
            Phos_id.append(p)
-
-
+      #print "total number of photons", tree.n_pho 
+        #if tree.n_pho == 4 :
+          #print "4 PHOTON EVENT" 
+      
       #Make photon selection first because the triggered photons *must* be selected
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
 
+      #print "nfakes", nfakes
       if nfakes > 0 :
          fPhos, fPhos_id = treeSkimmer.SelectWithFakes(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
+         #print "fPhos" , len(fPhos)  
          if len(fPhos) < nfakes:
             continue
+         #print "sPhos",len(sPhos)
          if len(sPhos) < ntotpho - nfakes:
             continue
          phomatrix = [[x,y] for x,y in zip(sPhos, sPhos_id)]
@@ -100,9 +104,10 @@ def main(argv):
          totmatrix.sort(key=lambda x: x[0].Pt(), reverse=True)
          sPhos = [x[0] for x in totmatrix]
          sPhos_id = [x[1] for x in totmatrix]
-
-      if len(sPhos) < ntotpho: continue # ntotpho should always be 4
-
+       
+      #print "HIIIIII" , len(sPhos)
+      if len(sPhos) < ntotpho: continue #ntotpho, i.e total number of photons should always be =4
+      
       #R9, CHIso, HoE, PSeed
       triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed)
 
@@ -133,7 +138,7 @@ def main(argv):
       
       P12 = sPhos[0] + sPhos[1]
       treeSkimmer.dphigh_mass[0] = P12.M()
-
+      #print p1_pt
       pairedDiphos = treeSkimmer.MakePairing(sPhos)
       #arr = [[Dipho1, P1, iP1, P2, iP2], [Dipho2, P3, iP3, P4, iP4]
       PP1 = pairedDiphos[0][0]
