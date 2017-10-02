@@ -16,7 +16,7 @@ process.h4gflash.puBins=cms.vdouble()
 process.h4gflash.dataPu=cms.vdouble()
 process.h4gflash.mcPu=cms.vdouble()
 
-process.h4gflash.vtxTag = cms.InputTag("goodPrimaryVertices");
+process.h4gflash.vtxTag = cms.untracked.InputTag("goodPrimaryVertices");
 print "I'M HERE 1"
 
 print "1.01"
