@@ -88,8 +88,12 @@ if __name__ == '__main__':
   #---- loop over "cuts"
   for cutName in cuts :
     
-    signals     = ['sig']
-    backgrounds = ['bkg']
+    #datas       = []
+    #signals     = ['sig']
+    #backgrounds = ['bkg']
+    datas       = []
+    signals     = []
+    backgrounds = []
     
     # calculate yields for data, signal and background
     yieldsSig  = {}
@@ -99,70 +103,55 @@ if __name__ == '__main__':
     #
     # to do it properly :-)
     #
-    yieldsData['data'] = 1.0
-    yieldsBkg['bkg'] = 10.3
-    yieldsSig['sig'] = 100.999
+    #yieldsData['data'] = 1.0
+    #yieldsBkg['bkg'] = 10.3
+    #yieldsSig['sig'] = 100.999
     
+    for sampleName, sample in samples.iteritems():
+      if sample['isData'] == 1 :
+        datas.append(sampleName)
+      elif sample['isSignal'] == 1 :
+        signals.append(sampleName)
+      elif sample['isSignal'] == 0 :
+        backgrounds.append(sampleName)
+
+    #
+    # data and background are all merged into 1 single "sample"
+    #
+    chain_data = TChain('H4GSel')
+    for data in datas :
+      for tree in samples[data]['name']:
+        chain_data.Add(tree)
+
+    #
+    # background can be split into different samples, for some strange reasons ... optimization?
+    #     
     
-    
-    hists = []
-    hists2 = []
-    leg = TLegend(0.6, 0.7, 0.89, 0.89)
-    leg.SetBorderSize(0)
-    Max = -0.
-    Max2 = -0.
-    for fi,f in enumerate(MC):  ## get all MC plots, because they have to stacked!
-       ch = TChain('H4GSel')
-       ch.Add(f[0])
-       hname = v[1]+'_'+str(fi)
-       h = TH1F(hname, v[2], v[3], v[4], v[5])
-       ch.Draw(v[0]+'>>'+hname,TCut(BlindCut)) ## add cut based on what you want to plot, blind or unblind or anything else
-       h.Scale(float(f[4]),"nosw2")
-       h.SetLineColor(f[2])
-       h.SetLineWidth(2)
-       h.SetFillColor(f[3])
-       hists.append([h,ch,f[1]])
-       if h.GetMaximum() > Max:
-          Max = h.GetMaximum()
-    #print "I AM MC MAX",Max
-   
-    for di,d in enumerate(Data):  ## now get data
-       ch2 = TChain('H4GSel')
-       ch2.Add(d[0])
-       hname2 = v[1]+'_'+str(di)
-       h2 = TH1F(hname2,v[2],v[3],v[4],v[5])
-       ch2.Draw(v[0]+'>>'+hname2,TCut(Blind))
-       h2.SetMarkerStyle(20)
-       h2.GetYaxis().SetTitle('Normalized Yields')
-       h2.SetLineColor(1)
-       h2.SetLineWidth(2)
-       h2.Sumw2()
-    for si,s in enumerate(Signal):   ##plot signal on top
-       ch3 = TChain('H4GSel')
-       ch3.Add(s[0])
-       hname3 = v[1]+'_'+str(si)
-       h3 = TH1F(hname3,v[2],v[3],v[4],v[5])
-       ch3.Draw(v[0]+'>>'+hname3)
-       #h3.Sumw2()
-       #total2 = h3.Integral()
-       h3.Scale(float(s[3]))
-       h3.SetLineColor(s[2])
-       h3.SetLineWidth(2)
-       #h3.Sumw2()
-       #hists2.append([h3,ch3,s[1]])
-       
-       if h3.GetMaximum() > Max2:
-         Max2 = h3.GetMaximum()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    chains_background = {}
+    for background in backgrounds :
+      chain_background = TChain('H4GSel')
+      for tree in samples[background]['name']:
+        chain_background.Add(tree)
+      chains_background[background] = chain_background
+
+    #
+    # signals can be split into different samples, since different production mechanisms
+    #     
+    chains_signal = {}
+    for signal in signals :
+      chain_signal = TChain('H4GSel')
+      for tree in samples[signal]['name']:
+        chain_signal.Add(tree)
+      chains_signal[signal] = chain_signal
+ 
+    #
+    # now get the yields
+    #
+    yieldsData['data'] = chain_data.GetEntries()
+    for background in backgrounds :
+      yieldsBkg[background] = chains_background[background].GetEntries()
+    for signal in signals :
+      yieldsSig[signal] = chains_signal[signal].GetEntries()
     
     
     

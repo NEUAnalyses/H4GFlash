@@ -7,6 +7,8 @@
 
 samples['data']  = {  
 
+            'isData': 1,
+            
             'name': [
               'file1.root',
               'file2.root',
@@ -17,6 +19,9 @@ samples['data']  = {
   
 
 samples['sig']  = {  
+
+            'isData': 0,
+            'isSignal': 1,
 
             'name': [
               'file1.root',
@@ -35,6 +40,9 @@ samples['sig']  = {
  
 
 samples['bkg']  = {  
+
+            'isData': 0,
+            'isSignal': 0,
 
             'name': [
               'file1.root',
