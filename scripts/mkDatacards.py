@@ -105,6 +105,72 @@ if __name__ == '__main__':
     
     
     
+    hists = []
+    hists2 = []
+    leg = TLegend(0.6, 0.7, 0.89, 0.89)
+    leg.SetBorderSize(0)
+    Max = -0.
+    Max2 = -0.
+    for fi,f in enumerate(MC):  ## get all MC plots, because they have to stacked!
+       ch = TChain('H4GSel')
+       ch.Add(f[0])
+       hname = v[1]+'_'+str(fi)
+       h = TH1F(hname, v[2], v[3], v[4], v[5])
+       ch.Draw(v[0]+'>>'+hname,TCut(BlindCut)) ## add cut based on what you want to plot, blind or unblind or anything else
+       h.Scale(float(f[4]),"nosw2")
+       h.SetLineColor(f[2])
+       h.SetLineWidth(2)
+       h.SetFillColor(f[3])
+       hists.append([h,ch,f[1]])
+       if h.GetMaximum() > Max:
+          Max = h.GetMaximum()
+    #print "I AM MC MAX",Max
+   
+    for di,d in enumerate(Data):  ## now get data
+       ch2 = TChain('H4GSel')
+       ch2.Add(d[0])
+       hname2 = v[1]+'_'+str(di)
+       h2 = TH1F(hname2,v[2],v[3],v[4],v[5])
+       ch2.Draw(v[0]+'>>'+hname2,TCut(Blind))
+       h2.SetMarkerStyle(20)
+       h2.GetYaxis().SetTitle('Normalized Yields')
+       h2.SetLineColor(1)
+       h2.SetLineWidth(2)
+       h2.Sumw2()
+    for si,s in enumerate(Signal):   ##plot signal on top
+       ch3 = TChain('H4GSel')
+       ch3.Add(s[0])
+       hname3 = v[1]+'_'+str(si)
+       h3 = TH1F(hname3,v[2],v[3],v[4],v[5])
+       ch3.Draw(v[0]+'>>'+hname3)
+       #h3.Sumw2()
+       #total2 = h3.Integral()
+       h3.Scale(float(s[3]))
+       h3.SetLineColor(s[2])
+       h3.SetLineWidth(2)
+       #h3.Sumw2()
+       #hists2.append([h3,ch3,s[1]])
+       
+       if h3.GetMaximum() > Max2:
+         Max2 = h3.GetMaximum()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #
+    # now write the datacard
+    #
+    
     
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName) :
       os.mkdir(opt.outputDirDatacard + "/" + cutName)
@@ -139,7 +205,7 @@ if __name__ == '__main__':
     
     
     totalNumberSamples = len(yieldsSig) + len(yieldsBkg)
-    columndef = 30
+    columndef = 10
     
     # adapt column length to long bin names            
     if len(tagNameToAppearInDatacard) >= (columndef - 5) :
@@ -168,22 +234,52 @@ if __name__ == '__main__':
     ## add nuisances
     
     ## first the lnN nuisances
-    #for nuisanceName, nuisance in nuisances.iteritems():
+    for nuisanceName, nuisance in nuisances.iteritems():
       
-      #print "nuisanceName"
+      # check if a nuisance can be skipped because not in this particular cut
+      use_this_nuisance = False
+      if  'cuts' in nuisance.keys() :
+        for Cuts_where_to_use_nuisance  in   nuisance['cuts'] :
+          if Cuts_where_to_use_nuisance == cutName :
+            # use this niusance
+            use_this_nuisance = True
+      else :
+        # default is use the nuisance everywhere
+        use_this_nuisance = True 
       
-      ### check if a nuisance can be skipped because not in this particular cut
-      ##use_this_nuisance = False
-      ##if  'cuts' in nuisance.keys() :
-        ##for Cuts_where_to_use_nuisance  in   nuisance['cuts'] :
-          ##if Cuts_where_to_use_nuisance == cutName :
-            ### use this niusance
-            ##use_this_nuisance = True
-      ##else :
-        ### default is use the nuisance everywhere
-        ##use_this_nuisance = True 
-      
-      ##if use_this_nuisance :
+      if use_this_nuisance :
+
+        if 'type' in nuisance.keys() : # some nuisances may not have "type" ... why?
+            #print "nuisance[type] = ", nuisance ['type']
+            if nuisance ['type'] == 'lnN' or nuisance ['type'] == 'lnU' :
+              card.write((nuisance['name']).ljust(80-20))
+              card.write((nuisance ['type']).ljust(20))
+              if 'all' in nuisance.keys() and nuisance ['all'] == 1 : # for all samples
+                card.write(''.join([(' %s ' % nuisance['value']).ljust(columndef) for name in signals      ]))
+                card.write(''.join([(' %s ' % nuisance['value']).ljust(columndef) for name in backgrounds  ]))
+                card.write('\n')
+              else :
+                # apply only to selected samples
+                for sampleName in signals:
+                  if sampleName in nuisance['samples'].keys() :
+                    card.write(('%s' % nuisance['samples'][sampleName]).ljust(columndef))
+                  else :
+                    card.write(('-').ljust(columndef))
+                for sampleName in backgrounds:
+                  if sampleName in nuisance['samples'].keys() :
+                    card.write(('%s' % nuisance['samples'][sampleName]).ljust(columndef))
+                  else :
+                    card.write(('-').ljust(columndef))
+
+
+
+
+
+
+
+
+
+
        
         ##if nuisanceName != 'stat' : # 'stat' has a separate treatment, it's the MC/data statistics
           
