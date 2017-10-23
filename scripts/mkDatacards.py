@@ -118,43 +118,85 @@ if __name__ == '__main__':
     #
     # data and background are all merged into 1 single "sample"
     #
-    chain_data = TChain('H4GSel')
+    trees_data = {}
     for data in datas :
-      for tree in samples[data]['name']:
-        chain_data.Add(tree)
-
+      for itree in range(len(samples[data]['name'])):
+        chain = ROOT.TChain('H4GSel')
+        chain.Add(samples[data]['name'][itree])
+        if 'trees' in trees_data.keys() :
+          trees_data['trees'] .append(chain)
+          if 'weights' in samples[data].keys() :
+            trees_data['weights'].append(samples[data]['weights'][itree])
+          else :
+            trees_data['weights'].append('1')
+        else :
+          trees_data['trees'] = []
+          trees_data['trees'].append(chain)
+          trees_data['weights'] = []
+          if 'weights' in samples[data].keys() :
+            trees_data['weights'].append(samples[data]['weights'][itree])
+          else :
+            trees_data['weights'].append('1')
+        
     #
     # background can be split into different samples, for some strange reasons ... optimization?
     #     
     
-    chains_background = {}
+    dict_trees_background = {}
     for background in backgrounds :
-      chain_background = TChain('H4GSel')
-      for tree in samples[background]['name']:
-        chain_background.Add(tree)
-      chains_background[background] = chain_background
+      trees_background = {}
+      for itree in range(len(samples[background]['name'])):
+        chain = ROOT.TChain('H4GSel')
+        chain.Add(samples[background]['name'][itree])
+        if 'trees' in trees_background.keys() :
+          trees_background['trees'] .append(chain)
+          trees_background['weights'].append(samples[background]['weights'][itree])
+        else :
+          trees_background['trees'] = []
+          trees_background['trees'].append(chain)
+          trees_background['weights'] = []
+          trees_background['weights'].append(samples[background]['weights'][itree])
+      dict_trees_background[background] = trees_background
 
     #
     # signals can be split into different samples, since different production mechanisms
     #     
-    chains_signal = {}
+    dict_trees_signal = {}
     for signal in signals :
-      chain_signal = TChain('H4GSel')
-      for tree in samples[signal]['name']:
-        chain_signal.Add(tree)
-      chains_signal[signal] = chain_signal
+      trees_signal = {}
+      for itree in range(len(samples[signal]['name'])):
+        chain = ROOT.TChain('H4GSel')
+        chain.Add(samples[signal]['name'][itree])
+        if 'trees' in trees_signal.keys() :
+          trees_signal['trees'] .append(chain)
+          trees_signal['weights'].append(samples[signal]['weights'][itree])
+        else :
+          trees_signal['trees'] = []
+          trees_signal['trees'].append(chain)
+          trees_signal['weights'] = []
+          trees_signal['weights'].append(samples[signal]['weights'][itree])
+      dict_trees_signal[signal] = trees_signal
+
+    
+    
  
     #
     # now get the yields
     #
-    yieldsData['data'] = chain_data.GetEntries()
+    yieldsData['data'] = 0
+    for itree in range(len(trees_data['trees'])) :
+      yieldsData['data'] += (trees_data['trees'][itree]).GetEntries(  trees_data['weights'][itree]   )
+    
     for background in backgrounds :
-      yieldsBkg[background] = chains_background[background].GetEntries()
+      yieldsBkg[background] = 0.
+      for itree in range(len(dict_trees_background[background]['trees'])) :
+        yieldsBkg[background] += (dict_trees_background[background]['trees'][itree]).GetEntries(  dict_trees_background[background]['weights'][itree]   )
+
     for signal in signals :
-      yieldsSig[signal] = chains_signal[signal].GetEntries()
-    
-    
-    
+      yieldsSig[signal] = 0.
+      for itree in range(len(dict_trees_signal[signal]['trees'])) :
+        yieldsSig[signal] += (dict_trees_signal[signal]['trees'][itree]).GetEntries(  dict_trees_signal[signal]['weights'][itree]   )
+      
     
     #
     # now write the datacard
@@ -220,6 +262,11 @@ if __name__ == '__main__':
     
     card.write('-'*100+'\n')
     
+    
+    
+    
+    
+    
     ## add nuisances
     
     ## first the lnN nuisances
@@ -264,199 +311,3 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
-       
-        ##if nuisanceName != 'stat' : # 'stat' has a separate treatment, it's the MC/data statistics
-          
-          ##if 'type' in nuisance.keys() : # some nuisances may not have "type" ... why?
-            ###print "nuisance[type] = ", nuisance ['type']
-            ##if nuisance ['type'] == 'lnN' or nuisance ['type'] == 'lnU' :
-              ##card.write((nuisance['name']).ljust(80-20))
-              ##card.write((nuisance ['type']).ljust(20))
-              ##if 'all' in nuisance.keys() and nuisance ['all'] == 1 : # for all samples
-                ###card.write(''.join([('%-.4f' % nuisance['value']).ljust(columndef) for name in signals      ]))
-                ###card.write(''.join([('%-.4f' % nuisance['value']).ljust(columndef) for name in backgrounds  ]))
-                ##card.write(''.join([(' %s ' % nuisance['value']).ljust(columndef) for name in signals      ]))
-                ##card.write(''.join([(' %s ' % nuisance['value']).ljust(columndef) for name in backgrounds  ]))
-                ##card.write('\n')
-              ##else :
-                ### apply only to selected samples
-                ##for sampleName in signals:
-                  ##if sampleName in nuisance['samples'].keys() :
-                    ###card.write(('%-.4f' % nuisance['samples'][sampleName]).ljust(columndef))
-                    ##card.write(('%s' % nuisance['samples'][sampleName]).ljust(columndef))
-                  ##else :
-                    ##card.write(('-').ljust(columndef))
-                ##for sampleName in backgrounds:
-                  ##if sampleName in nuisance['samples'].keys() :
-                    ###card.write(('%-.4f' % nuisance['samples'][sampleName]).ljust(columndef))
-                    ##card.write(('%s' % nuisance['samples'][sampleName]).ljust(columndef))
-                  ##else :
-                    ##card.write(('-').ljust(columndef))
-                     
-            ##elif nuisance ['type'] == 'shape' :
-              ##card.write(("CMS_" + (nuisance['name'])).ljust(80-20))
-              ##if 'AsLnN' in nuisance.keys() and  float(nuisance ['AsLnN']) >= 1:
-                ##print ">>>>>", nuisance['name'], " was derived as a shape uncertainty but is being treated as a lnN"
-                ##card.write(('lnN').ljust(20))
-                ##allSelectedSamples = signals + backgrounds  
-                ##for sampleName in allSelectedSamples:
-                  ##if ('all' in nuisance.keys() and nuisance ['all'] == 1) or \
-                     ##sampleName in nuisance['samples'].keys() :  
-                    ##histo     = _getHisto(cutName+"/"+variableName+'/', 
-                                               ##'histo_' + sampleName)
-                    ##histoUp   = _getHisto(cutName+"/"+variableName+'/', 
-                                               ##'histo_' + sampleName + '_' + (nuisance['name']) + "Up") 
-                    ##histoDown = _getHisto(cutName+"/"+variableName+'/',
-                                               ##'histo_' + sampleName + '_' + (nuisance['name']) + "Down")
-    
-                    ##histoIntegral = histo.Integral()
-                    ##histoUpIntegral = histoUp.Integral()
-                    ##histoDownIntegral = histoDown.Integral()
-                    ##if histoIntegral > 0:
-                      ##diffUp = (histoUpIntegral - histoIntegral)/histoIntegral/float(nuisance ['AsLnN'])
-                      ##diffDo = (histoDownIntegral - histoIntegral)/histoIntegral/float(nuisance ['AsLnN'])
-                    ##else: 
-                      ##diffUp = 0.
-                      ##diffDo = 0.
-    
-                    ##lnNUp = 1. + diffUp
-                    ##lnNDo = 1. + diffDo
-                      
-                    ##card.write((('%-.4f' % lnNUp)+"/"+('%-.4f' % lnNDo)).ljust(columndef))
-                  ##else:
-                    ##card.write(('-').ljust(columndef)) 
-    
-              ##else:  
-                ##card.write((nuisance ['type']).ljust(20))
-                ##if 'all' in nuisance.keys() and nuisance ['all'] == 1 : # for all samples
-                  ##card.write(''.join([('1.000').ljust(columndef) for name in signals      ]))
-                  ##card.write(''.join([('1.000').ljust(columndef) for name in backgrounds  ]))
-                  ##card.write('\n')
-                ##else :
-                  ### apply only to selected samples
-                  ##for sampleName in signals:
-                    ##if sampleName in nuisance['samples'].keys() :
-                      ##card.write(('1.000').ljust(columndef))                          
-                      ### save the nuisance histograms in the root file
-                      ##_saveHisto(cutName+"/"+variableName+'/',
-                                       ##'histo_' + sampleName + '_' + (nuisance['name']) + "Up",
-                                       ##'histo_' + sampleName + '_CMS_' + (nuisance['name']) + "Up"
-                                       ##)
-                      ##_saveHisto(cutName+"/"+variableName+'/',
-                                       ##'histo_' + sampleName + '_' + (nuisance['name']) + "Down",
-                                       ##'histo_' + sampleName + '_CMS_' + (nuisance['name']) + "Down"
-                                       ##)
-                    ##else :
-                      ##card.write(('-').ljust(columndef))
-                  ##for sampleName in backgrounds:
-                    ##if sampleName in nuisance['samples'].keys() :
-                      ##card.write(('1.000').ljust(columndef))
-                      ### save the nuisance histograms in the root file
-                      ##_saveHisto(cutName+"/"+variableName+'/',
-                                       ##'histo_' + sampleName + '_' + (nuisance['name']) + "Up",
-                                       ##'histo_' + sampleName + '_CMS_' + (nuisance['name']) + "Up"
-                                       ##)
-                      ##_saveHisto(cutName+"/"+variableName+'/',
-                                       ##'histo_' + sampleName + '_' + (nuisance['name']) + "Down",
-                                       ##'histo_' + sampleName + '_CMS_' + (nuisance['name']) + "Down"
-                                       ##)
-                    ##else :
-                      ##card.write(('-').ljust(columndef))
-              
-            ### new line at the end of any nuisance that is *not* stat ... because in that case it's already done on its own
-          ##card.write('\n')
-                   
-    #card.write('-'*100+'\n')
-  
-    #card.write('\n')
-    #card.close()
-  
-  
-    
-  ##first loop over all variables
-  #for v in Vars:
-     #hists = []
-     #hists2 = []
-     #leg = TLegend(0.6, 0.7, 0.89, 0.89)
-     #leg.SetBorderSize(0)
-     #Max = -0.
-     #Max2 = -0.
-     #for fi,f in enumerate(MC):  ## get all MC plots, because they have to stacked!
-        #ch = TChain('H4GSel')
-        #ch.Add(f[0])
-        #hname = v[1]+'_'+str(fi)
-        #h = TH1F(hname, v[2], v[3], v[4], v[5])
-        #ch.Draw(v[0]+'>>'+hname,TCut(BlindCut)) ## add cut based on what you want to plot, blind or unblind or anything else
-        #h.Scale(float(f[4]),"nosw2")
-        #h.SetLineColor(f[2])
-        #h.SetLineWidth(2)
-        #h.SetFillColor(f[3])
-        #hists.append([h,ch,f[1]])
-        #if h.GetMaximum() > Max:
-           #Max = h.GetMaximum()
-     ##print "I AM MC MAX",Max
-   
-     #for di,d in enumerate(Data):  ## now get data
-        #ch2 = TChain('H4GSel')
-        #ch2.Add(d[0])
-        #hname2 = v[1]+'_'+str(di)
-        #h2 = TH1F(hname2,v[2],v[3],v[4],v[5])
-        #ch2.Draw(v[0]+'>>'+hname2,TCut(Blind))
-        #h2.SetMarkerStyle(20)
-        #h2.GetYaxis().SetTitle('Normalized Yields')
-        #h2.SetLineColor(1)
-        #h2.SetLineWidth(2)
-        #h2.Sumw2()
-     #for si,s in enumerate(Signal):   ##plot signal on top
-        #ch3 = TChain('H4GSel')
-        #ch3.Add(s[0])
-        #hname3 = v[1]+'_'+str(si)
-        #h3 = TH1F(hname3,v[2],v[3],v[4],v[5])
-        #ch3.Draw(v[0]+'>>'+hname3)
-        ##h3.Sumw2()
-        ##total2 = h3.Integral()
-        #h3.Scale(float(s[3]))
-        #h3.SetLineColor(s[2])
-        #h3.SetLineWidth(2)
-        ##h3.Sumw2()
-        ##hists2.append([h3,ch3,s[1]])
-        
-        #if h3.GetMaximum() > Max2:
-          #Max2 = h3.GetMaximum()
-     ##print "I AM SIGNAL MAX", Max2
-  
-     #c0 = TCanvas('a','a',800,1000)   ##now starts the drawing part, start by stacking all the MC up
-     #s = THStack("s","")
-     #for fi,hh in enumerate(hists):
-        #leg.AddEntry(hh[0], hh[2], 'lf')
-        #s.Add(hh[0])
-        #hh[0].SetMaximum(Max*1.5)
-        #hh[0].SetMinimum(0.0001)
-        #if fi == 0:
-           #hh[0].Draw('')
-        #if fi > 0:
-           #hh[0].Draw('same')
-        
-     #s.Draw("hist")
-     #s.GetXaxis().SetTitle(v[6])
-     #s.GetYaxis().SetTitle('Normalized Yields')
-     #s.GetYaxis().SetTitleOffset(1.6);
-  
-     #h2.Draw('p same')
-     #h3.Draw('h same')
-     #leg.SetNColumns(3)
-     #leg.AddEntry(h2,"Data",'lp')
-     #leg.AddEntry(h3,"SigX10  m(a)=55GeV",'l')  
-     #leg.Draw('same')
-  
-     ##c0.Update()
-     #c0.SaveAs(outputLoc+v[1]+'.pdf')
-     #c0.SaveAs(outputLoc+v[1]+'.png')
-     #c0.SetLogy()
-     #c0.SaveAs(outputLoc+v[1]+'_log.pdf')
-     #c0.SaveAs(outputLoc+v[1]+'_log.png')
