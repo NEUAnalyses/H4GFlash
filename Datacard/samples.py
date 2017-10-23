@@ -11,7 +11,7 @@ samples['data']  = {
             
             'name': [
               '/eos/cms/store/user/twamorka/4gamma/skimtrees/data.root',
-              'file2.root',
+              
               ],
             
            }
