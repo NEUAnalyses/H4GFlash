@@ -210,6 +210,8 @@ if __name__ == '__main__':
     
     tagNameToAppearInDatacard = cutName
 
+    if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/") :
+      os.mkdir(opt.outputDirDatacard + "/" + cutName + "/")
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/" + "shapes/") :
       os.mkdir(opt.outputDirDatacard + "/" + cutName + "/" + "shapes/")
     
@@ -217,20 +219,25 @@ if __name__ == '__main__':
 
     root_file_with_workspace = ROOT.TFile (name_root_file_with_workspace, "RECREATE")
     
-    treeVars = ROOT.RooArgSet()
     ws = ROOT.RooWorkspace("ws")
+    # create the variable
     ws.factory( "tp_mass[80, 160]" )
     ws.var( "tp_mass" ).SetTitle("tp_mass")
     ws.var( "tp_mass" ).setUnit("GeV")
+    
+    # the set of variables
+    treeVars = ROOT.RooArgSet()
     treeVars.add( ws.var( "tp_mass" ) )
     
     
-    m4g_RooRealVar = ROOT.RooRealVar("tp_mass","tp_mass",80,160)
- 
-    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet(m4g_RooRealVar) )
+    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( ws.var( "tp_mass" ) ) )
     for itree in range(len(trees_data['trees'])) :
       data_RooDataSet_temp = ROOT.RooDataSet( "data", "data", (trees_data['trees'][itree]), treeVars)
-      data_RooDataSet.append(data_RooDataSet_temp)
+      data_RooDataSet.append(data_RooDataSet_temp.reduce('(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')'))
+
+
+
+
 
 
     #signal_RooDataSet = ROOT.RooDataSet( "dataSig", "dataSig", ROOT.RooArgSet(m4g_RooRealVar) )
@@ -267,7 +274,7 @@ if __name__ == '__main__':
       #w->import(*dataSig);
       
 
-    ws.factory( "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 120, 128], mH[125.09]})"  )
+    #ws.factory( "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 120, 128], mH[125.09]})"  )
     
       #for ( unsigned int f = 0; f < signal_Functions.size(); f++){
           #TString thisFunction(signal_Functions[f]);
@@ -275,7 +282,12 @@ if __name__ == '__main__':
           #w->factory( thisFunction.Data() );
       #}
     
-    ws.factory( "RooBernstein:Bern2_tp_mass(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
+    #ws.factory( "RooBernstein:Bern2_tp_mass(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
+    ws.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  )
+    ws.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])");
+
+    
+    
     
       #//Initialize all needed PDFs for background
       #for ( unsigned int f = 0; f < functions.size(); f++){
@@ -316,23 +328,16 @@ if __name__ == '__main__':
     card.write('jmax * number of background\n')
     card.write('kmax * number of nuisance parameters\n') 
     
+    card.write('shapes  bkg      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:bkg_pdf \n')
+    card.write('shapes  sig      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:sig_pdf \n')
+    card.write('shapes  data_obs ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:data \n')
+     
     card.write('-'*100+'\n')
-    card.write('bin         %s' % tagNameToAppearInDatacard+'\n')
-    
+    card.write('bin         %s' % tagNameToAppearInDatacard+'\n')    
     card.write('observation %.0f\n' % yieldsData['data'])
-    
-    card.write('shapes  *           * '+
-               'shapes/ws_' + tagNameToAppearInDatacard + ".root" +
-               '     histo_$PROCESS histo_$PROCESS_$SYSTEMATIC' + '\n')
-    
-    card.write('shapes  data_obs           * '+
-               'shapes/ws_' + tagNameToAppearInDatacard + ".root" +
-               '     histo_Data' + '\n')
-    
-    #   shapes  *           * shapes/hww-19.36fb.mH125.of_vh2j_shape_mll.root     histo_$PROCESS histo_$PROCESS_$SYSTEMATIC
-    #   shapes  data_obs    * shapes/hww-19.36fb.mH125.of_vh2j_shape_mll.root     histo_Data
-    
-    
+    card.write('-'*100+'\n')
+
+   
     totalNumberSamples = len(yieldsSig) + len(yieldsBkg)
     columndef = 10
     
