@@ -185,18 +185,117 @@ if __name__ == '__main__':
     #
     yieldsData['data'] = 0
     for itree in range(len(trees_data['trees'])) :
-      yieldsData['data'] += (trees_data['trees'][itree]).GetEntries(  trees_data['weights'][itree]   )
+      yieldsData['data'] += (trees_data['trees'][itree]).GetEntries( '(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')' )
     
     for background in backgrounds :
       yieldsBkg[background] = 0.
       for itree in range(len(dict_trees_background[background]['trees'])) :
-        yieldsBkg[background] += (dict_trees_background[background]['trees'][itree]).GetEntries(  dict_trees_background[background]['weights'][itree]   )
+        yieldsBkg[background] += (dict_trees_background[background]['trees'][itree]).GetEntries( '(' + dict_trees_background[background]['weights'][itree]   + ') * (' + cuts[cutName] + ')'  )
 
     for signal in signals :
       yieldsSig[signal] = 0.
       for itree in range(len(dict_trees_signal[signal]['trees'])) :
-        yieldsSig[signal] += (dict_trees_signal[signal]['trees'][itree]).GetEntries(  dict_trees_signal[signal]['weights'][itree]   )
+        yieldsSig[signal] += (dict_trees_signal[signal]['trees'][itree]).GetEntries( '(' + dict_trees_signal[signal]['weights'][itree]  + ') * (' + cuts[cutName] + ')'   )
       
+    
+    
+    
+    
+    
+    
+    #
+    # creates the workspaces
+    #    source code from https://github.com/NEUAnalyses/H4GFlash/blob/master/bin/AnalysisFits.C
+    #
+    
+    tagNameToAppearInDatacard = cutName
+
+    if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/" + "shapes/") :
+      os.mkdir(opt.outputDirDatacard + "/" + cutName + "/" + "shapes/")
+    
+    name_root_file_with_workspace = opt.outputDirDatacard + "/" + cutName + "/shapes/ws_" + tagNameToAppearInDatacard + ".root"
+
+    root_file_with_workspace = ROOT.TFile (name_root_file_with_workspace, "RECREATE")
+    
+    treeVars = ROOT.RooArgSet()
+    ws = ROOT.RooWorkspace("ws")
+    ws.factory( "tp_mass[80, 160]" )
+    ws.var( "tp_mass" ).SetTitle("tp_mass")
+    ws.var( "tp_mass" ).setUnit("GeV")
+    treeVars.add( ws.var( "tp_mass" ) )
+    
+    
+    m4g_RooRealVar = ROOT.RooRealVar("tp_mass","tp_mass",80,160)
+ 
+    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet(m4g_RooRealVar) )
+    for itree in range(len(trees_data['trees'])) :
+      data_RooDataSet_temp = ROOT.RooDataSet( "data", "data", (trees_data['trees'][itree]), treeVars)
+      data_RooDataSet.append(data_RooDataSet_temp)
+
+
+    #signal_RooDataSet = ROOT.RooDataSet( "dataSig", "dataSig", ROOT.RooArgSet(m4g_RooRealVar) )
+    #for signal in signals :
+      #for itree in range(len(dict_trees_signal[signal]['trees'])) :
+        #signal_RooDataSet_temp = ROOT.RooDataSet( "dataSig", "dataSig",  dict_trees_signal[signal]['weights'][itree], treeVars)
+        #signal_RooDataSet.append(signal_RooDataSet_temp)
+
+    getattr(ws,'import')(data_RooDataSet)
+    #getattr(ws,'import')(signal_RooDataSet)
+    #ws.import(data_RooDataSet)
+    #ws.import(signal_RooDataSet)
+
+      
+      #TChain* treeTemp = new TChain("H4GSel");
+      #treeTemp->AddFile(TString(rootName));
+      
+      
+      #TTree* tree = (TTree*) treeTemp->CopyTree(std::string(selection + " && " + categoriesCuts[cat]).c_str() );
+      #std::cout << "Reading file: " << rootName << "\n\t with " << tree->GetEntries() << " entries \n\t Making the following cut: " << categoriesCuts[cat] << std::endl;
+      #RooDataSet* data = new RooDataSet( "data", "data", tree, *treeVars);
+          
+      #//Get signal distribution from file
+      #TChain* treeTempSig = new TChain("H4GSel");
+      #treeTempSig->AddFile(TString(signal_File));
+      #std::string toCut = selection + " && " + categoriesCuts[cat];
+      #if(TString(categoriesCuts[cat]).Contains("< 0")) toCut = selection;
+      #TTree* treeSig = (TTree*) treeTempSig->CopyTree( toCut.c_str() );
+      #std::cout << "Reading signal file: " << signal_File << "\n\t with " << treeSig->GetEntries() << " entries \n\t Making the following cut: " << categoriesCuts[cat] << std::endl;
+#//      RooDataSet* dataSig = new RooDataSet( "dataSig", "dataSig", treeSig, *treeVars, cut.c_str(), "evWeight" );
+      #RooDataSet* dataSig = new RooDataSet( "dataSig", "dataSig", treeSig, *treeVars);
+        
+      #w->import(*data);
+      #w->import(*dataSig);
+      
+
+    ws.factory( "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 120, 128], mH[125.09]})"  )
+    
+      #for ( unsigned int f = 0; f < signal_Functions.size(); f++){
+          #TString thisFunction(signal_Functions[f]);
+          #std::cout << "Signal function added: " << thisFunction << std::endl;
+          #w->factory( thisFunction.Data() );
+      #}
+    
+    ws.factory( "RooBernstein:Bern2_tp_mass(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
+    
+      #//Initialize all needed PDFs for background
+      #for ( unsigned int f = 0; f < functions.size(); f++){
+        #TString thisFunction(functions[f]);
+        #std::cout << "Function added: " << thisFunction << std::endl;
+        #w->factory( thisFunction.Data() );
+      #}
+      
+      
+      
+    # save the workspace
+    ws.Write()
+    root_file_with_workspace.Close()
+    
+
+    
+    
+    
+    
+    
     
     #
     # now write the datacard
@@ -206,7 +305,6 @@ if __name__ == '__main__':
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName) :
       os.mkdir(opt.outputDirDatacard + "/" + cutName)
     
-    tagNameToAppearInDatacard = cutName
     
     
     cardPath = opt.outputDirDatacard + "/" + cutName + "/datacard.txt"
@@ -224,11 +322,11 @@ if __name__ == '__main__':
     card.write('observation %.0f\n' % yieldsData['data'])
     
     card.write('shapes  *           * '+
-               'shapes/histos_' + tagNameToAppearInDatacard + ".root" +
+               'shapes/ws_' + tagNameToAppearInDatacard + ".root" +
                '     histo_$PROCESS histo_$PROCESS_$SYSTEMATIC' + '\n')
     
     card.write('shapes  data_obs           * '+
-               'shapes/histos_' + tagNameToAppearInDatacard + ".root" +
+               'shapes/ws_' + tagNameToAppearInDatacard + ".root" +
                '     histo_Data' + '\n')
     
     #   shapes  *           * shapes/hww-19.36fb.mH125.of_vh2j_shape_mll.root     histo_$PROCESS histo_$PROCESS_$SYSTEMATIC
