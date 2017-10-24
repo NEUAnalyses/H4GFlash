@@ -42,10 +42,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 2000 )
 print "2.1"
 
 # to check which triggers are present ---remove if not needed
-process.TriggerAnalyzer = cms.EDAnalyzer("MiniAODTriggerAnalyzer",
-      bits = cms.InputTag("TriggerResults","","HLT")
-      )
-process.TriggerAnalyzerPath = cms.Path(process.TriggerAnalyzer)
+#process.TriggerAnalyzer = cms.EDAnalyzer("MiniAODTriggerAnalyzer",
+      #bits = cms.InputTag("TriggerResults","","HLT")
+      #)
+#process.TriggerAnalyzerPath = cms.Path(process.TriggerAnalyzer)
 
 # ----------
 
