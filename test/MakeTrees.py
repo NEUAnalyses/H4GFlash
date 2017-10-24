@@ -85,21 +85,29 @@ if customize.outputFile:
         outputFile = customize.outputFile
 
 print "4"
+ 
+print "  __    __    _______   _______   _______   _______ "                                                  
+print " |  |  |  |  /  _____| /  _____| /  _____| /  _____|"
+print " |  |__|  | |  |  __  |  |  __  |  |  __  |  |  __  "
+print " |   __   | |  | |_ | |  | |_ | |  | |_ | |  | |_ | "
+print " |  |  |  | |  |__| | |  |__| | |  |__| | |  |__| | "
+print " |__|  |__|  \______|  \______|  \______|  \______| " 
+                                                   
 
-if customize.processId == "Data":
-        from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-        process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
+#if customize.processId == "Data":
+from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
                                                                 "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*",
                                                                 "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*"
                                                                 ))
-        process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-        process.load('RecoMET.METFilters.eeBadScFilter_cfi')
-        process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
+process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
 
-        process.dataRequirements = cms.Sequence()
-        process.dataRequirements += process.hltHighLevel
-        process.dataRequirements += process.eeBadScFilter
+process.dataRequirements = cms.Sequence()
+process.dataRequirements += process.hltHighLevel
+process.dataRequirements += process.eeBadScFilter
 
 
 process.load("flashgg.Taggers.flashggTags_cff")
