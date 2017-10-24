@@ -91,7 +91,7 @@ public:
     //edm::EDGetTokenT<SinglePhotonView> singlephotonviewToken_;
     edm::InputTag vtxTag_;
     edm::EDGetTokenT<reco::Vertex> vtxHT_;
-
+    edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
 
     long int counter;
     
@@ -194,7 +194,7 @@ public:
     std::vector<float> v_pho_hcalIso              ;
     std::vector<float> v_pho_ecalIso              ;
     std::vector<float> v_pho_trackIso             ;
-    
+    std::vector<float> v_pho_genmatch             ;
     
     
     //---- from http://cmslxr.fnal.gov/lxr/source/RecoEgamma/EgammaTools/interface/EcalRegressionData.h
@@ -357,10 +357,12 @@ private:
 H4GFlash::H4GFlash(const edm::ParameterSet& iConfig):
 diphotonsToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "diphotons", edm::InputTag( "flashggDiPhotons" ) ) ) ),
 genPhotonsToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genphotons", edm::InputTag( "prunedGenParticles" ) ) ) ),
-genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genparticles", edm::InputTag( "prunedGenParticles" ) ) ) )
+genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genparticles", edm::InputTag( "flashggPrunedGenParticles" ) ) ) ),
 //singlephotonviewToken_( ( iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) ) ) )
 //vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
 //vtxHT_( consumes<reco::VertexCollection>(vtxTag_));
+vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<edm::InputTag> ("vertex",edm::InputTag("offlineSlimmedPrimaryVertices"))))
+
 {
 
     //now do what ever initialization is needed
@@ -384,7 +386,7 @@ genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntracke
     
     outTree->Branch("rho", &rho, "rho/D");
     outTree->Branch("passTrigger", &passTrigger, "passTrigger/I");
-    //outTree->Branch("v_h4g_diphos", &v_h4g_diphos);
+    outTree->Branch("v_h4g_diphos", &v_h4g_diphos);
     //outTree->Branch("v_h4g_tetraphos", &v_h4g_tetraphos);
     outTree->Branch("n_pho", &n_pho, "n_pho/I");
     outTree->Branch("v_pho_p4", &v_pho_p4);
@@ -554,7 +556,7 @@ genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntracke
     outTree->Branch("v_pho_nClusterOutsideMustache"             ,      &v_pho_nClusterOutsideMustache                 );
     outTree->Branch("v_pho_etOutsideMustache"                   ,      &v_pho_etOutsideMustache                 );
     outTree->Branch("v_pho_pfMVA"                               ,      &v_pho_pfMVA                 );
-    
+    outTree->Branch("v_pho_genmatch"                            ,      &v_pho_genmatch              );
     
     
     
@@ -618,7 +620,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
     
     using namespace edm;
@@ -635,6 +637,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::Vertex> vtxH;
     iEvent.getByToken(vtxHT_,vtxH);
     
+    edm::Handle<edm::View<reco::Vertex> > vertex;
+    iEvent.getByToken(vertexToken_, vertex);
     //int nvtx_ = vtxH -> size();
     //cout << "This is the vertex" << vtxH << endl; 
     //Trigger
@@ -676,7 +680,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_pho_deta.clear();
     v_pho_cutid.clear();
     v_pho_mva.clear();
-    //v_h4g_diphos.clear();
+    v_h4g_diphos.clear();
     //v_h4g_tetraphos.clear();
     v_genpho_dr.clear();   
     v_pho_hadronicOverEm.clear();
@@ -739,7 +743,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_pho_hcalIso              .clear();
     v_pho_ecalIso              .clear();
     v_pho_trackIso             .clear();
-    
+    v_pho_genmatch             .clear();   
     //    v_pho_scRawEnergy          .clear();
     //    v_pho_scCalibEnergy        .clear();
     //    v_pho_scPreShowerEnergy    .clear();
@@ -866,18 +870,27 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     edm ::Ptr<reco::Vertex> vtx;  
     edm::Ptr<reco::Vertex> vtx_to_use;
+    //edm::Ptr<flashgg::Photon> pp;
     //float leadmva_;
     //float mva_to_use = 0;
     //float mva_to_use2 = 0;
     //size_t  i = 0;
     //const flashgg::Photon * pho1 ;
+    
+    for (size_t i = 0; i< (vertex->size()); ++i){
+      if (i==0) {   
+     vtx_to_use = vertex->ptrAt(i);}
+     //std::cout<< "Hellooo" << std::endl; 
+
+     }
+
     for (size_t i = 0; i < (diphotons->size()); ++i){
         edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
         vtx = diphotons->ptrAt(i)->vtx();
         const flashgg::Photon * pho1 = dipho->leadingPhoton();
         const flashgg::Photon * pho2 = dipho->subLeadingPhoton();
-        if ( i==diphotons->size()-diphotons->size()){
-          vtx_to_use = diphotons->ptrAt(i)->vtx();}
+        /*if ( i==diphotons->size()-diphotons->size()){
+          vtx_to_use = diphotons->ptrAt(i)->vtx();}*/
         if( pho1->pt() < 15 || pho2->pt() < 15)
             continue;
         if( fabs(pho1->superCluster()->eta()) > 2.5 || fabs(pho2->superCluster()->eta()) > 2.5 )
@@ -912,6 +925,10 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for ( size_t i = 0; i < phosTemp.size(); ++i) {
         
         const flashgg::Photon * pho = phosTemp[i];
+        //std::cout << "Number of photons"<< phosTemp.size() <<std::endl;
+        v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
+        //std::cout << "AM I GEN MATCHED ?  "<< pho->hasUserInt("genMatchType")<< std::endl;
+        
         v_pho_pt.push_back( pho->pt() );
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
@@ -929,6 +946,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         //std::cout<< "This is the other MVA value" << pho->userFloat("phoIdMvaWrtChosenVtx") <<std::endl;
        // std::cout<< "HELLO" << ->phoIdMvaWrtChosenVtx() << std::endl;
         v_pho_mva.push_back(pho->phoIdMvaDWrtVtx(vtx_to_use));
+        //if (pho->phoIdMvaDWrtVtx(vtx_to_use)<-1){    std::cout << "WORKKKKKK " << pho->phoIdMvaDWrtVtx(vtx_to_use)<<std::endl;}
         //v_pho_mva.push_back(leadmva_);
         v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
         //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() );
@@ -1085,7 +1103,11 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_nClusterOutsideMustache                     .push_back(  pho->   nClusterOutsideMustache                 ()    );
         v_pho_etOutsideMustache                           .push_back(  pho->   etOutsideMustache                       ()    );
         v_pho_pfMVA                                       .push_back(  pho->   pfMVA                                   ()    );
-        
+     
+
+
+
+   
         
     }
     
@@ -1126,7 +1148,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 }
                 // ---- save all possible combinations,
                 // ---- but of course only once, then we require p2 > p
-                //v_h4g_diphos.push_back(thisH4GDipho);
+                v_h4g_diphos.push_back(thisH4GDipho);
             }
             
             vecDR.push_back(deltar);
@@ -1140,18 +1162,18 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_dphi.push_back(vecDPhi);
         v_pho_deta.push_back(vecDEta);
     }
-    
     // ---- Make tetraphotons
     for ( size_t q1 = 0; q1 < v_h4g_diphos.size(); q1++) {
         H4GTools::H4G_DiPhoton Dipho1 = v_h4g_diphos[q1];
         for ( size_t q2 = q1+1; q2 < v_h4g_diphos.size(); q2++) {
+        
+
             H4GTools::H4G_DiPhoton Dipho2 = v_h4g_diphos[q2];
             // ---- check that we don't use photons twice
             if ( Dipho1.ip1 == Dipho2.ip1
                 || Dipho1.ip1 == Dipho2.ip2
                 || Dipho1.ip2 == Dipho2.ip1
                 || Dipho1.ip2 == Dipho2.ip2 ) continue;
-            
             H4GTools::H4G_TetraPhoton thisTetra;
             thisTetra.p4 = Dipho1.p4 + Dipho2.p4;
             thisTetra.idp1 = q1;
@@ -1169,12 +1191,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 thisTetra.ip3 = Dipho1.ip1;
                 thisTetra.ip4 = Dipho1.ip2;
             }
-            
             //v_h4g_tetraphos.push_back(thisTetra);
         }
         
     }
-    
+   
+ 
     if( ! iEvent.isRealData() ) {
         
         edm::Handle<GenEventInfoProduct> genEvtInfo;
