@@ -31,7 +31,7 @@
 using namespace RooFit;
 
 int colors[] = {kBlue, 632, 417, 616, 432, 800, 820, 840, 860};
-int styles[] = {0,2, 3, 5, 6, 7, 8, 9};
+int styles[] = {1,2, 3, 5, 6, 7, 8, 9};
 
 void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
 		std::vector<std::string> functionsToFit, std::vector<std::string> legends,

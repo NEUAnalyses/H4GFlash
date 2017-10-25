@@ -172,7 +172,8 @@ int main(int argc, const char* argv[])
   BOOST_FOREACH( boost::property_tree::ptree::value_type const& rowPair, pt.get_child( "signal_functionsToPlot" ) ){
       signal_functionsToPlot.push_back(rowPair.second.data());
   }
-  
+ 
+  //blindingCut = !(tp_mass >115 && tp_mass <135); 
   RooArgSet* TreeVars = new RooArgSet();
   
   for ( unsigned int cat = 0; cat < categories.size(); cat++) {

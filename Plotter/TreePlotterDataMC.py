@@ -151,7 +151,7 @@ for v in Vars:
       #h_err.Add(hh[1])
       #h_err.Add(hh[2])
    #s.Add(h3)   
-   s.Draw("hist E1")
+   s.Draw("hist E2")
    s.GetXaxis().SetTitle(v[6])
    s.GetYaxis().SetTitle('Normalized Yields')
    s.GetYaxis().SetTitleOffset(1.6)

@@ -1,17 +1,17 @@
 {
-  "file" : "/afs/cern.ch/work/t/twamorka/CMSSW_8_0_28/src/flashgg/H4GFlash/TreeSkimmerPy/sep14_skim/data.root",
+  "file" : "/afs/cern.ch/work/t/twamorka/CMSSW_8_0_28/src/flashgg/H4GFlash/TreeSkimmerPy/control_fake1/data_skim.root",
   "vars" : { 
         	"tp_mass[80, 160]" : "M(#gamma#gamma#gamma#gamma)"
 	   },
   "nbins" : ["80"],
   "prefix" : "H4G_Fit_",
-  "plotsDir" : "/afs/cern.ch/user/t/twamorka/www/H4G/Fits",
+  "plotsDir" : "/afs/cern.ch/user/t/twamorka/www/H4G/Oct17/",
   "selection" : "tp_mass > 80 && tp_mass < 160 && dp1_mass/tp_mass < 0.4 && dp2_mass/tp_mass < 0.55 && abs(dp1_mass - dp2_mass)/(dp1_mass + dp2_mass) < 0.1",
-  "plotTitle" : "Cat 0",
+  "plotTitle" : "Cat 4 Photons",
   "categories" : { 
-			"noreq" : "1 "
+			"noreq" : "1"
 		 },
-  "blinding" : { " && ( 1 )" : "0" },
+  "blinding" : { " !(tp_mass >115 && tp_mass <135)" : "!(tp_mass >115 && tp_mass <135)" },
   "functions" : [
 
                 "RooFormulaVar:mod_b2_p0_mgg_bb('b2_p0_mgg_bb*b2_p0_mgg_bb', {b2_p0_mgg_bb[0.3, -10, 10]})",
@@ -45,12 +45,12 @@
   "biasFunctions" :   ["Bern3_tp_mass","Bern2_tp_mass","PowL_tp_mass"],
   "functionLegends" : ["3rd order Bernstein","2nd order Bernstein","2nd Order Power Law"],
   "error" : "0",
-  "signal_File" : "/afs/cern.ch/work/t/twamorka/CMSSW_8_0_28/src/flashgg/H4GFlash/TreeSkimmerPy/sep14_skim/sig60_skim.root",
+  "signal_File" : "/eos/cms/store/user/twamorka/4gamma/skimtrees/sig60_skim.root",
   "signal_Functions" : [
 
-      "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 120, 128], mH[125.09]})",
-      "RooFormulaVar:meanSigCB2('meanG2*mH/125.09', {meanG2[125, 120, 128], mH})",
-      "RooFormulaVar:meanSigCB3('meanG3*mH/125.09', {meanG3[125, 120, 128], mH})",
+      "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 125, 125], mH[125.09]})",
+      "RooFormulaVar:meanSigCB2('meanG2*mH/125.09', {meanG2[125, 125, 125], mH})",
+      "RooFormulaVar:meanSigCB3('meanG3*mH/125.09', {meanG3[125, 125, 125], mH})",
       "RooGaussian:Gaus1_tp_mass(tp_mass, meanSigCB1, sigmaSigCB1[3.0, 0.5, 8.0])",
       "RooGaussian:Gaus2_tp_mass(tp_mass, meanSigCB2, sigmaSigCB2[3.0, 0.5, 8.0])",
       "RooGaussian:Gaus3_tp_mass(tp_mass, meanSigCB3, sigmaSigCB3[3.0, 0.5, 18.0])",
