@@ -215,22 +215,22 @@ if __name__ == '__main__':
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/" + "shapes/") :
       os.mkdir(opt.outputDirDatacard + "/" + cutName + "/" + "shapes/")
     
-    name_root_file_with_workspace = opt.outputDirDatacard + "/" + cutName + "/shapes/ws_" + tagNameToAppearInDatacard + ".root"
+    name_root_file_with_workspace = opt.outputDirDatacard + "/" + cutName + "/shapes/w_" + tagNameToAppearInDatacard + ".root"
 
     root_file_with_workspace = ROOT.TFile (name_root_file_with_workspace, "RECREATE")
     
-    ws = ROOT.RooWorkspace("ws")
+    w = ROOT.RooWorkspace("w")
     # create the variable
-    ws.factory( "tp_mass[80, 160]" )
-    ws.var( "tp_mass" ).SetTitle("tp_mass")
-    ws.var( "tp_mass" ).setUnit("GeV")
+    w.factory( "tp_mass[80, 160]" )
+    w.var( "tp_mass" ).SetTitle("tp_mass")
+    w.var( "tp_mass" ).setUnit("GeV")
     
     # the set of variables
     treeVars = ROOT.RooArgSet()
-    treeVars.add( ws.var( "tp_mass" ) )
+    treeVars.add( w.var( "tp_mass" ) )
     
     
-    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( ws.var( "tp_mass" ) ) )
+    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
     for itree in range(len(trees_data['trees'])) :
       data_RooDataSet_temp = ROOT.RooDataSet( "data", "data", (trees_data['trees'][itree]), treeVars)
       data_RooDataSet.append(data_RooDataSet_temp.reduce('(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')'))
@@ -246,7 +246,7 @@ if __name__ == '__main__':
         #signal_RooDataSet_temp = ROOT.RooDataSet( "dataSig", "dataSig",  dict_trees_signal[signal]['weights'][itree], treeVars)
         #signal_RooDataSet.append(signal_RooDataSet_temp)
 
-    getattr(ws,'import')(data_RooDataSet)
+    getattr(w,'import')(data_RooDataSet)
     #getattr(ws,'import')(signal_RooDataSet)
     #ws.import(data_RooDataSet)
     #ws.import(signal_RooDataSet)
@@ -283,8 +283,8 @@ if __name__ == '__main__':
       #}
     
     #ws.factory( "RooBernstein:Bern2_tp_mass(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
-    ws.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  )
-    ws.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])");
+    w.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  )
+    w.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])");
 
     
     
@@ -299,7 +299,7 @@ if __name__ == '__main__':
       
       
     # save the workspace
-    ws.Write()
+    w.Write()
     root_file_with_workspace.Close()
     
 
@@ -328,9 +328,9 @@ if __name__ == '__main__':
     card.write('jmax * number of background\n')
     card.write('kmax * number of nuisance parameters\n') 
     
-    card.write('shapes  bkg      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:bkg_pdf \n')
-    card.write('shapes  sig      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:sig_pdf \n')
-    card.write('shapes  data_obs ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  ws:data \n')
+    card.write('shapes  bkg      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:bkg_pdf \n')
+    card.write('shapes  sig      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:sig_pdf \n')
+    card.write('shapes  data_obs ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:data \n')
      
     card.write('-'*100+'\n')
     card.write('bin         %s' % tagNameToAppearInDatacard+'\n')    
