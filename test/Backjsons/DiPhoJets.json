@@ -1,0 +1,11 @@
+{
+    "processes" : {
+        "DiPhotonJetsBox_M40_80-Sherpa" : [
+            ["/DiPhotonJetsBox_M40_80-Sherpa", {"args" : ["campaign=RunIISummer16-2_4_1-25ns_Moriond17"]}]
+        ],
+        "DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa" : [
+            ["/DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa", {"args" : ["campaign=RunIISummer16-2_4_1-25ns_Moriond17"]}]
+        ]
+	},
+	"cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17 targetLumi=15e+3 PURW=False"
+}
