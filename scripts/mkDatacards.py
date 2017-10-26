@@ -84,7 +84,6 @@ if __name__ == '__main__':
   if not os.path.isdir (opt.outputDirDatacard + "/") :
     os.mkdir(opt.outputDirDatacard + "/")
   
-  
   #---- loop over "cuts"
   for cutName in cuts :
     
@@ -224,14 +223,19 @@ if __name__ == '__main__':
     w.factory( "tp_mass[80, 160]" )
     w.var( "tp_mass" ).SetTitle("tp_mass")
     w.var( "tp_mass" ).setUnit("GeV")
+   
+    w.factory( "dp1_mass[0,200]" )
     
+ 
     # the set of variables
     treeVars = ROOT.RooArgSet()
     treeVars.add( w.var( "tp_mass" ) )
-    
+    treeVars.add( w.var("dp1_mass") )    
     
     data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
+    print "HEYYYY",trees_data['trees']
     for itree in range(len(trees_data['trees'])) :
+      
       data_RooDataSet_temp = ROOT.RooDataSet( "data", "data", (trees_data['trees'][itree]), treeVars)
       data_RooDataSet.append(data_RooDataSet_temp.reduce('(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')'))
 
