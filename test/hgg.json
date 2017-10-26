@@ -1,0 +1,10 @@
+{
+   "processes" : {
+      "GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8" : [
+          ["/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8", {"args" : ["campaign=RunIISummer16-2_4_1-25ns_Moriond17"]}]
+
+        ]
+        },
+        "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17 targetLumi=15e+3 PURW=False"
+
+}
