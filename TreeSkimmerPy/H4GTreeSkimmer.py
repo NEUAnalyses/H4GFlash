@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = '/eos/cms/store/user/twamorka/4gamma/Oct13/Sig/Sig0p1.root'
-   outputfile = 'test0p1.root'
+   inputfiles = '/eos/cms/store/user/twamorka/4gamma/Oct25/E.root'
+   outputfile = 'output.root'
 
    maxEvts = -1
    nfakes = 0
@@ -145,6 +145,16 @@ def main(argv):
       treeSkimmer.p3_r9[0] = tree.v_pho_r9[sPhos_id[2]]
       treeSkimmer.p4_r9[0] = tree.v_pho_r9[sPhos_id[3]]
 
+      treeSkimmer.p1_sigmaEtaEta[0] = tree.v_pho_sigmaEtaEta[sPhos_id[0]]
+      treeSkimmer.p2_sigmaEtaEta[1] = tree.v_pho_sigmaEtaEta[sPhos_id[1]]
+      treeSkimmer.p3_sigmaEtaEta[2] = tree.v_pho_sigmaEtaEta[sPhos_id[2]]
+      treeSkimmer.p4_sigmaEtaEta[3] = tree.v_pho_sigmaEtaEta[sPhos_id[3]]
+
+      treeSkimmer.p1_full5X5_sigmaEtaEta[0] = tree.v_pho_full5X5_sigmaEtaEta[sPhos_id[0]]
+      treeSkimmer.p2_full5X5_sigmaEtaEta[1] = tree.v_pho_full5X5_sigmaEtaEta[sPhos_id[1]]
+      treeSkimmer.p3_full5X5_sigmaEtaEta[2] = tree.v_pho_full5X5_sigmaEtaEta[sPhos_id[2]]
+      treeSkimmer.p4_full5X5_sigmaEtaEta[3] = tree.v_pho_full5X5_sigmaEtaEta[sPhos_id[3]]      
+      
       treeSkimmer.p1_genmatch[0] = tree.v_pho_genmatch[sPhos_id[0]]
       treeSkimmer.p2_genmatch[0] = tree.v_pho_genmatch[sPhos_id[1]]
       treeSkimmer.p3_genmatch[0] = tree.v_pho_genmatch[sPhos_id[2]]
