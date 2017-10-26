@@ -877,12 +877,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //size_t  i = 0;
     //const flashgg::Photon * pho1 ;
     
-    for (size_t i = 0; i< (vertex->size()); ++i){
-      if (i==0) {   
-     vtx_to_use = vertex->ptrAt(i);}
+    //for (size_t i = 0; i< (vertex->size()); ++i){
+      //if (i==0) {   
+     vtx_to_use = vertex->ptrAt(0);
      //std::cout<< "Hellooo" << std::endl; 
 
-     }
+     //}
 
     for (size_t i = 0; i < (diphotons->size()); ++i){
         edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
@@ -946,7 +946,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         //std::cout<< "This is the other MVA value" << pho->userFloat("phoIdMvaWrtChosenVtx") <<std::endl;
        // std::cout<< "HELLO" << ->phoIdMvaWrtChosenVtx() << std::endl;
         v_pho_mva.push_back(pho->phoIdMvaDWrtVtx(vtx_to_use));
-        //if (pho->phoIdMvaDWrtVtx(vtx_to_use)<-1){    std::cout << "WORKKKKKK " << pho->phoIdMvaDWrtVtx(vtx_to_use)<<std::endl;}
+        //std::cout << "Photon MVA value " << pho->phoIdMvaDWrtVtx(vtx_to_use)<<std::endl;
         //v_pho_mva.push_back(leadmva_);
         v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
         //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() );
