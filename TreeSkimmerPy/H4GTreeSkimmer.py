@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = '/eos/cms/store/user/twamorka/4gamma/DiphoJets80_Inf.root'
-   outputfile = 'sep14_skim/DiphoJets80_Inf_gen.root'
+   inputfiles = '/eos/cms/store/user/twamorka/4gamma/Oct13/Sig/Sig0p1.root'
+   outputfile = 'test0p1.root'
 
    maxEvts = -1
    nfakes = 0
@@ -66,6 +66,8 @@ def main(argv):
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
       treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
+      #treeSkimmer.v_pho_genmatch[0] = tree.v_pho_genmatch
+      #treeSkimmer.v_pho_r9[0] = tree.v_pho_r9
       Phos = []
       Phos_id = []
 
@@ -105,7 +107,6 @@ def main(argv):
          sPhos = [x[0] for x in totmatrix]
          sPhos_id = [x[1] for x in totmatrix]
        
-      #print "HIIIIII" , len(sPhos)
       if len(sPhos) < ntotpho: continue #ntotpho, i.e total number of photons should always be =4
       
       #R9, CHIso, HoE, PSeed
@@ -128,17 +129,40 @@ def main(argv):
       treeSkimmer.p2_phi[0] = sPhos[1].Phi()
       treeSkimmer.p3_phi[0] = sPhos[2].Phi()
       treeSkimmer.p4_phi[0] = sPhos[3].Phi()
+      treeSkimmer.p1_M[0] = sPhos[0].M()
+      treeSkimmer.p2_M[0] = sPhos[1].M()
+      treeSkimmer.p3_M[0] = sPhos[2].M()
+      treeSkimmer.p4_M[0] = sPhos[3].M()
+
 
       treeSkimmer.p1_mva[0] = tree.v_pho_mva[sPhos_id[0]]
       treeSkimmer.p2_mva[0] = tree.v_pho_mva[sPhos_id[1]]
       treeSkimmer.p3_mva[0] = tree.v_pho_mva[sPhos_id[2]]
       treeSkimmer.p4_mva[0] = tree.v_pho_mva[sPhos_id[3]]
 
+      treeSkimmer.p1_r9[0] = tree.v_pho_r9[sPhos_id[0]]
+      treeSkimmer.p2_r9[0] = tree.v_pho_r9[sPhos_id[1]]
+      treeSkimmer.p3_r9[0] = tree.v_pho_r9[sPhos_id[2]]
+      treeSkimmer.p4_r9[0] = tree.v_pho_r9[sPhos_id[3]]
+
+      treeSkimmer.p1_genmatch[0] = tree.v_pho_genmatch[sPhos_id[0]]
+      treeSkimmer.p2_genmatch[0] = tree.v_pho_genmatch[sPhos_id[1]]
+      treeSkimmer.p3_genmatch[0] = tree.v_pho_genmatch[sPhos_id[2]]
+      treeSkimmer.p4_genmatch[0] = tree.v_pho_genmatch[sPhos_id[3]]
+   
+     
       treeSkimmer.p_mindr[0] = min( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]) )
-      
       P12 = sPhos[0] + sPhos[1]
+      P13 = sPhos[0] + sPhos[2]
+      P14 = sPhos[0] + sPhos[3]
+      P23 = sPhos[1] + sPhos[2]
+      P24 = sPhos[1] + sPhos[3]
+      P34 = sPhos[2] + sPhos[3]
+   
+      #print ("the different masses are %s %s %s %s %s %s  "%(P12.M(),P13.M(),P14.M(),P23.M(),P24.M(),P34.M()))
+      #print " MAX mass ", max((P12.M(),P13.M(),P14.M(),P23.M(),P24.M(),P34.M()))
       treeSkimmer.dphigh_mass[0] = P12.M()
-      #print p1_pt
+      treeSkimmer.p_maxmass[0] = max((P12.M(),P13.M(),P14.M(),P23.M(),P24.M(),P34.M()))
       pairedDiphos = treeSkimmer.MakePairing(sPhos)
       #arr = [[Dipho1, P1, iP1, P2, iP2], [Dipho2, P3, iP3, P4, iP4]
       PP1 = pairedDiphos[0][0]
@@ -167,7 +191,7 @@ def main(argv):
       treeSkimmer.tp_eta[0] = Pgggg.Eta()
       treeSkimmer.tp_phi[0] = Pgggg.Phi()
       treeSkimmer.tp_mass[0] = Pgggg.M()
-
+      #treeSkimmer.scaleweight[0] = 44.19711
       evtCounter += 1
 
       outTree.Fill()
