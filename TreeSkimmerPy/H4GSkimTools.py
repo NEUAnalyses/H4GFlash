@@ -9,6 +9,10 @@ class SkimmedTreeTools:
       self.p2_pt = n.zeros(1, dtype=float)
       self.p3_pt = n.zeros(1, dtype=float)
       self.p4_pt = n.zeros(1, dtype=float)
+      self.p1_M = n.zeros(1, dtype=float)
+      self.p2_M = n.zeros(1, dtype=float)
+      self.p3_M = n.zeros(1, dtype=float)
+      self.p4_M = n.zeros(1, dtype=float)
       self.p1_eta = n.zeros(1, dtype=float)
       self.p2_eta = n.zeros(1, dtype=float)
       self.p3_eta = n.zeros(1, dtype=float)
@@ -21,7 +25,24 @@ class SkimmedTreeTools:
       self.p2_mva = n.zeros(1, dtype=float)
       self.p3_mva = n.zeros(1, dtype=float)
       self.p4_mva = n.zeros(1, dtype=float)
+      self.p1_r9 = n.zeros(1, dtype=float)
+      self.p2_r9 = n.zeros(1, dtype=float)
+      self.p3_r9 = n.zeros(1, dtype=float)
+      self.p4_r9 = n.zeros(1, dtype=float)
+      self.p1_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p2_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p3_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p4_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p1_full5X5_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p2_full5X5_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p3_full5X5_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p4_full5X5_sigmaEtaEta = n.zeros(1, dtype=float)
+      self.p1_genmatch = n.zeros(1, dtype=float)
+      self.p2_genmatch = n.zeros(1, dtype=float)
+      self.p3_genmatch = n.zeros(1, dtype=float)
+      self.p4_genmatch = n.zeros(1, dtype=float)
       self.p_mindr = n.zeros(1, dtype=float)
+      self.p_maxmass = n.zeros(1, dtype=float)
       self.dp1_pt = n.zeros(1, dtype=float)
       self.dp1_eta = n.zeros(1, dtype=float)
       self.dp1_phi = n.zeros(1, dtype=float)
@@ -48,7 +69,8 @@ class SkimmedTreeTools:
       self.nvtx = n.zeros(1,dtype=int)
       self.npu = n.zeros(1,dtype=float)
       self.genTotalWeight = n.zeros(1,dtype=float) 
-
+      self.v_pho_genmatch = n.zeros(1,dtype=float)
+      self.v_pho_r9 = n.zeros(1,dtype=float)
    def MakeSkimmedTree(self):
       outTree = TTree("H4GSel", "H4G Selected Events")
       SetOwnership(outTree,0)
@@ -57,6 +79,10 @@ class SkimmedTreeTools:
       outTree.Branch('p2_pt', self.p2_pt, 'p2_pt/D')
       outTree.Branch('p3_pt', self.p3_pt, 'p3_pt/D')
       outTree.Branch('p4_pt', self.p4_pt, 'p4_pt/D')
+      outTree.Branch('p1_M', self.p1_M, 'p1_M/D')
+      outTree.Branch('p2_M', self.p2_M, 'p2_M/D')
+      outTree.Branch('p3_M', self.p3_M, 'p3_M/D')
+      outTree.Branch('p4_M', self.p4_M, 'p4_M/D')
       outTree.Branch('p1_eta', self.p1_eta, 'p1_eta/D')
       outTree.Branch('p2_eta', self.p2_eta, 'p2_eta/D')
       outTree.Branch('p3_eta', self.p3_eta, 'p3_eta/D')
@@ -69,7 +95,24 @@ class SkimmedTreeTools:
       outTree.Branch('p2_mva', self.p2_mva, 'p2_mva/D')
       outTree.Branch('p3_mva', self.p3_mva, 'p3_mva/D')
       outTree.Branch('p4_mva', self.p4_mva, 'p4_mva/D')
+      outTree.Branch('p1_r9', self.p1_r9, 'p1_r9/D')
+      outTree.Branch('p2_r9', self.p2_r9, 'p2_r9/D')
+      outTree.Branch('p3_r9', self.p3_r9, 'p2_r9/D')
+      outTree.Branch('p4_r9', self.p4_r9, 'p4_r9/D')
+      outTree.Branch('p1_sigmaEtaEta',self.p1_sigmaEtaEta, 'p1_sigmaEtaEta/D')
+      outTree.Branch('p2_sigmaEtaEta',self.p2_sigmaEtaEta, 'p2_sigmaEtaEta/D') 
+      outTree.Branch('p3_sigmaEtaEta',self.p3_sigmaEtaEta, 'p3_sigmaEtaEta/D') 
+      outTree.Branch('p4_sigmaEtaEta',self.p4_sigmaEtaEta, 'p4_sigmaEtaEta/D')    
+      outTree.Branch('p1_full5X5_sigmaEtaEta',self.p1_full5X5_sigmaEtaEta, 'p1_full5X5_sigmaEtaEta/D')
+      outTree.Branch('p2_full5X5_sigmaEtaEta',self.p2_full5X5_sigmaEtaEta, 'p2_full5X5_sigmaEtaEta/D')
+      outTree.Branch('p3_full5X5_sigmaEtaEta',self.p3_full5X5_sigmaEtaEta, 'p3_full5X5_sigmaEtaEta/D')
+      outTree.Branch('p4_full5X5_sigmaEtaEta',self.p4_full5X5_sigmaEtaEta, 'p4_full5X5_sigmaEtaEta/D')
+      outTree.Branch('p1_genmatch',self.p1_genmatch, 'p1_genmatch/D')
+      outTree.Branch('p2_genmatch',self.p2_genmatch, 'p2_genmatch/D')
+      outTree.Branch('p3_genmatch',self.p3_genmatch, 'p3_genmatch/D')
+      outTree.Branch('p4_genmatch',self.p4_genmatch, 'p4_genmatch/D')
       outTree.Branch('p_mindr', self.p_mindr, 'p_mindr/D')
+      outTree.Branch('p_maxmass',self.p_maxmass, 'p_maxmass/D')
       outTree.Branch('dp1_pt', self.dp1_pt, 'dp1_pt/D')
       outTree.Branch('dp1_eta', self.dp1_eta, 'dp1_eta/D')
       outTree.Branch('dp1_phi', self.dp1_phi, 'dp1_phi/D')
@@ -88,7 +131,7 @@ class SkimmedTreeTools:
       outTree.Branch('tp_eta', self.tp_eta, 'tp_eta/D')
       outTree.Branch('tp_phi', self.tp_phi, 'tp_phi/D')
       outTree.Branch('tp_mass', self.tp_mass, 'tp_mass/D')
-      outTree.Branch('dphigh_mass', self.dphigh_mass, 'tphigh_mass/D')
+      outTree.Branch('dphigh_mass', self.dphigh_mass, 'dphigh_mass/D')
       outTree.Branch('initialEvents', self.initialEvents, 'initialEvents/D')
       outTree.Branch('event', self.event, 'event/I')
       outTree.Branch('run', self.run, 'run/I')
@@ -96,6 +139,8 @@ class SkimmedTreeTools:
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
+      #outTree.Branch('v_pho_genmatch',self.v_pho_genmatch,'v_pho_genmatch/D')
+      #outTree.Branch('v_pho_r9',self.v_pho_r9,'v_pho_r9/D')
       return outTree
 
 
@@ -214,6 +259,7 @@ class SkimmedTreeTools:
                   if i4==i1 or i4==i2: continue
                   dipho1 = p1+p2
                   dipho2 = p3+p4
+                  #Mass = dipho.M()
                   deltaM = abs(dipho1.M() - dipho2.M())
                   if(DEBUG): print deltaM, i1, i2, i3, i4
                   if deltaM < minDM:
@@ -226,6 +272,9 @@ class SkimmedTreeTools:
                      iP3 = i3
                      P4 = p4
                      iP4 = i4
+                     #print "Photon 1 M : " , p1.M()
+                     #Max_mass = max(((p1.M()+p2.M()),(p1.M()+p3.M()),(p1.M()+p4.M()),(p2.M()+p3.M()),(p2.M()+p4.M()),(p3.M()+p4.M())))
+                     #print Max_mass
                      Dipho1 = dipho1 if ((p1.Pt() + p2.Pt()) > (p3.Pt() + p4.Pt())) else dipho2
                      Dipho2 = dipho2 if ((p1.Pt() + p2.Pt()) > (p3.Pt() + p4.Pt())) else dipho1
       if(DEBUG): print 'minDr:', abs(Dipho1.M() - Dipho2.M()), iP1, iP2, iP3, iP4
