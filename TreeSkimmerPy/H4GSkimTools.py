@@ -163,8 +163,6 @@ class SkimmedTreeTools:
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
-      #outTree.Branch('v_pho_genmatch',self.v_pho_genmatch,'v_pho_genmatch/D')
-      #outTree.Branch('v_pho_r9',self.v_pho_r9,'v_pho_r9/D')
       return outTree
 
 
@@ -187,14 +185,12 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15:continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9: continue
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9: continue
-         if el[Phos_id[i]] == 0: continue
-        # print (i,pho)
+         if abs(pho.Eta()) < 1.479 and MVA[Phos_id[i]] < -0.9: continue
+         if abs(pho.Eta()) > 1.479 and MVA[Phos_id[i]] < -0.9: continue
+         if el[Phos_id[i]] == 0: continue 
          sPhos.append(pho)
          sPhos_id.append(Phos_id[i])
       return sPhos, sPhos_id
-      #print "counter" ,len(sPhos)
    def MakePhotonSelectionCutBased(self, Phos, Phos_id, rho, chiso, nhiso, phiso, hoe, sieie, el):
       sPhos = []
       sPhos_id = []
@@ -215,8 +211,8 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15: continue
          if abs(pho.Eta()) > 2.5: continue
-         if abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] > -0.9: continue
-         if abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] > -0.9: continue
+         if abs(pho.Eta()) < 1.479 and MVA[Phos_id[i]] > -0.9: continue
+         if abs(pho.Eta()) > 1.479 and MVA[Phos_id[i]] > -0.9: continue
          if el[Phos_id[i]] == 0: continue
 
          fPhos.append(pho)
@@ -230,7 +226,9 @@ class SkimmedTreeTools:
       pho1_id = -99
       pho2 = 0
       pho2_id = -99
+      #print "Number of photons", len(Phos)
       for i1,p1 in enumerate(Phos):
+         #print "p1 pt ",p1.Pt()
          if p1.Pt() < 30: continue
          if R9[Phos_id[i1]] < 0.8: continue
          if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
@@ -240,6 +238,7 @@ class SkimmedTreeTools:
 
          for i2,p2 in enumerate(Phos):
             if(i2 <= i1): continue
+            #print "p2 pt ",p2.Pt()
             if p2.Pt() < 20: continue
             if R9[Phos_id[i2]] < 0.8: continue
             if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
@@ -248,8 +247,9 @@ class SkimmedTreeTools:
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
             thisDipho = p1+p2
             if thisDipho.M() < 55: continue
-            
-            pho1 = p1
+            #for i3,p3 in enumerate(Phos):
+                 #print "p3 pt  ",p3.Pt()       
+            pho1 = p1 
             pho1_id = Phos_id[i1]
             pho2 = p2
             pho2_id = Phos_id[i2]
