@@ -5,7 +5,7 @@ import sys, getopt
 from array import array
 
 def main(argv):
-   inputfiles = ''
+   inputfiles = '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/test/test.root'
    outputfile = 'output.root'
    try:
       opts, args = getopt.getopt(argv,"hi:o:",["inputFiles=","outputFile="])
@@ -32,6 +32,8 @@ def main(argv):
 
    outRoot = TFile(outputfile, "RECREATE")
 
+
+
    h_gen_mggPP1=TH1F("h_gen_mggPP1", "a1 and a2 :Mass; M(#gamma#gamma) [GeV];Events", 100, 0, 120)
    h_gen_mggPP2=TH1F("h_gen_mggPP2", " gen a1 and a2 :Mass; M(#gamma#gamma) [GeV];Events", 100, 0, 120)
    h_gen_deltam = TH1F("h_gen_deltam","gen a1 and a2 mass difference; #Delta m [GeV];Events",100,-80,80)
@@ -40,8 +42,8 @@ def main(argv):
    h_gen_mggPP1pz = TH1F("h_gen_mggPP1pz","a1 pz; p_{z} [GeV];Events",100,-150,150)
    h_gen_mggPP2pz = TH1F("h_gen_mggPP2pz","gen a1 and a2: p_{z}; p_{z} [GeV];Events",100,-150,150)
    h_gen_mgggg = TH1F("h_gen_mgggg", "gen TetraPhoton Invariant mass; M(#gamma#gamma#gamma#gamma) [Gev]; Events", 100, 60,200)
-   h_gen_dr_a1=TH1F("h_gen_dr_a1","gena1dr; gena1 dr;Events",100,0,6)
-   h_gen_dr_a2=TH1F("h_gen_dr_a2","gen a1 and a2 : #Delta r; #Delta r;Events",100,0,6)
+   h_gen_dr_a1=TH1F("h_gen_dr_a1","gena1dr; gena1 dr;Events",100,0,5)
+   h_gen_dr_a2=TH1F("h_gen_dr_a2","gen a1 and a2 : #Delta r; #Delta r;Events",100,0,5)
    h_gen_mindr=TH1F("h_gen_mindr","Gen Minimum #Delta r;#Delta r;Events",100,0,3)
    h_mgg12_gen = TH1F("h_mgg12_gen", "DiPhoton Invariant Mass with 1st and 2nd photons; M(#gamma#gamma) [GeV];Events", 100, 0, 160)
    h_mgg13_gen = TH1F("h_mgg13_gen", "DiPhoton Invariant Mass with 1rd and 3rd photons; M(#gamma#gamma) [GeV];Events", 100, 0, 160)
@@ -64,8 +66,9 @@ def main(argv):
    h_gen1_pt = TH1F("h_gen1_pt","gen1 p_{t}; p_{t};Events",100,0,150)
    h_gen2_pt = TH1F("h_gen2_pt","gen2 p_{t}; p_{t};Events",100,0,150)
    h_gen3_pt = TH1F("h_gen3_pt","gen3 p_{t}; p_{t};Events",100,0,150)
-   h_gen4_pt = TH1F("h_gen4_pt","p_{t} of Gen photons; p_{t} (#gamma) [GeV];Events",100,0,150)
-
+   h_gen4_pt = TH1F("h_gen4_pt","p_{t} of Gen photons; p_{t} (#gamma) [GeV];Events",200,0,40)
+   h_2d = TH2F("h_2d","h_2d",100,0,150,100,0,150)
+   h_len_genphos = TH1F("h_len_genphos","Number of gen phos; # of gen photons;Events",100,0,7)
    triggers = {}
    triggerNames = []
    fraction = []
@@ -81,23 +84,24 @@ def main(argv):
       Genphos = []
       number = 0
       for g in range(0,tree.v_genpho_p4.size()):
-       #  print evt, " photon #", g, " pt: ", tree.v_genpho_p4[g].pt()
+         #print evt, " photon #", g, " pt: ", tree.v_genpho_p4[g].pt()
          P4 = TLorentzVector(0,0,0,0)
          P4.SetPtEtaPhiE( tree.v_genpho_p4[g].pt(), tree.v_genpho_p4[g].eta(), tree.v_genpho_p4[g].phi(), tree.v_genpho_p4[g].e())
-         # print "max pt : ", max(P4.pt())
+         Genphos.append(P4)
          minDR = 999
          #         number = number+1
 
          ## check for overlaps
          for genPho in Genphos:
+             #Genphos.append(P4)
             dr = genPho.DeltaR(P4)
             if dr < minDR:
                minDR = dr
                #print "dr",dr
                
          ## if no overlaps, add photon to Genphos
-         if minDR > 0.01:
-            Genphos.append(P4)
+         #if minDR > 0.0:
+            #Genphos.append(P4)
            # print "number of elements ", len(Genphos)
            # print "max pt : ", max(Genphos[0].pt())
             #number = number+1
@@ -119,16 +123,17 @@ def main(argv):
 
       ## add histogrm of len(Genphos)
 
-      #print evt, "  #GENphos", len(Genphos)
-
+      print evt, "  #GENphos", len(Genphos)
+      h_len_genphos.Fill(len(Genphos))
       if len(Genphos) < 4:
          continue     
-	
+     	
       gen1 = TLorentzVector(0,0,0,0)
       gen2 = TLorentzVector(0,0,0,0)
       gen3 = TLorentzVector(0,0,0,0)
       gen4 = TLorentzVector(0,0,0,0)
       
+      #print evt ," the number of gen photons ", len(Genphos) 
       # print evt, "max: " , max(Genphos.pt())
       # print "hello ", tree.v_genpho_p4.size(), " ", evt
       if len(Genphos) > 0:
@@ -140,7 +145,7 @@ def main(argv):
       if len(Genphos) > 3:
          gen4 = Genphos[3]
          
-     # print "gen photon pt ", gen1.Pt(), " ", gen2.Pt(), " ", gen3.Pt(), " ", gen4.Pt()
+      #print "gen photon pt ", gen1.Pt(), " ", gen2.Pt(), " ", gen3.Pt(), " ", gen4.Pt()
       gen12 = gen1+gen2
       gen13 = gen1+gen3
       gen14 = gen1+gen4
@@ -224,7 +229,7 @@ def main(argv):
       h_gen2_phi.Fill(gen2.Phi())
       h_gen3_phi.Fill(gen3.Phi())
       h_gen4_phi.Fill(gen4.Phi())
-
+      h_2d.Fill(gen1.Pt(),gen1.DeltaR(gen4))
      
       for mt in tree.myTriggerResults:
 #         print mt.first, mt.second
@@ -252,7 +257,7 @@ def main(argv):
    for i in x:
       grX.SetBinLabel(grX.FindBin(i), xNames[i])
 
-
+   #outTree.Fill()
    outRoot.cd()
    h_gen_mggPP1.Write()
    h_gen_mggPP2.Write()
@@ -288,219 +293,8 @@ def main(argv):
    h_gen4_phi.Write()
    h_gen_mindr.Write()
    h_gen_mgggg.Write()
-
-
-   gStyle.SetOptStat(0)
-   c0 = TCanvas("c", "c", 800, 600)
-   h_gen4_pt.SetLineColor(4)
-   h_gen4_pt.GetYaxis().SetTitleOffset(1.5)
-   h_gen4_pt.SetLineWidth(2)
-   h_gen4_pt.SetMaximum(2500)
-   h_gen4_pt.Draw()
-   h_gen3_pt.SetLineColor(8)
-   h_gen3_pt.SetLineWidth(2)
-   h_gen3_pt.Draw("same")
-   h_gen2_pt.SetLineColor(6)
-   h_gen2_pt.SetLineWidth(2)
-   h_gen2_pt.Draw("same")
-   h_gen1_pt.SetLineColor(1)
-   h_gen1_pt.SetLineWidth(2)
-   h_gen1_pt.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen4_pt,"gen#gamma 4","lp")
-   legend.AddEntry(h_gen3_pt,"gen#gamma 3","lp")
-   legend.AddEntry(h_gen2_pt,"gen#gamma 2","lp")
-   legend.AddEntry(h_gen1_pt,"gen#gamma 1","lp")
-   legend.Draw()
-   
-   c0.SaveAs("combinedgenpt.png")
-
-   gStyle.SetOptStat(0)
-   c1 = TCanvas("c", "c", 800, 600)
-   h_gen4_eta.SetLineColor(4)
-   h_gen4_eta.GetYaxis().SetTitleOffset(1.5)
-   h_gen4_eta.SetLineWidth(2)
-   h_gen4_eta.SetMaximum(500)
-   h_gen4_eta.Draw()
-   h_gen3_eta.SetLineColor(8)
-   h_gen3_eta.SetLineWidth(2)
-   h_gen3_eta.Draw("same")
-   h_gen2_eta.SetLineColor(6)
-   h_gen2_eta.SetLineWidth(2)
-   h_gen2_eta.Draw("same")
-   h_gen1_eta.SetLineColor(1)
-   h_gen1_eta.SetLineWidth(2)
-   h_gen1_eta.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen4_eta,"#gamma 4","lp")
-   legend.AddEntry(h_gen3_eta,"#gamma 3","lp")
-   legend.AddEntry(h_gen2_eta,"#gamma 2","lp")
-   legend.AddEntry(h_gen1_eta,"#gamma 1","lp")
-   legend.Draw()
-   
-   c1.SaveAs("gencombinedeta.png")
-
-   gStyle.SetOptStat(0)
-   c2 = TCanvas("c", "c", 800, 600)
-   h_gen4_phi.SetLineColor(4)
-   h_gen4_phi.GetYaxis().SetTitleOffset(1.5)
-   h_gen4_phi.SetLineWidth(2)
-   h_gen4_phi.SetMaximum(350)
-   h_gen4_phi.Draw()
-   h_gen3_phi.SetLineColor(8)
-   h_gen3_phi.SetLineWidth(2)
-   h_gen3_phi.Draw("same")
-   h_gen2_phi.SetLineColor(6)
-   h_gen2_phi.SetLineWidth(2)
-   h_gen2_phi.Draw("same")
-   h_gen1_phi.SetLineColor(1)
-   h_gen1_phi.SetLineWidth(2)
-   h_gen1_phi.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen4_phi,"#gamma 4","lp")
-   legend.AddEntry(h_gen3_phi,"#gamma 3","lp")
-   legend.AddEntry(h_gen2_phi,"#gamma 2","lp")
-   legend.AddEntry(h_gen1_phi,"#gamma 1","lp")
-   legend.Draw()
-   
-   c2.SaveAs("gencombinedphi.png")
-
-   gStyle.SetOptStat(0)
-   c3 = TCanvas("c", "c", 800, 600)
-   h_gen_mggPP2.SetLineColor(4)
-   h_gen_mggPP2.GetYaxis().SetTitleOffset(1.5)
-   h_gen_mggPP2.SetLineWidth(2)
-   h_gen_mggPP2.Draw()
-   h_gen_mggPP1.SetLineColor(8)
-   h_gen_mggPP1.SetLineWidth(2)
-   h_gen_mggPP1.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen_mggPP2,"a2 mass","lp")
-   legend.AddEntry(h_gen_mggPP1,"a1 mass","lp")
-   legend.Draw()
-   c3.SetLogy()
-   c3.SaveAs("gena1a2mass.png")
-
-   gStyle.SetOptStat(0)
-   c4 = TCanvas("c", "c", 800, 600)
-   h_gen_dr_a2.SetLineColor(4)
-   h_gen_dr_a2.GetYaxis().SetTitleOffset(1.5)
-   h_gen_dr_a2.SetLineWidth(2)
-   h_gen_dr_a2.SetMaximum(1700)
-   h_gen_dr_a2.Draw()
-   h_gen_dr_a1.SetLineColor(8)
-   h_gen_dr_a1.SetLineWidth(2)
-   h_gen_dr_a1.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen_dr_a2,"gen a2 #Delta r","lp")
-   legend.AddEntry(h_gen_dr_a1,"gen a1 #Delta r","lp")
-   legend.Draw()
-   
-   c4.SaveAs("gena1a2dr.png")
-
-   gStyle.SetOptStat(0)
-   c5 = TCanvas("c", "c", 800, 600)
-   h_gen_dphi_a2.SetLineColor(4)
-   h_gen_dphi_a2.GetYaxis().SetTitleOffset(1.5)
-   h_gen_dphi_a2.SetLineWidth(2)
-   h_gen_dphi_a2.SetMaximum(800)
-   h_gen_dphi_a2.Draw()
-   h_gen_dphi_a1.SetLineColor(8)
-   h_gen_dphi_a1.SetLineWidth(2)
-   h_gen_dphi_a1.Draw("same")
-   
-   legend = TLegend(0.5,0.8,0.7,0.9)
-   legend.AddEntry(h_gen_dphi_a2,"gen a2 #Delta #phi","lp")
-   legend.AddEntry(h_gen_dphi_a1,"gen a1 #Delta #phi","lp")
-   legend.Draw()
-   
-   c5.SaveAs("gendeltaphi.png")
-
-   gStyle.SetOptStat(0)
-   c6 = TCanvas("c", "c", 800, 600)
-   h_gen_deta_a2.SetLineColor(4)
-   h_gen_deta_a2.GetYaxis().SetTitleOffset(1.5)
-   h_gen_deta_a2.SetLineWidth(2)
-   h_gen_deta_a2.SetMaximum(600)
-   h_gen_deta_a2.Draw()
-   h_gen_deta_a1.SetLineColor(8)
-   h_gen_deta_a1.SetLineWidth(2)
-   h_gen_deta_a1.Draw("same")
-
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen_deta_a2,"gena2 #Delta #eta","lp")
-   legend.AddEntry(h_gen_deta_a1,"gena1 #Delta #eta","lp")
-   legend.Draw()
-   
-   c6.SaveAs("gendeltaeta.png")
-   
-   gStyle.SetOptStat()
-   c7 = TCanvas("c", "c", 800, 600)
-   h_gen_mindr.SetLineColor(4)
-   h_gen_mindr.GetYaxis().SetTitleOffset(1.5)
-   h_gen_mindr.SetLineWidth(2)
-   h_gen_mindr.Draw()
-  
-   
-   c7.SaveAs("gennewmindr.png")
-   
-   gStyle.SetOptStat(0)
-   c8 = TCanvas("c", "c", 800, 600)
-   h_gen_mggPP2pt.SetLineColor(4)
-   h_gen_mggPP2pt.GetYaxis().SetTitleOffset(1.5)
-   h_gen_mggPP2pt.SetLineWidth(2)
-   h_gen_mggPP2pt.Draw()
-   h_gen_mggPP1pt.SetLineColor(8)
-   h_gen_mggPP1pt.SetLineWidth(2)
-   h_gen_mggPP1pt.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen_mggPP2pt,"gen a2 p_{T}","lp")
-   legend.AddEntry(h_gen_mggPP1pt,"gen a1 p_{T}","lp")
-   legend.Draw()
-   
-   c8.SaveAs("gennewa1a2pt.png")
-
-   gStyle.SetOptStat(0)
-   c9 = TCanvas("c", "c", 800, 600)
-   h_gen_mggPP2pz.SetLineColor(4)
-   h_gen_mggPP2pz.GetYaxis().SetTitleOffset(1.5)
-   h_gen_mggPP2pz.SetLineWidth(2)
-   h_gen_mggPP2pz.Draw()
-   h_gen_mggPP1pz.SetLineColor(8)
-   h_gen_mggPP1pz.SetLineWidth(2)
-   h_gen_mggPP1pz.Draw("same")
-   
-   legend = TLegend(0.75,0.8,0.9,0.9)
-   legend.AddEntry(h_gen_mggPP2pz,"gen a2 p_{z}","lp")
-   legend.AddEntry(h_gen_mggPP1pz,"gen a1 p_{z}","lp")
-   legend.Draw()
-
-   c9.SaveAs("gena1a2pz.png")
-
-   gStyle.SetOptStat()
-   c10 = TCanvas("c","c",800,600)
-   h_gen_mgggg.SetLineColor(4)
-   h_gen_mgggg.GetYaxis().SetTitleOffset(1.5)
-   h_gen_mgggg.SetLineWidth(2)
-   h_gen_mgggg.Draw()
-   c10.SetLogy()
-   c10.SaveAs("gentetraphotonmass.png")
-
-   gStyle.SetOptStat()
-   c11 = TCanvas("c", "c", 800, 600)
-   h_gen_deltam.SetLineColor(4)
-   h_gen_deltam.GetYaxis().SetTitleOffset(1.5)
-   h_gen_deltam.SetLineWidth(2)
-   h_gen_deltam.Draw()
-  
-   c11.SetLogy()
-   c11.SaveAs("gena1a2massdiff.png")
+   h_2d.Write()
+   h_len_genphos.Write()
 
    outRoot.Close()
   # .! rootls -1 myfirstfile.root
