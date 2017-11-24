@@ -8,9 +8,9 @@
 import os
 import os.path
 import optparse
-#from ROOT import *
+from ROOT import *
 import ROOT
-
+#import TCanvas.h
 
 if __name__ == '__main__':
   
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         
   (opt, args) = parser.parse_args()
   
-  
+  # get the cuts from cuts.py
   cuts = {}
   if opt.cutsFile == None :
      print " Please provide the cuts structure ... it is needed!" 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     print "cut = ", cutName, " :: ", cuts[cutName]
   
   
-  # ~~~~
+  # ~~~~ get nuisances like lumi blah blah
   nuisances = {}
   if opt.nuisancesFile == None :
      print " Please provide the nuisances structure if you want to add nuisances " 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     exec(handle)
     handle.close()
   
-  # ~~~~
+  # ~~~~ get samples : the signal and data files you want to work with
   samples = {}
   if opt.samplesFile == None :
      print " Please provide the samples file ... seriously no samples?? " 
@@ -81,9 +81,11 @@ if __name__ == '__main__':
   # ... now let's run ...
   #
   
+  # setting up os things --create directory for data card etc
   if not os.path.isdir (opt.outputDirDatacard + "/") :
     os.mkdir(opt.outputDirDatacard + "/")
   
+  ## now we go over all the cuts we encountered in the beginning --initiate empty lists --datas,signals,backgrounds for every cut
   #---- loop over "cuts"
   for cutName in cuts :
     
@@ -94,8 +96,9 @@ if __name__ == '__main__':
     signals     = []
     backgrounds = []
     
+
     # calculate yields for data, signal and background
-    yieldsSig  = {}
+    yieldsSig  = {}   ## these are dictinories (?)
     yieldsBkg  = {}
     yieldsData = {}
   
@@ -106,8 +109,9 @@ if __name__ == '__main__':
     #yieldsBkg['bkg'] = 10.3
     #yieldsSig['sig'] = 100.999
     
-    for sampleName, sample in samples.iteritems():
-      if sample['isData'] == 1 :
+
+    for sampleName, sample in samples.iteritems():  # now going over every sample --this includes data, back and sig
+      if sample['isData'] == 1 : ## self explanatory  -- just append data list with data sample name and similarly for back and sig
         datas.append(sampleName)
       elif sample['isSignal'] == 1 :
         signals.append(sampleName)
@@ -117,9 +121,10 @@ if __name__ == '__main__':
     #
     # data and background are all merged into 1 single "sample"
     #
-    trees_data = {}
-    for data in datas :
-      for itree in range(len(samples[data]['name'])):
+    trees_data = {}  ## again initialize dictionary
+    for data in datas :  ## for every data sample in "datas" list
+      print len(samples[data]['name']) ##  just get the "name" of the root file as input -- very clever python thing and basically just printing out how many files there 
+      for itree in range(len(samples[data]['name'])):  ## looping over all the different input data files
         chain = ROOT.TChain('H4GSel')
         chain.Add(samples[data]['name'][itree])
         if 'trees' in trees_data.keys() :
@@ -182,21 +187,23 @@ if __name__ == '__main__':
     #
     # now get the yields
     #
+
+ ## at this step we calculate the yield -- how many events are there in the tree after weights and cuts are applied
     yieldsData['data'] = 0
     for itree in range(len(trees_data['trees'])) :
       yieldsData['data'] += (trees_data['trees'][itree]).GetEntries( '(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')' )
-    
+    print "Data Yield  ", yieldsData['data']
     for background in backgrounds :
       yieldsBkg[background] = 0.
       for itree in range(len(dict_trees_background[background]['trees'])) :
         yieldsBkg[background] += (dict_trees_background[background]['trees'][itree]).GetEntries( '(' + dict_trees_background[background]['weights'][itree]   + ') * (' + cuts[cutName] + ')'  )
-
+    print "Background Yield  ", yieldsBkg[background]
     for signal in signals :
       yieldsSig[signal] = 0.
       for itree in range(len(dict_trees_signal[signal]['trees'])) :
         yieldsSig[signal] += (dict_trees_signal[signal]['trees'][itree]).GetEntries( '(' + dict_trees_signal[signal]['weights'][itree]  + ') * (' + cuts[cutName] + ')'   )
       
-    
+    print "Signal Yield  ",yieldsSig[signal]
     
     
     
@@ -208,36 +215,42 @@ if __name__ == '__main__':
     #
     
     tagNameToAppearInDatacard = cutName
-
+    print tagNameToAppearInDatacard
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/") :
       os.mkdir(opt.outputDirDatacard + "/" + cutName + "/")
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/" + "shapes/") :
       os.mkdir(opt.outputDirDatacard + "/" + cutName + "/" + "shapes/")
     
-    name_root_file_with_workspace = opt.outputDirDatacard + "/" + cutName + "/shapes/w_" + tagNameToAppearInDatacard + ".root"
+    name_root_file_with_workspace = "/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/t4gamma-supercut/shapes/w_t4gamma-supercut.root"
 
     root_file_with_workspace = ROOT.TFile (name_root_file_with_workspace, "RECREATE")
     
     w = ROOT.RooWorkspace("w")
     # create the variable
-    w.factory( "tp_mass[80, 160]" )
+    w.factory( "tp_mass[100, 160]" )
     w.var( "tp_mass" ).SetTitle("tp_mass")
     w.var( "tp_mass" ).setUnit("GeV")
-   
-    w.factory( "dp1_mass[0,200]" )
     
- 
+    w.factory( "dp1_mass[0,200]" )
+    w.factory( "dp2_mass[0,200]" )    
+    w.factory( "mean[4.03336e-02, 0.0001, 10]") 
     # the set of variables
     treeVars = ROOT.RooArgSet()
     treeVars.add( w.var( "tp_mass" ) )
     treeVars.add( w.var("dp1_mass") )    
-    
+    treeVars.add( w.var("dp2_mass") )
+    treeVars.add( w.var("mean") )
     data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
-    print "HEYYYY",trees_data['trees']
+    
+    #RooArgList *mypdfs
     for itree in range(len(trees_data['trees'])) :
       
       data_RooDataSet_temp = ROOT.RooDataSet( "data", "data", (trees_data['trees'][itree]), treeVars)
       data_RooDataSet.append(data_RooDataSet_temp.reduce('(' + trees_data['weights'][itree] + ') * (' + cuts[cutName] + ')'))
+      #c1 = TCanvas('c1','PDF Fits',200,10,700,500)
+      #tp_mass = ROOT.RooRealVar("tp_mass","tp_mass",80,160)
+      #frame = tp_mass.frame()
+      #data.plotOn(frame)
 
 
 
@@ -256,43 +269,179 @@ if __name__ == '__main__':
     #ws.import(signal_RooDataSet)
 
       
-      #TChain* treeTemp = new TChain("H4GSel");
-      #treeTemp->AddFile(TString(rootName));
-      
-      
-      #TTree* tree = (TTree*) treeTemp->CopyTree(std::string(selection + " && " + categoriesCuts[cat]).c_str() );
-      #std::cout << "Reading file: " << rootName << "\n\t with " << tree->GetEntries() << " entries \n\t Making the following cut: " << categoriesCuts[cat] << std::endl;
-      #RooDataSet* data = new RooDataSet( "data", "data", tree, *treeVars);
-          
-      #//Get signal distribution from file
-      #TChain* treeTempSig = new TChain("H4GSel");
-      #treeTempSig->AddFile(TString(signal_File));
-      #std::string toCut = selection + " && " + categoriesCuts[cat];
-      #if(TString(categoriesCuts[cat]).Contains("< 0")) toCut = selection;
-      #TTree* treeSig = (TTree*) treeTempSig->CopyTree( toCut.c_str() );
-      #std::cout << "Reading signal file: " << signal_File << "\n\t with " << treeSig->GetEntries() << " entries \n\t Making the following cut: " << categoriesCuts[cat] << std::endl;
-#//      RooDataSet* dataSig = new RooDataSet( "dataSig", "dataSig", treeSig, *treeVars, cut.c_str(), "evWeight" );
-      #RooDataSet* dataSig = new RooDataSet( "dataSig", "dataSig", treeSig, *treeVars);
-        
-      #w->import(*data);
-      #w->import(*dataSig);
-      
+    
+    #w.factory( "RooBernstein:bkg_pdf(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
 
-    #ws.factory( "RooFormulaVar:meanSigCB1('meanG1*mH/125.09', {meanG1[125, 120, 128], mH[125.09]})"  )
-    
-      #for ( unsigned int f = 0; f < signal_Functions.size(); f++){
-          #TString thisFunction(signal_Functions[f]);
-          #std::cout << "Signal function added: " << thisFunction << std::endl;
-          #w->factory( thisFunction.Data() );
-      #}
-    
-    #ws.factory( "RooBernstein:Bern2_tp_mass(tp_mass, {mod_b2_p0_mgg_bb, mod_b2_p1_mgg_bb, mod_b2_p2_mgg_bb} )"  )
-    w.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  )
-    w.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])");
+    ## ~ lets create all the variables here
 
+
+    #tp_mass = ROOT.RooRealVar("tp_mass","tp_mass",80,160) 
+    #mean = ROOT.RooRealVar("mean","mean",4.03336e-02, 0.0001, 10) 
+    #exp = ROOT.RooExponential("exp","bkg exp",tp_mass,mean)
+    ## add different pdf's 
+    #mypdfs = ROOT.RooArgList()  
+    #bern2_p0 = ROOT.RooRealVar("bern2_p0","bern2_p0",0.3,-10,10)
+    #bern2_p1 = ROOT.RooRealVar("bern2_p1","bern2_p1",0.2,-10,10)
+    #bern2_p2 = ROOT.RooRealVar("bern2_p2","bern2_p2",0.1,-10,10)    
+    #bern2.add(bern2_p0)
+    #bern2.add(bern2_p1)
+    #bern2.add(bern2_p2)
+    #Bern2 = ROOT.RooBernstein(tp_mass,bern2)
     
+    #bern3 = ROOT.RooArgList()
+    #bern3_p0 = ROOT.RooRealVar("bern3_p0","bern3_p0",0.3, -10, 10)
+    #bern3_p1 = ROOT.RooRealVar("bern3_p1","bern3_p1",0.2, -10, 10)
+    #bern3_p2 = ROOT.RooRealVar("bern3_p2","bern3_p2",0.1, -10, 10)
+    #bern3_p3 = ROOT.RooRealVar("bern3_p3","bern3_p3",0.1, -10, 10)
+    #bern3.add(bern3_p0)
+    #bern3.add(bern3_p1)
+    #bern3.add(bern3_p2)
+    #bern3.add(bern3_p3)
     
+   
+    #w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,bern2_p0[0.3,-10,10],bern2_p1[0.2,-10,10],bern2_p2[0.1,-10,10])")
+    #w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2})")
+    #w.factory( "Bernstein:bkg_bern_pdf(tp_mass,RooArgList(bern2_p0,bern2_p1,bern2_p2))")
+    #bkg_bern_pdf = ROOT.RooBernstein('bkg_bern_pdf','bkg_bern_pdf',tp_mass,RooArgList(bern2_p0,bern2_p1,bern2_p2))
+    #w.factory( "Exponential:bkg_exp_pdf(tp_mass, a1[4.03336e-02, 0.0001, 10])")
+    #treeVars.add( w.var( "mean" ) )
+    #w.factory( "Exponential:bkg_exp_pdf(tp_mass,mean)")
+    # ~ Bernstein polynomials
+     
+    w.factory( "bern1_p0[0.2,-10,10]")
+    w.factory( "bern1_p1[0.1,-10,10]")
+    treeVars.add( w.var("bern1_p0") )
+    treeVars.add( w.var("bern1_p1") )
+    w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1})").fitTo(data_RooDataSet,RooFit.SumW2Error(kTRUE), RooFit.Save(kTRUE))    
+    #w.factory(bkg_bern1_pdf.fitTo(data_RooDataSet))
+    w.factory( "bern2_p0[0.3,-10,10]")
+    w.factory( "bern2_p1[0.2,-10,10]")
+    w.factory( "bern2_p2[0.1,-10,10]")    
+    treeVars.add( w.var("bern2_p0") )
+    treeVars.add( w.var("bern2_p1") )
+    treeVars.add( w.var("bern2_p2") )
+    #w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2})") 
     
+    w.factory( "bern3_p0[0.3,-10,10]")
+    w.factory( "bern3_p1[0.2,-10,10]")
+    w.factory( "bern3_p2[0.1,-10,10]")
+    w.factory( "bern3_p3[0.1,-10,10]")
+    treeVars.add( w.var("bern3_p0") )
+    treeVars.add( w.var("bern3_p1") )
+    treeVars.add( w.var("bern3_p2") )
+    treeVars.add( w.var("bern3_p3") )
+    #w.factory( "Bernstein:bkg_bern3_pdf(tp_mass,{bern3_p0,bern3_p1,bern3_p2,bern3_p3})")    
+
+    w.factory( "bern4_p0[0.4,-10,10]")
+    w.factory( "bern4_p1[0.3,-10,10]")
+    w.factory( "bern4_p2[0.2,-10,10]")
+    w.factory( "bern4_p3[0.1,-10,10]")
+    w.factory( "bern4_p4[0.1,-10,10]")
+    treeVars.add( w.var("bern4_p0") )
+    treeVars.add( w.var("bern4_p1") )
+    treeVars.add( w.var("bern4_p2") )
+    treeVars.add( w.var("bern4_p3") )
+    treeVars.add( w.var("bern4_p4") )
+    #w.factory( "Bernstein:bkg_bern4_pdf(tp_mass,{bern4_p0,bern4_p1,bern4_p2,bern4_p3,bern4_p4})")
+    
+    w.factory( "bern5_p0[0.5,-10,10]")
+    w.factory( "bern5_p1[0.4,-10,10]")
+    w.factory( "bern5_p2[0.3,-10,10]")
+    w.factory( "bern5_p3[0.2,-10,10]")
+    w.factory( "bern5_p4[0.1,-10,10]")
+    w.factory( "bern5_p5[0.1,-10,10]")
+    treeVars.add( w.var("bern5_p0") )
+    treeVars.add( w.var("bern5_p1") )
+    treeVars.add( w.var("bern5_p2") )
+    treeVars.add( w.var("bern5_p3") )
+    treeVars.add( w.var("bern5_p4") )
+    treeVars.add( w.var("bern5_p5") )
+    #w.factory( "Bernstein:bkg_bern5_pdf(tp_mass,{bern5_p0,bern5_p1,bern5_p2,bern5_p3,bern5_p4,bern5_p5})")
+
+    w.factory( "bern6_p0[0.6,-10,10]")
+    w.factory( "bern6_p1[0.5,-10,10]")
+    w.factory( "bern6_p2[0.4,-10,10]")
+    w.factory( "bern6_p3[0.3,-10,10]")
+    w.factory( "bern6_p4[0.2,-10,10]")
+    w.factory( "bern6_p5[0.1,-10,10]")
+    w.factory( "bern6_p6[0.1,-10,10]")    
+    treeVars.add( w.var("bern6_p0") )
+    treeVars.add( w.var("bern6_p1") )
+    treeVars.add( w.var("bern6_p2") )
+    treeVars.add( w.var("bern6_p3") )
+    treeVars.add( w.var("bern6_p4") )
+    treeVars.add( w.var("bern6_p5") )
+    treeVars.add( w.var("bern6_p6") )
+    #w.factory( "Bernstein:bkg_bern6_pdf(tp_mass,{bern6_p0,bern6_p1,bern6_p2,bern6_p3,bern6_p4,bern6_p5,bern6_p6})")
+    
+    # ~ Chebychev 
+    w.factory( "cheb[0.01,10,10]")
+    treeVars.add( w.var("cheb") )
+    w.factory( "Chebychev:bkg_cheb_pdf(tp_mass,cheb)")
+     
+    # ~ exponential
+    w.factory( "exp1_lambda[4.03336e-02, 0.0001, 10]")
+    treeVars.add( w.var("exp1_lambda"))
+    w.factory( "exp2_lambda[4.88218e-01, 0.0001, 10]")
+    treeVars.add( w.var("exp2_lambda"))     
+    w.factory( "frac1[4.08756e-02, 0.0001, 1]")
+    treeVars.add( w.var("frac1"))
+    w.factory( "frac2[-4.29406e-01, -100, 0.0001]")
+    treeVars.add( w.var("frac2"))    
+    #w.factory( "Exponential:bkg_exp2_pdf(tp_mass, a2[4.88218e-01, 0.0001, 10])")
+    w.factory( "Exponential:bkg_exp1_pdf(tp_mass,exp1_lambda)"  )
+    w.factory( "Exponential:bkg_exp2_pdf(tp_mass,exp2_lambda)"  )    
+    #w.factory( "SUM:bkg_exp_sum_pdf(frac1*bkg_exp1_pdf,frac2*bkg_exp2_pdf)") 
+    #w.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])")
+    #mypdfs.add(w.factory( "Exponential:bkg_exp_pdf(tp_mass, a1[4.03336e-02, 0.0001, 10])"))
+    #mypdfs.add(w.factory( "Exponential:bkg_exp2_pdf(tp_mass, a2[4.88218e-01, 0.0001, 10])"))
+    #mypdfs.add(w.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  ))
+    #print "These are all the pdf's  ", mypdfs
+    cat = ROOT.RooCategory('pdf index','index of the active pdf')
+
+    mypdfs = ROOT.RooArgList()
+    mypdfs.add(w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1})"))
+    mypdfs.add(w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2})"))
+    mypdfs.add(w.factory( "Bernstein:bkg_bern3_pdf(tp_mass,{bern3_p0,bern3_p1,bern3_p2,bern3_p3})"))
+    mypdfs.add(w.factory( "Bernstein:bkg_bern4_pdf(tp_mass,{bern4_p0,bern4_p1,bern4_p2,bern4_p3,bern4_p4})"))
+    mypdfs.add(w.factory( "Bernstein:bkg_bern5_pdf(tp_mass,{bern5_p0,bern5_p1,bern5_p2,bern5_p3,bern5_p4,bern5_p5})"))
+    mypdfs.add(w.factory( "Bernstein:bkg_bern6_pdf(tp_mass,{bern6_p0,bern6_p1,bern6_p2,bern6_p3,bern6_p4,bern6_p5,bern6_p6})"))
+    
+    #multipdf = ROOT.RooMultiPdf("roomultipdf","all pdfs",cat,mypdfs)
+    #w.RooMultipdf("roomultipdf","all pdfs",cat,mypdfs)
+
+    #w.import(bkg_bern_pdf)
+    #pdf_index = ROOT.RooCategory("pdf_index","Index of which pdf is active")
+    #mypdfs = ROOT.RooArgList()
+    #biasfunctions = []
+    #biasfunctions.append(exp)
+    #for bi,b in enumerate(biasfunctions):
+       # print "Adding functions to multipdf! ",biasfunctions[bi]
+        #modelname = b
+        #print " The modelname is   ", modelname
+        #mypdfs.add(w.pdf(modelname))
+    #bkg_exp_pdf.fitTo(*data)
+    #print " THIS is the pdf index ", pdf_index
+    #multipdf = ROOT.RooMultiPdf("roomultipdf","All pdfs",pdf_index,mypdfs) 
+    #RooAbsPdf *pdf_1 = w.pdf("bkg_exp2");
+    
+    # ~~ Make plots
+    #c1 = TCanvas('c1','PDF Fits',200,10,700,500)
+    #frame = tp_mass.frame()
+    #x = ROOT.RooRealVar( 'x', 'x', 80, 160 )
+    #mean = ROOT.RooRealVar( 'mean', 'mean of gaussian', -1 )
+    #sigma = ROOT.RooRealVar( 'sigma', 'width of gaussian', 3 )
+    #gauss = ROOT.RooGaussian( 'gauss', 'gaussian PDF',x, mean, sigma )
+    #w.factory( "Exponential:bkg_exp_pdf(tp_mass, a1[4.03336e-02, 0.0001, 10])").plotOn(frame)
+    #xframe = x.frame() 
+    #bkg_exp_pdf.plotOn(xframe)
+    #frame.Draw()
+    #c1.SaveAs("blah.pdf")
+    #fitresult = bkg_exp_pdf.fitTo(data_RooDataSet,ROOT.RooFit.Save())
+    #fitresult = w.pdf(bkg_exp_pdf).fitTo(data,ROOT.RooFit.Save(),ROOT.RooFit.PrintLevel(-1))
+    #exp.plotOn(xframe)
+    #xframe.Draw() 
+    #xframe.SaveAs("blah.png") 
       #//Initialize all needed PDFs for background
       #for ( unsigned int f = 0; f < functions.size(); f++){
         #TString thisFunction(functions[f]);
@@ -300,14 +449,14 @@ if __name__ == '__main__':
         #w->factory( thisFunction.Data() );
       #}
       
-      
+     
       
     # save the workspace
     w.Write()
     root_file_with_workspace.Close()
     
 
-    
+    #print "HIIIIIII"
     
     
     
