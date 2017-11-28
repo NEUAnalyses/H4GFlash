@@ -230,18 +230,18 @@ if __name__ == '__main__':
     w.factory( "tp_mass[100, 160]" )
     w.var( "tp_mass" ).SetTitle("tp_mass")
     w.var( "tp_mass" ).setUnit("GeV")
-    w.var( "tp_mass").setRange("reg1",100,115) 
-    w.var( "tp_mass").setRange("reg2",135,180)
+    #w.var( "tp_mass").setRange("reg1",100,115) 
+    #w.var( "tp_mass").setRange("reg2",135,180)
     w.factory( "dp1_mass[0,200]" )
     w.factory( "dp2_mass[0,200]" )    
-    w.factory( "mean[4.03336e-02, 0.0001, 10]") 
+    #w.factory( "mean[4.03336e-02, 0.0001, 10]") 
     # the set of variables
     treeVars = ROOT.RooArgSet()
     treeVars.add( w.var( "tp_mass" ) )
     #frame = w.var( "tp_mass" ).frame()
     treeVars.add( w.var("dp1_mass") )    
     treeVars.add( w.var("dp2_mass") )
-    treeVars.add( w.var("mean") )
+    #treeVars.add( w.var("mean") )
     data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
     
     #RooArgList *mypdfs
@@ -271,8 +271,20 @@ if __name__ == '__main__':
     #ws.import(signal_RooDataSet)
 
     # ~ create null pdf
-    w.factory("GenericPdf:step_pdf("step_pdf","step_pdf","(0.1*tp_mass)",{tp_mass})")  
-    
+    #w.factory("GenericPdf:step_pdf("step_pdf","step_pdf","(0.1*tp_mass)",{tp_mass})")  
+    leftedge = 115
+    rightedge = 135
+    #w.factory("GenericPdf:step_pdf(step_pdf,step_pdf,tp_mass*0.1,{tp_mass,leftedge,rightedge))")
+    c2 = TCanvas( 'c2', 'Example with Formula', 200, 10, 700, 500 )
+    #func1 = TF1( 'func1','((x > 115) ? 0 : 0)',80,160)
+    #func1 = TF1(
+   # f =  TF1("f", "((x > 2) ? sin(x) : 0)", -10, 10) 
+    func1 =  TF1("func1", "1 * ((x > 115 && x < 135) ? 0 : 1)", 80, 160)
+    func2 =  TF1("func2", "1 * ((x < 135) ? 0 : 1)", 80, 160)
+    func_null = TF1("func_null","func1-func2")
+    func1.Draw()
+    c2.Update()
+    c2.SaveAs("null.png")
     # ~ Bernstein polynomials
     w.factory( "bern1_p0[0.2,-10,10]")
     w.factory( "bern1_p1[0.1,-10,10]")
@@ -297,8 +309,9 @@ if __name__ == '__main__':
     treeVars.add( w.var("bern3_p2") )
     treeVars.add( w.var("bern3_p3") )
     #Fit_bkg_bern3_pdf = ROOT.RooFitResult(w.factory( "Bernstein:bkg_bern3_pdf(tp_mass,{bern3_p0,bern3_p1,bern3_p2,bern3_p3})").fitTo(data_RooDataSet,RooFit.SumW2Error(kTRUE), RooFit.Save(kTRUE)))
-    w.factory( "RooEffProd:bkg_prod_pdf(w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1}),w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2}))")    
-
+    #w.factory( "RooEffProd:bkg_prod_pdf(w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1}),w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2}))")    
+    #w.factory( "RooEffProd:bkg_prod_pdf(func1,w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2})"))
+    w.factory( "RooEffProd:bkg_prod_pdf(func2,func1)")
     w.factory( "bern4_p0[0.4,-10,10]")
     w.factory( "bern4_p1[0.3,-10,10]")
     w.factory( "bern4_p2[0.2,-10,10]")
@@ -368,7 +381,7 @@ if __name__ == '__main__':
     #w.factory( "Exponential:bkg_exp1_pdf(tp_mass,exp1_lambda)"  )
     #w.factory( "Exponential:bkg_exp2_pdf(tp_mass,exp2_lambda)"  )    
     #w.factory( "SUM:bkg_exp_sum_pdf(frac1*bkg_exp1_pdf,frac2*bkg_exp2_pdf)") 
-    w.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])")
+    #w.factory( "Gaussian:sig_pdf(tp_mass, mass[125, 110, 130], sigma[4, 2, 10])")
     #mypdfs.add(w.factory( "Exponential:bkg_exp_pdf(tp_mass, a1[4.03336e-02, 0.0001, 10])"))
     #mypdfs.add(w.factory( "Exponential:bkg_exp2_pdf(tp_mass, a2[4.88218e-01, 0.0001, 10])"))
     #mypdfs.add(w.factory( "Exponential:bkg_pdf(tp_mass, a[-0.5,-2,-0.2])"  ))
@@ -387,7 +400,7 @@ if __name__ == '__main__':
     nbins = ROOT.RooBinning(-15,15)
     frame = w.var( "tp_mass" ).frame()
     data_RooDataSet.plotOn(frame)#,CutRange("reg1"))  
-    w.factory("PROD:bern12_pdf(bkg_bern1_pdf,bkg_bern2_pdf)")  
+    #w.factory("PROD:bern12_pdf(bkg_bern1_pdf,bkg_bern2_pdf)")  
     for fi, f in enumerate(FitResults):
         #stat=f[1].status()
         #minnll=f[1].minNll()
@@ -396,8 +409,9 @@ if __name__ == '__main__':
         minnll = ROOT.RooFitResult(w.factory( f[1]).fitTo(data_RooDataSet,RooFit.SumW2Error(kTRUE), RooFit.Save(kTRUE))).minNll()
         w.factory(f[1]).plotOn(frame,RooFit.LineColor(f[2]))
         leg.AddEntry(w.factory(f[1]),f[0],'lf')
-    #frame.Draw()
-    #leg.Draw('same')
+    frame.Draw()
+    leg.Draw('same')
+    c1.SaveAs("test.png")
     cat = ROOT.RooCategory('pdf index','index of the active pdf')
 
     mypdfs = ROOT.RooArgList()
@@ -407,59 +421,15 @@ if __name__ == '__main__':
     mypdfs.add(w.factory( "Bernstein:bkg_bern4_pdf(tp_mass,{bern4_p0,bern4_p1,bern4_p2,bern4_p3,bern4_p4})"))
     mypdfs.add(w.factory( "Bernstein:bkg_bern5_pdf(tp_mass,{bern5_p0,bern5_p1,bern5_p2,bern5_p3,bern5_p4,bern5_p5})"))
     mypdfs.add(w.factory( "Bernstein:bkg_bern6_pdf(tp_mass,{bern6_p0,bern6_p1,bern6_p2,bern6_p3,bern6_p4,bern6_p5,bern6_p6})"))
-    
-    #multipdf = ROOT.RooMultiPdf("roomultipdf","all pdfs",cat,mypdfs)
-    #w.factory("RooMultiPdf:multipdf(multipdf,multipdfs,cat,mypdfs)")
-
-    #w.import(bkg_bern_pdf)
-    #pdf_index = ROOT.RooCategory("pdf_index","Index of which pdf is active")
-    #mypdfs = ROOT.RooArgList()
-    #biasfunctions = []
-    #biasfunctions.append(exp)
-    #for bi,b in enumerate(biasfunctions):
-       # print "Adding functions to multipdf! ",biasfunctions[bi]
-        #modelname = b
-        #print " The modelname is   ", modelname
-        #mypdfs.add(w.pdf(modelname))
-    #bkg_exp_pdf.fitTo(*data)
-    #print " THIS is the pdf index ", pdf_index
-    #multipdf = ROOT.RooMultiPdf("roomultipdf","All pdfs",pdf_index,mypdfs) 
-    #RooAbsPdf *pdf_1 = w.pdf("bkg_exp2");
-    nbins=60
-    # ~~ Make plots
-    #c1 = TCanvas('c1','PDF Fits',200,10,700,500)
-    #Colors =[kBlue,kRed,kMagenta,kGreen+1,kOrange+7,kAzure+10,kBlack]
-    #frame = w.var( "tp_mass" ).frame()
-    #data_RooDataSet.plotOn(frame)
-    #w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1})").plotOn(frame,RooFit.LineColor(Colors[1]))
-    
-    #plot = ROOT.RooPlot(tp_mass.frame())
-    #frame = tp_mass.frame()
-    #data_RooDataSet.plotOn(frame)
-    frame.Draw()
-    #leg.Draw("same")
-    c1.SaveAs("test.png") 
-    #tp_mass = ROOT.RooRealVar( 'tp_mass', 'tp_mass', 80, 160 )
-    #frame = tp_mass.frame()
-    #mean = ROOT.RooRealVar( 'mean', 'mean of gaussian', -1 )
-    #sigma = ROOT.RooRealVar( 'sigma', 'width of gaussian', 3 )
-    #gauss = ROOT.RooGaussian( 'gauss', 'gaussian PDF',x, mean, sigma )
-    #w.factory( "Exponential:bkg_exp_pdf(tp_mass, a1[4.03336e-02, 0.0001, 10])").plotOn(frame)
-    #xframe = x.frame() 
-    #bkg_exp_pdf.plotOn(xframe)
+    multipdf = ROOT.RooMultiPdf("multipdf","all pdfs",cat,mypdfs)  
+  
     #frame.Draw()
-    #c1.SaveAs("blah.pdf")
-    #fitresult = bkg_exp_pdf.fitTo(data_RooDataSet,ROOT.RooFit.Save())
-    #fitresult = w.pdf(bkg_exp_pdf).fitTo(data,ROOT.RooFit.Save(),ROOT.RooFit.PrintLevel(-1))
-    #exp.plotOn(xframe)
-    #xframe.Draw() 
-    #xframe.SaveAs("blah.png") 
-      #//Initialize all needed PDFs for background
-      #for ( unsigned int f = 0; f < functions.size(); f++){
-        #TString thisFunction(functions[f]);
-        #std::cout << "Function added: " << thisFunction << std::endl;
-        #w->factory( thisFunction.Data() );
-      #}
+    #c1.SaveAs("test.png") 
+      
+    # ~~ Lets talk about signal! -- Sum of Gaussians
+    #w.factory( "Gaussian:sig_gaus1_pdf(tp_mass, mass[125, 110, 130], sigma[2, 4, 10])")
+    w.factory( "mean[4.03336e-02, 0.0001, 10]") 
+
       
      
       
@@ -468,7 +438,6 @@ if __name__ == '__main__':
     root_file_with_workspace.Close()
     
 
-    #print "HIIIIIII"
     
     
     
@@ -499,7 +468,7 @@ if __name__ == '__main__':
      
     card.write('-'*100+'\n')
     card.write('bin         %s' % tagNameToAppearInDatacard+'\n')    
-    card.write('observation %.0f\n' -1)
+    card.write('observation -1'+'\n')
     card.write('-'*100+'\n')
 
    
