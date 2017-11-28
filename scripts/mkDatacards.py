@@ -493,7 +493,7 @@ if __name__ == '__main__':
     card.write('jmax * number of background\n')
     card.write('kmax * number of nuisance parameters\n') 
     
-    card.write('shapes  bkg      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:bkg_pdf \n')
+    card.write('shapes  bkg      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:multipdf \n')
     card.write('shapes  sig      ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:sig_pdf \n')
     card.write('shapes  data_obs ' + tagNameToAppearInDatacard + '  '  + name_root_file_with_workspace  + '  w:data \n')
      
