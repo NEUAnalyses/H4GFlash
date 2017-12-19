@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = ''
-   outputfile = 'output.root'
+   inputfiles = '/eos/cms/store/user/twamorka/4gamma/Dec18/sig0p1.root'
+   outputfile = 'Eff_v2/sig0p1.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -98,10 +98,10 @@ def main(argv):
       cut7[0] = 0 # > 3 photons + ID
       cut8[0] = 0 # > 3 photons + Trigger
       cut9[0] = 0 # pT > 15GeV
-      cut10[0] = 0 # abs (eta) < 2.5
-      cut11[0] = 0 # abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < 0.2
-      cut12[0] = 0 # abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < 0.2
-      cut13[0] = 0 # pass electron veto
+      #cut10[0] = 0 # abs (eta) < 2.5
+      #cut11[0] = 0 # abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < 0.2
+      #cut12[0] = 0 # abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < 0.2
+      #cut13[0] = 0 # pass electron veto
       #cut14[0] = 0 # cut2+cut12
       Phos = []
       Phos_id = []
@@ -117,7 +117,8 @@ def main(argv):
         if minDR > 0.001:
            Phos.append(p4)
            Phos_id.append(p)
-
+      Phos.sort(key=lambda x: x.Pt(), reverse=True)
+      #print evt, "number of photons", len(Phos)
       if len(Phos) > 0:
          cut0[0] = 1
       if len(Phos) > 1:
@@ -126,21 +127,6 @@ def main(argv):
          cut2[0] = 1
       if len(Phos) > 3:
          cut3[0] = 1
-		 		
-
-      for i,pho in enumerate(Phos):
-          if pho.Pt() > 15:
-             cut9[0] = 1
-          if abs(pho.Eta()) < 2.5:
-             cut10[0]=1
-          if abs(pho.Eta()) > 1.5 and tree.v_pho_mva > 0.2:
-             cut11[0]=1
-          if abs(pho.Eta()) < 1.5 and tree.v_pho_mva > 0.2:
-             cut12[0]=1
-          if tree.v_pho_passElectronVeto!=0:
-             cut13[0]=1
-          #if abs(pho.Eta()) > 1.5 and tree.v_pho_mva > 0.2 and len(Phos) > 3:
-             #cut14[0]=1
 			
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
 #      sPhos,sPhos_id = treeSkimmer.MakePhotonSelectionCutBased(Phos, Phos_id, tree.rho, tree.v_pho_chargedHadronIso, tree.v_pho_neutralHadronIso, tree.v_pho_photonIso, tree.v_pho_hadronicOverEm, tree.v_pho_full5x5_sigmaIetaIeta, tree.v_pho_passElectronVeto)
@@ -156,10 +142,9 @@ def main(argv):
          
       if len(sPhos) > 3:
          #R9, CHIso, HoE, PSeed
-         triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed)
-
+         triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta)
          if triggeredDipho != 0: #no diphoton triggered
-           cut8[0] = 1
+            cut8[0] = 1
 
       evtCounter += 1
 
