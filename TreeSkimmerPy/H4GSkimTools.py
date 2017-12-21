@@ -81,6 +81,7 @@ class SkimmedTreeTools:
       self.nvtx = n.zeros(1,dtype=int)
       self.npu = n.zeros(1,dtype=float)
       self.genTotalWeight = n.zeros(1,dtype=float) 
+      self.passTrigger = n.zeros(1, dtype=float)
       self.v_pho_genmatch = n.zeros(1,dtype=float)
       self.v_pho_r9 = n.zeros(1,dtype=float)
    def MakeSkimmedTree(self):
@@ -163,6 +164,7 @@ class SkimmedTreeTools:
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
+      outTree.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
       return outTree
 
 
@@ -220,7 +222,7 @@ class SkimmedTreeTools:
 
       return fPhos, fPhos_id
 
-   def MakeTriggerSelection(self, Phos, Phos_id, R9, CHIso, HoE, PSeed):
+   def MakeTriggerSelection(self, Phos, Phos_id, R9, CHIso, HoE, PSeed, ECALIso , SigmaIEtaIEta):
       #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
       pho1 = 0
       pho1_id = -99
@@ -228,27 +230,24 @@ class SkimmedTreeTools:
       pho2_id = -99
       #print "Number of photons", len(Phos)
       for i1,p1 in enumerate(Phos):
-         #print "p1 pt ",p1.Pt()
          if p1.Pt() < 30: continue
-         if R9[Phos_id[i1]] < 0.8: continue
+         if R9[Phos_id[i1]] < 0.8 and( ECALIso[Phos_id[i1]] > (6 + 0.012*p1.Pt() or SigmaIEtaIEta[Phos_id[i1]] > 0.015)): continue
          if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
          if HoE[Phos_id[i1]] > 0.08: continue
          if PSeed[Phos_id[i1]] == 1: continue
          if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
-
+         
          for i2,p2 in enumerate(Phos):
             if(i2 <= i1): continue
-            #print "p2 pt ",p2.Pt()
             if p2.Pt() < 20: continue
-            if R9[Phos_id[i2]] < 0.8: continue
+            if R9[Phos_id[i2]] < 0.8 and (ECALIso[Phos_id[i2]] > (6 + 0.012*p2.Pt() or SigmaIEtaIEta[Phos_id[i2]] > 0.015)): continue
             if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
             if HoE[Phos_id[i2]] > 0.08: continue
             if PSeed[Phos_id[i2]] == 1: continue
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
+         
             thisDipho = p1+p2
             if thisDipho.M() < 55: continue
-            #for i3,p3 in enumerate(Phos):
-                 #print "p3 pt  ",p3.Pt()       
             pho1 = p1 
             pho1_id = Phos_id[i1]
             pho2 = p2
