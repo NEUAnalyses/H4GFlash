@@ -230,7 +230,7 @@ class SkimmedTreeTools:
       for i1,p1 in enumerate(Phos):
          #print "p1 pt ",p1.Pt()
          if p1.Pt() < 30: continue
-         if R9[Phos_id[i1]] < 0.8: continue
+         if R9[Phos_id[i1]] < 0.8 and( ECALIso[Phos_id[i1]] > (6 + 0.012*p1.Pt() or SigmaIEtaIEta[Phos_id[i1]] > 0.015)): continue
          if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
          if HoE[Phos_id[i1]] > 0.08: continue
          if PSeed[Phos_id[i1]] == 1: continue
@@ -240,7 +240,7 @@ class SkimmedTreeTools:
             if(i2 <= i1): continue
             #print "p2 pt ",p2.Pt()
             if p2.Pt() < 20: continue
-            if R9[Phos_id[i2]] < 0.8: continue
+            if R9[Phos_id[i2]] < 0.8 and (ECALIso[Phos_id[i2]] > (6 + 0.012*p2.Pt() or SigmaIEtaIEta[Phos_id[i2]] > 0.015)): continue
             if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
             if HoE[Phos_id[i2]] > 0.08: continue
             if PSeed[Phos_id[i2]] == 1: continue
