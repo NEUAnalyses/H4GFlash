@@ -239,7 +239,7 @@ class SkimmedTreeTools:
          #if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
          #if HoE[Phos_id[i1]] > 0.08: continue
          #print "p1 pt ",p1.Pt()
-         if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
+         #if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
          if PSeed[Phos_id[i1]] == 1: continue
          if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
          
@@ -254,7 +254,7 @@ class SkimmedTreeTools:
             #if R9[Phos_id[i2]] < 0.8 and (ECALIso[Phos_id[i2]] > (6 + 0.012*p2.Pt() or SigmaIEtaIEta[Phos_id[i2]] > 0.015)): continue
             #if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
             #if HoE[Phos_id[i2]] > 0.08: continue
-            if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
+            #if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
             if PSeed[Phos_id[i2]] == 1: continue
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
          
