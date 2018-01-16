@@ -230,34 +230,32 @@ class SkimmedTreeTools:
       pho2_id = -99
       #print "Number of photons", len(Phos)
       for i1,p1 in enumerate(Phos):
-         if p1.Pt() < 30 or abs(p1.Eta()) > 1.479: continue
-         if (R9[Phos_id[i1]] < 0.5 or abs(p1.Eta()) > 1.479) and (R9[Phos_id[i1]] < 0.8 or abs(p1.Eta()) < 1.479 ): continue 
-         #if (HoE[Phos_id[i1]] > 0.1 or abs(p1.Eta()) > 1.479) and (HoE[Phos_id[i1]] > 0.1 or abs(p1.Eta()) < 1.479): continue
-         if HoE[Phos_id[i1]] > 0.1: continue
-         if ((R9[Phos_id[i1]] < 0.85 or abs(p1.Eta()) > 1.479) and (R9[Phos_id[i1]] < 0.9 or abs(p1.Eta()) < 1.479)) and (ECALIso[Phos_id[i1]] > (6 + 0.012*p1.Pt()) or ((SigmaIEtaIEta[Phos_id[i1]] > 0.015 or abs(p1.Eta()) > 1.479) and (SigmaIEtaIEta[Phos_id[i1]] > 0.035 or abs(p1.Eta()) < 1.479 ))): continue 
-         #if R9[Phos_id[i1]] < 0.8 and( ECALIso[Phos_id[i1]] > (6 + 0.012*p1.Pt() or SigmaIEtaIEta[Phos_id[i1]] > 0.015)): continue
-         #if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
+         #if p1.Pt() < 30: continue
+         #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i1]] < 0.85: continue
          #if HoE[Phos_id[i1]] > 0.08: continue
-         #print "p1 pt ",p1.Pt()
-         #if CHIso[Phos_id[i1]] > 20 and CHIso[Phos_id[i1]]/p1.Pt() > 0.3: continue
-         if PSeed[Phos_id[i1]] == 1: continue
-         if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
-         
+         #if R9[Phos_id[i1]] < 0.5: continue
+         #if PSeed[Phos_id[i1]] == 1: continue
+         #if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue        
          for i2,p2 in enumerate(Phos):
-            if(i2 <= i1): continue
+            if(i2 <=i1): continue
+            if p1.Pt() < 30: continue
             if p2.Pt() < 20: continue
-            if (R9[Phos_id[i2]] < 0.5 or abs(p2.Eta()) > 1.479) and (R9[Phos_id[i2]] < 0.8 or abs(p2.Eta()) < 1.479 ): continue
-            #if (HoE[Phos_id[i2]] > 0.1 or abs(p2.Eta()) > 1.479) and (HoE[Phos_id[i2]] > 0.1 or abs(p2.Eta()) < 1.479): continue
-            if HoE[Phos_id[i2]] > 0.1: continue
-            if ((R9[Phos_id[i2]] < 0.85 or abs(p2.Eta()) > 1.479) and (R9[Phos_id[i2]] < 0.9 or abs(p2.Eta()) < 1.479)) and (ECALIso[Phos_id[i2]] > (6 + 0.012*p2.Pt()) or ((SigmaIEtaIEta[Phos_id[i2]] > 0.015 or abs(p2.Eta()) > 1.479) and (SigmaIEtaIEta[Phos_id[i2]] > 0.035 or abs(p2.Eta()) < 1.479 ))): continue
-            #if ((R9[Phos_id[i2] < 0.85 or abs(p2.Eta()) > 1.479) and (R9[Phos_id[i2] < 0.9 or abs(p2.Eta()) < 1.479)) and ((SigmaIEtaIEta[Phos_id[i2] > 0.015 or abs(p2.Eta()) > 1.479) and (SigmaIEtaIEta[Phos_id[i2] > 0.035 or abs(p2.Eta()) < 1.479) or ECALIso[Phos_id[i2] > (6+0.012*p2.Pt())): continue
-            #if R9[Phos_id[i2]] < 0.8 and (ECALIso[Phos_id[i2]] > (6 + 0.012*p2.Pt() or SigmaIEtaIEta[Phos_id[i2]] > 0.015)): continue
-            #if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
+            if abs(p1.Eta()) > 1.479 or abs(p2.Eta()) > 1.479: continue   ## Both photons in barrel
+            if R9[Phos_id[i1]] < 0.85 or R9[Phos_id[i2]] < 0.5: continue
+            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i1]] < 0.85: continue
+            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i2]] < 0.85: continue
+            if HoE[Phos_id[i1]] > 0.08 or HoE[Phos_id[i2]] > 0.08: continue
+            #if R9[Phos_id[i1]] < 0.5: continue
+            if PSeed[Phos_id[i1]] == 1: continue
+            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
+            #if p2.Pt() < 20: continue
+            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i2]] < 0.85: continue
             #if HoE[Phos_id[i2]] > 0.08: continue
-            #if CHIso[Phos_id[i2]] > 20 and CHIso[Phos_id[i2]]/p2.Pt() > 0.3: continue
+            #if R9[Phos_id[i1]] < 0.5: continue
             if PSeed[Phos_id[i2]] == 1: continue
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
-         
+            
+
             thisDipho = p1+p2
             if thisDipho.M() < 55: continue
             pho1 = p1 
@@ -267,6 +265,31 @@ class SkimmedTreeTools:
             break
          if pho1 !=0 and pho2 != 0: break
 
+      #for i1,p1 in enumerate(Phos):
+         #if p1.Pt() < 30: continue
+         #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i1]] > 0.85: continue
+         #if HoE[Phos_id[i1]] > 0.08: continue
+         #if R9[Phos_id[i1]] < 0.5: continue
+         #if PSeed[Phos_id[i1]] == 1: continue
+         #if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
+         #for i2,p2 in enumerate(Phos):
+            #if(i2 <=i1): continue
+            #if p2.Pt() < 20: continue
+            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i2]] > 0.85: continue
+            #if HoE[Phos_id[i2]] > 0.08: continue
+            #if R9[Phos_id[i1]] < 0.5: continue
+            #if PSeed[Phos_id[i2]] == 1: continue
+            #if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
+            
+
+            #thisDipho = p1+p2
+            #if thisDipho.M() < 55: continue
+            #pho1 = p1
+            #pho1_id = Phos_id[i1]
+            #pho2 = p2
+            #pho2_id = Phos_id[i2]
+            #break
+         #if pho1 !=0 and pho2 != 0: break
       dipho = pho1+pho2
       if dipho == 0: return 0
       else: return [dipho, pho1, pho1_id, pho2, pho2_id]
