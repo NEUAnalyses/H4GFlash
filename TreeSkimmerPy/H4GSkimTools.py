@@ -222,48 +222,92 @@ class SkimmedTreeTools:
 
       return fPhos, fPhos_id
 
-   def MakeTriggerSelection(self, Phos, Phos_id, R9, CHIso, HoE, PSeed, ECALIso , SigmaIEtaIEta):
+   def MakeTriggerSelection(self, Phos, Phos_id, R9, CHIso, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
       #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
       pho1 = 0
       pho1_id = -99
       pho2 = 0
       pho2_id = -99
+      dummy1 = ""
+      dummy2 = ""
       #print "Number of photons", len(Phos)
       for i1,p1 in enumerate(Phos):
-         #if p1.Pt() < 30: continue
-         #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i1]] < 0.85: continue
-         #if HoE[Phos_id[i1]] > 0.08: continue
-         #if R9[Phos_id[i1]] < 0.5: continue
-         #if PSeed[Phos_id[i1]] == 1: continue
-         #if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue        
          for i2,p2 in enumerate(Phos):
             if(i2 <=i1): continue
-            if p1.Pt() < 30: continue
-            if p2.Pt() < 20: continue
-            if abs(p1.Eta()) > 1.479 or abs(p2.Eta()) > 1.479: continue   ## Both photons in barrel
-            if R9[Phos_id[i1]] < 0.85 or R9[Phos_id[i2]] < 0.5: continue
-            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i1]] < 0.85: continue
-            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i2]] < 0.85: continue
-            if HoE[Phos_id[i1]] > 0.08 or HoE[Phos_id[i2]] > 0.08: continue
-            #if R9[Phos_id[i1]] < 0.5: continue
-            if PSeed[Phos_id[i1]] == 1: continue
-            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
-            #if p2.Pt() < 20: continue
-            #if abs(p1.Eta()) > 1.479 or R9[Phos_id[i2]] < 0.85: continue
-            #if HoE[Phos_id[i2]] > 0.08: continue
-            #if R9[Phos_id[i1]] < 0.5: continue
-            if PSeed[Phos_id[i2]] == 1: continue
+            if p1.Pt() < 30: continue  # pt of leading photon
+            if p2.Pt() < 20: continue  # pt of subleading photon
+            if PSeed[Phos_id[i1]] == 1 or PSeed[Phos_id[i2]] == 1: continue # pixel veto condition on both photons
+            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
             
+            if abs(p1.Eta()) < 1.479: # 1 photon in EB
+               if abs(p2.Eta()) < 1.479: # 2nd photon in EB
+                  if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 1 : EBEB with R9 > 0.85
+                     if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                         thisDipho = p1+p2
+                         if thisDipho.M() < 55: continue
+                         pho1 = p1
+                         pho1_id = Phos_id[i1]
+                         pho2 = p2
+                         pho2_id = Phos_id[i2]
+                         break
+                  elif R9[Phos_id[i1]] < 0.85 and R9[Phos_id[i1]] > 0.5 and  R9[Phos_id[i2]] < 0.85 and R9[Phos_id[i2]] > 0.5:  # Case 2 : EBEB with 0.5< R9 <0.85
+                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.015 and SigmaIEtaIEta[Phos_id[i2]] < 0.015:
+                             if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                   thisDipho = p1+p2
+                                   if thisDipho.M() < 55: continue
+                                   pho1 = p1
+                                   pho1_id = Phos_id[i1]
+                                   pho2 = p2
+                                   pho2_id = Phos_id[i2]
+                                   break
+               elif abs(p2.Eta()) > 1.479: # 2nd photon in EE
+                    if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 3 : EBEE
+                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.015 and SigmaIEtaIEta[Phos_id[i2]] < 0.015:
+                             if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                   thisDipho = p1+p2
+                                   if thisDipho.M() < 55: continue
+                                   pho1 = p1
+                             	   pho1_id = Phos_id[i1]
+                                   pho2 = p2
+                                   pho2_id = Phos_id[i2]
+                                   break  
+            elif abs(p1.Eta()) > 1.479:  # 1st photon in EE
+                 if abs(p2.Eta()) > 1.479: #  2nd photon in EE
+                    if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:   # Case 4 : EEEE
+                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.035:         
+                             if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:  
+                                   thisDipho = p1+p2
+                                   if thisDipho.M() < 55: continue
+                                   pho1 = p1
+                                   pho1_id = Phos_id[i1]
+                                   pho2 = p2
+                                   pho2_id = Phos_id[i2]
+                                   break 
+         if pho1 !=0 and pho2 != 0: break              
 
-            thisDipho = p1+p2
-            if thisDipho.M() < 55: continue
-            pho1 = p1 
-            pho1_id = Phos_id[i1]
-            pho2 = p2
-            pho2_id = Phos_id[i2]
-            break
-         if pho1 !=0 and pho2 != 0: break
+            #if abs(p1.Eta()) > 1.479 or abs(p2.Eta()) > 1.479: continue   ## Both photons in barrel
+            #if R9[Phos_id[i1]] < 0.85 or R9[Phos_id[i2]] < 0.5: continue
+            #if HoE[Phos_id[i1]] > 0.08 or HoE[Phos_id[i2]] > 0.08: continue
+            #if PSeed[Phos_id[i1]] == 1 or PSeed[Phos_id[i2]] == 1: continue
+            #if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue
+            #if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
+            
+
+            #thisDipho = p1+p2
+            #if thisDipho.M() < 55: continue
+            #pho1 = p1 
+            #pho1_id = Phos_id[i1]
+            #pho2 = p2
+            #pho2_id = Phos_id[i2]
+            #break
+         #if pho1 !=0 and pho2 != 0: break
 
       #for i1,p1 in enumerate(Phos):
          #if p1.Pt() < 30: continue
