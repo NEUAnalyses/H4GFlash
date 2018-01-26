@@ -1165,11 +1165,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             std::cout << " pdgId of the gen particle " << gen->pdgId() << std::endl;  
             if( gen->isPromptFinalState() == 0 ) continue;
             if( gen->pdgId() != 22 ) continue;
-            //std::cout << " pdgId of the gen particle " << gen->pdgId() << std::endl; 
             v_gen_pdgid.push_back(gen->pdgId());
-            //std::cout << "The mother of gen particles  " << gen->mother()->pdgId() << std::endl;
-            //if( gen->isPromptFinalState() == 0 ) continue;
-            //if( gen->pdgId() != 22 ) continue;
             std::cout << "The mother of gen particles  " << gen->mother(0)->pdgId() << std::endl;
             v_genmom_pdgid.push_back(gen->mother(0)->pdgId());
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54){
