@@ -1169,26 +1169,19 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             std::cout << "The mother of gen particles  " << gen->mother(0)->pdgId() << std::endl;
             v_genmom_pdgid.push_back(gen->mother(0)->pdgId());
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54){
-            v_genpho_p4.push_back( gen->p4() );
-            v_genpho_pt.push_back(gen->pt());  
-            float dR = reco::deltaR(*pho,*gen);
-            float ptdiff = fabs(pho->pt()-gen->pt());
-            if (dR < maxGenDeltaR && ptdiff < bestptdiff ) {
+               v_genpho_p4.push_back( gen->p4() );
+               v_genpho_pt.push_back(gen->pt());  
+               
+               float dR = reco::deltaR(*pho,*gen);
+               float ptdiff = fabs(pho->pt()-gen->pt());
+               if (dR < maxGenDeltaR && ptdiff < bestptdiff ) {
                 v_reco_genmatch.push_back(1);
-               } 
-            else {
+                    } 
+               else {
                 v_reco_genmatch.push_back(0);
-
-                 }
-
-
-
-
-
-
-
-
-            }
+                    }
+            
+                  }
             //std::cout << "pt of gen photon " << gen->pt() << std::endl; 
         /*    int type = gen->pdgId();    
             if ( abs(type) == 25 ) { //---- a
