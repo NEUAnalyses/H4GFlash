@@ -118,7 +118,8 @@ public:
     std::vector<float> v_pho_e;
     
     std::vector<LorentzVector> v_genlep_p4;
-    
+    std::vector<LorentzVector> v_genmatch_p4;   
+    std::vector<LorentzVector> v_genmatchnot_p4; 
     std::vector<float> v_gen_a_mass;
     std::vector<float> v_gen_a_id;
     std::vector<float> v_gen_a_pt;
@@ -325,7 +326,8 @@ public:
     std::vector<float>  v_genmatch_pt ; 
     std::vector<float>  v_gen_pdgid;   
     std::vector<float>  v_genmom_pdgid; 
-    
+    std::vector<float>  v_genreco_dR;
+    std::vector<float> v_genreco_ptdiff;  
     std::vector<std::vector<float>> v_pho_dr;
     std::vector<std::vector<float>> v_genpho_dr;
 //    std::vector<float> v_genpho_pt;
@@ -334,7 +336,16 @@ public:
     std::vector<std::map<std::string, int>> v_pho_cutid;
     std::vector<float> v_pho_mva;
     std::map<std::string, int> myTriggerResults;
-    
+   
+    std::vector<float> v_genmatch_full5x5_r9;
+    std::vector<float> v_genmatch_chargedHadronIso;
+    std::vector<float> v_genmatch_hadronicOverEm;
+    std::vector<float> v_genmatch_hasPixelSeed;
+    std::vector<float> v_genmatch_ecalPFClusterIso;
+    std::vector<float> v_genmatch_sigmaIetaIeta;
+    std::vector<float> v_genmatch_passElectronVeto;
+
+ 
     double genTotalWeight;
     
     //Parameters
@@ -576,8 +587,20 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_genmatch_pt"                             ,      &v_genmatch_pt               );   
     outTree->Branch("v_reco_genmatch"                           ,      &v_reco_genmatch             );
     outTree->Branch("v_genpho_pt"                               ,      &v_genpho_pt                 );
-    //---- gen level variables
-    
+
+// Reco level  Variables of gen matched photons 
+    outTree->Branch("v_genmatch_full5x5_r9" , &v_genmatch_full5x5_r9 );
+    outTree->Branch("v_genmatch_chargedHadronIso", &v_genmatch_chargedHadronIso);
+    outTree->Branch("v_genmatch_hadronicOverEm", &v_genmatch_hadronicOverEm);
+    outTree->Branch("v_genmatch_hasPixelSeed", &v_genmatch_hasPixelSeed);
+    outTree->Branch("v_genmatch_ecalPFClusterIso", &v_genmatch_ecalPFClusterIso);
+    outTree->Branch("v_genmatch_sigmaIetaIeta", &v_genmatch_sigmaIetaIeta); 
+    outTree->Branch("v_genmatch_passElectronVeto",&v_genmatch_passElectronVeto);
+   //---- gen level variables
+    outTree->Branch("v_genreco_dR",&v_genreco_dR);
+    outTree->Branch("v_genreco_ptdiff",&v_genreco_ptdiff);
+    outTree->Branch("v_genmatch_p4", &v_genmatch_p4);
+    outTree->Branch("v_genmatchnot_p4", &v_genmatchnot_p4);
     outTree->Branch("v_genlep_p4", &v_genlep_p4);
     outTree->Branch("v_genpho_p4_momid",&v_genpho_p4_momid);
     outTree->Branch("v_genpho_p4_mommass",&v_genpho_p4_mommass);   
@@ -635,7 +658,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
     
     using namespace edm;
@@ -878,13 +901,26 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_dr_genreco.clear();
     v_gen_pdgid.clear();
     v_genmom_pdgid.clear();
-    //try to get the vertices//
+    v_genmatch_p4.clear();
+    v_genmatchnot_p4.clear();
+    v_genreco_dR.clear();
+    v_genreco_ptdiff.clear();
+    v_genmatch_passElectronVeto.clear();
+    v_genmatch_full5x5_r9.clear();
+    v_genmatch_chargedHadronIso.clear();
+    v_genmatch_hadronicOverEm.clear();
+    v_genmatch_hasPixelSeed.clear();
+    v_genmatch_ecalPFClusterIso.clear();
+    v_genmatch_sigmaIetaIeta.clear();
+   //try to get the vertices//
    //vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
    //vtxHT_         = consumes<reco::VertexCollection>(vtxTag_);
    //edm::Handle<reco::VertexCollection> vtxH;
    //iEvent.getByToken(vtxHT_,vtxH); 
     
     std::vector<const flashgg::Photon*> phosTemp;
+   // std::vector<const flashgg::Photon*> bestPhoton;
+    
     //edm::Ptr<reco::Vertex> vtx = diphotons->ptrAt(i)->vtx(); 
     // Loop over diphotons
     
@@ -945,7 +981,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
         }}
     // ---- now use the list of photons just created to iterate
-   //std::cout<< "Number of photons  "<< phosTemp.size() << endl; 
+   //std::cout<< "Number of photons  "<< phosTemp.size() << endl;
    for ( size_t i = 0; i < phosTemp.size(); ++i) {
         
         const flashgg::Photon * pho = phosTemp[i];
@@ -955,6 +991,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         //std::cout << "MATCHED GEN PHOTON  "<< pho->hasUserCand("matchedGenPhotom")<< std::endl;
         v_pho_pt.push_back( pho->pt() );
+       // std::cout << "Photon Pt " << pho->pt() << std::endl;
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
         v_pho_e.push_back( pho->energy() );
@@ -1130,85 +1167,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_pfMVA                                       .push_back(  pho->   pfMVA                                   ()    );
         
 
-    if( ! iEvent.isRealData() ) {
-        float bestptdiff = 99e15;
-        float maxGenDeltaR = 0.1;
-        //unsigned int best = INT_MAX; 
-        edm::Handle<GenEventInfoProduct> genEvtInfo;
-        iEvent.getByToken(genInfoToken_, genEvtInfo);
-        genTotalWeight = genEvtInfo->weight();
-   
-        edm::Handle<edm::View<pat::PackedGenParticle> > genPhotons;
-        iEvent.getByToken(genPhotonsToken_,genPhotons);
-// Save prompt photon gen information
-        //for( size_t g = 0; g < genPhotons->size(); g++) {
-            //const auto gen = genPhotons->ptrAt(g);
-            //std::cout << "The pdgID is  " << gen->pdgId() << std::endl;
-            //v_gen_pdgid.push_back(gen->pdgId()); 
-            //std::cout << "The mother of gen particles  " << gen.mother(0)->pdgId() << std::endl;
-            //Only save gen information of prompt+final state photons (this includes FSR/ISR)
-            //if( gen->isPromptFinalState() == 0 ) continue;
-            
-           // if( gen->pdgId() != 22 ) continue;
-                       
-           // v_genpho_p4.push_back( gen->p4() );
-
-//}
-
-       edm::Handle<edm::View<reco::GenParticle> > genParticles;
-        iEvent.getByToken(genParticlesToken_,genParticles);
-// Loop over gen particles
-
-
-        for (size_t gp=0; gp<genParticles->size(); ++gp) {
-            const auto gen = genParticles->ptrAt(gp);
-            std::cout << " pdgId of the gen particle " << gen->pdgId() << std::endl;  
-            if( gen->isPromptFinalState() == 0 ) continue;
-            if( gen->pdgId() != 22 ) continue;
-            v_gen_pdgid.push_back(gen->pdgId());
-            std::cout << "The mother of gen particles  " << gen->mother(0)->pdgId() << std::endl;
-            v_genmom_pdgid.push_back(gen->mother(0)->pdgId());
-            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54){
-               v_genpho_p4.push_back( gen->p4() );
-               v_genpho_pt.push_back(gen->pt());  
-               
-               float dR = reco::deltaR(*pho,*gen);
-               float ptdiff = fabs(pho->pt()-gen->pt());
-               if (dR < maxGenDeltaR && ptdiff < bestptdiff ) {
-                v_reco_genmatch.push_back(1);
-                    } 
-               else {
-                v_reco_genmatch.push_back(0);
-                    }
-            
-                  }
-            //std::cout << "pt of gen photon " << gen->pt() << std::endl; 
-        /*    int type = gen->pdgId();    
-            if ( abs(type) == 25 ) { //---- a
-                //std::cout << "The mother of gen particles  " << gen->mother(0)->pdgId() << std::endl;
-                v_gen_a_mass .push_back(gen->mass());
-                v_gen_a_pt .push_back(gen->pt());
-                v_gen_a_phi.push_back(gen->phi());
-                v_gen_a_eta.push_back(gen->eta());
-                v_gen_a_id .push_back(1. * type);  
-}
-            if ( abs(type) == 35 ) {  //---- X
-                v_gen_X_mass .push_back(gen->mass());
-                v_gen_X_pt .push_back(gen->pt());
-                v_gen_X_phi.push_back(gen->phi());
-                v_gen_X_eta.push_back(gen->eta());
-                v_gen_X_id .push_back(1. * type);  
-            }
-            if (( abs(type) == 11 || abs(type) == 13 || abs(type) == 15 ) && (gen->isPromptFinalState() == 1)) {  //---- leptons (only prompt)
-                v_genlep_p4.push_back( gen->p4() );
-            }
-
-*/
-
-
-
-}}}
-    
+  } 
     // Save delta r between selected photons
     for( size_t p = 0; p < v_pho_p4.size(); p++) {
         
@@ -1293,66 +1252,51 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
         
     }
-   
- 
-  /*  if( ! iEvent.isRealData() ) {
+    // MC Weights
+    edm::Handle<GenEventInfoProduct> genEvtInfo;
+    if( ! iEvent.isRealData() ) {
+      iEvent.getByToken(genInfoToken_, genEvtInfo);
+      genTotalWeight = genEvtInfo->weight();
+      } else {
+        genTotalWeight = 1;
+      }
+      
+    // Look for best reco-matched gen photon
+    float maxGenDeltaR = 0.1;
+    float bestptdiff = 99e15;
+    unsigned int best = INT_MAX;
+    edm::Handle<edm::View<reco::GenParticle> > genParticles;
+    if( ! iEvent.isRealData() ) {
         
-        edm::Handle<GenEventInfoProduct> genEvtInfo;
-        
-        iEvent.getByToken(genInfoToken_, genEvtInfo);
-        genTotalWeight = genEvtInfo->weight();
-        edm::Handle<edm::View<pat::PackedGenParticle> > genPhotons;
-        iEvent.getByToken(genPhotonsToken_,genPhotons);
-        // ---- Save prompt photon gen information
-        std::cout << "How many genPhotons ? " <<genPhotons->size() <<std::endl;
-       
-        for( size_t g = 0; g < genPhotons->size(); g++) {
-            const auto gen = genPhotons->ptrAt(g);
-            //std::cout << "What does type mean ? "<< gen->type() << std::endl;
-            //v_genpho_p4_momid.push_back(gen->mother(0)->pdgId());
-            //std::cout << "HELLOOO " << gen->mother(2)->pdgId()<<std::endl; 
-            //Only save gen information of prompt+final state photons (this includes FSR/ISR)
+        iEvent.getByToken(genParticlesToken_,genParticles);
+        const auto &genPhotons = *genParticles; 
+       // ---- Save prompt photon gen information
+        for(size_t g=0; g < genPhotons.size(); g++) {
+             auto gen = genPhotons.ptrAt(g);
             if( gen->isPromptFinalState() == 0 ) continue;
-            //std::cout << "And the PDG ID is: " <<gen->pdgId() <<std::endl;
             if( gen->pdgId() != 22) continue;
-            float dR = reco::deltaR(*pho,*gen);
-            
-            //std::cout << "The momo is " << gen->mother()->pdgId() <<std::endl;           
-            v_genpho_p4.push_back( gen->p4() );
-            v_genpho_p4_pt.push_back(gen->pt());
-           // v_pho_recomatch.push_back(gen->hasUserInt("genMatchType")  );
-            //std::cout << "HELLOOO " << gen->p4() <<std::endl;
-            //std::cout << "The pt is : " <<gen->pt() <<std::endl;
-            //v_genpho_p4_momid.push_back(gen->mother(67)->pdgId());
-            //v_genpho_p4_mommass.push_back(gen->mother(0)->mass());
-            //std::cout << "The Pdg ID of mother is : "<<gen->mother(0)->pdgId()<< "and the mass of mother is :" << gen->mother(0)->mass()<<std::endl;
-             //std::cout << "HELLOOO " << gen->mother(0) <<std::endl;
-	    //LorentzVector genpho = v_genpho_p4[g];
-           
-           // for (size_t g1 = 0; g1 < v_genpho_p4.size(); g1++){
-                
-              //LorentzVector genpho1 = v_genpho_p4[g1];
-              //std::cout << v_genpho_p4.pt() << std::endl;
-
-
-
-            //std::vector<float> vecgenDR;
-            //std::vector<float> vecgenDPhi;
-            //std::vector<float> vecgenDEta;            
-
-            //for (size_t g2 =0; g2 < v_genpho_p4.size(); g2++) {
-            
-              //LorentzVector genpho2 = v_genpho2_p4[g2];
-              //float deltargen = 0;
-              //if (g1 ==g2){
-                 //deltargen = -999;
-                //} 
-            
-              //if (g1 !=g2) {
-                //deltargen=deltaR(genpho1,genpho2);
-            }
-  
-            
+            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
+               {
+                 v_genpho_p4.push_back( gen->p4() );
+      // Find best matched reco photon
+                 for ( size_t i = 0; i < phosTemp.size(); ++i) {
+                  const flashgg::Photon * pho = phosTemp[i];         
+                  float dR = reco::deltaR(*pho,*gen);
+                  if (dR > maxGenDeltaR){continue;}
+                  float ptdiff =  fabs(gen->pt()-pho->pt());
+                  if ( ptdiff < bestptdiff ) {
+                     bestptdiff = ptdiff;
+                     best = i;
+                     }
+                  } 
+                  if ( best < INT_MAX) {
+                     auto &extra = phosTemp[best];
+                     
+                     }  
+               }
+                                                         
+           }
+         } 
            // if (g2 > g) {
                
 
@@ -1372,7 +1316,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         //v_genpho_dr.push_back(vecgenDR);
         
-        edm::Handle<edm::View<reco::GenParticle> > genParticles;
+     /*   edm::Handle<edm::View<reco::GenParticle> > genParticles;
         iEvent.getByToken(genParticlesToken_,genParticles);
         //---- Loop over gen particles
         for (size_t gp=0; gp<genParticles->size(); ++gp) {
@@ -1396,8 +1340,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (( abs(type) == 11 || abs(type) == 13 || abs(type) == 15 ) && (gen->isPromptFinalState() == 1)) {  //---- leptons (only prompt)
                 v_genlep_p4.push_back( gen->p4() );
             }
-        }
-    }*/
+        } */
+    
     
     // Save the info
     outTree->Fill();
