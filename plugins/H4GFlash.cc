@@ -321,9 +321,8 @@ public:
     std::vector<float>  v_pho_etOutsideMustache   ;
     std::vector<float>  v_pho_pfMVA   ;
     std::vector<float>  v_pho_conversion ; 
-    std::vector<float>  v_reco_genmatch;
+    std::vector<LorentzVector>  v_reco_genmatch;
     std::vector<float>  v_genpho_pt;
-    std::vector<float>  v_genmatch_pt ; 
     std::vector<float>  v_gen_pdgid;   
     std::vector<float>  v_genmom_pdgid; 
     std::vector<float>  v_genreco_dR;
@@ -344,8 +343,9 @@ public:
     std::vector<float> v_genmatch_ecalPFClusterIso;
     std::vector<float> v_genmatch_sigmaIetaIeta;
     std::vector<float> v_genmatch_passElectronVeto;
+    std::vector<float> v_genmatch_pt;
+    std::vector<float> v_genmatch_mva;   
 
- 
     double genTotalWeight;
     
     //Parameters
@@ -584,7 +584,6 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_pho_recomatch"                           ,      &v_pho_recomatch             ); 
     outTree->Branch("v_pho_matchedgenphoton"                    ,      &v_pho_matchedgenphoton      );   
     outTree->Branch("v_matchflag"                               ,      &v_matchflag                 );   
-    outTree->Branch("v_genmatch_pt"                             ,      &v_genmatch_pt               );   
     outTree->Branch("v_reco_genmatch"                           ,      &v_reco_genmatch             );
     outTree->Branch("v_genpho_pt"                               ,      &v_genpho_pt                 );
 
@@ -596,6 +595,8 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_genmatch_ecalPFClusterIso", &v_genmatch_ecalPFClusterIso);
     outTree->Branch("v_genmatch_sigmaIetaIeta", &v_genmatch_sigmaIetaIeta); 
     outTree->Branch("v_genmatch_passElectronVeto",&v_genmatch_passElectronVeto);
+    outTree->Branch("v_genmatch_pt",&v_genmatch_pt);
+    outTree->Branch("v_genmatch_mva",&v_genmatch_mva);
    //---- gen level variables
     outTree->Branch("v_genreco_dR",&v_genreco_dR);
     outTree->Branch("v_genreco_ptdiff",&v_genreco_ptdiff);
@@ -658,7 +659,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
     
     using namespace edm;
@@ -880,7 +881,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_pho_nClusterOutsideMustache.clear();
     v_pho_etOutsideMustache.clear();
     v_pho_pfMVA.clear();
-    v_genmatch_pt.clear();
     v_reco_genmatch.clear();
     v_genpho_p4_mommass.clear();
     v_genpho_p4_momid.clear();
@@ -912,6 +912,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_hasPixelSeed.clear();
     v_genmatch_ecalPFClusterIso.clear();
     v_genmatch_sigmaIetaIeta.clear();
+    v_genmatch_pt.clear();
+    v_genmatch_mva.clear();
    //try to get the vertices//
    //vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
    //vtxHT_         = consumes<reco::VertexCollection>(vtxTag_);
@@ -929,27 +931,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     edm ::Ptr<reco::Vertex> vtx;  
     edm::Ptr<reco::Vertex> vtx_to_use;
-    //edm::Ptr<flashgg::Photon> pp;
-    //float leadmva_;
-    //float mva_to_use = 0;
-    //float mva_to_use2 = 0;
-    //size_t  i = 0;
-    //const flashgg::Photon * pho1 ;
-    
-    //for (size_t i = 0; i< (vertex->size()); ++i){
-      //if (i==0) {   
-     vtx_to_use = vertex->ptrAt(0);
-     //std::cout<< "Hellooo" << std::endl; 
-
-     //}
-    //std::cout << "The number of diphotons   " << diphotons->size() << std::endl;
+    vtx_to_use = vertex->ptrAt(0);
     for (size_t i = 0; i < (diphotons->size()); ++i){
         edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
         vtx = diphotons->ptrAt(i)->vtx();
         const flashgg::Photon * pho1 = dipho->leadingPhoton();
         const flashgg::Photon * pho2 = dipho->subLeadingPhoton();
-        /*if ( i==diphotons->size()-diphotons->size()){
-          vtx_to_use = diphotons->ptrAt(i)->vtx();}*/
         if( pho1->pt() < 15 || pho2->pt() < 15)
             continue;
         if( fabs(pho1->superCluster()->eta()) > 2.5 || fabs(pho2->superCluster()->eta()) > 2.5 )
@@ -985,13 +972,9 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for ( size_t i = 0; i < phosTemp.size(); ++i) {
         
         const flashgg::Photon * pho = phosTemp[i];
-        //std::cout << "Number of photons"<< phosTemp.size() <<std::endl;
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
-        //std::cout << "GEN MATCH TYPE  "<< pho->hasUserInt("genMatchType")<< std::endl;
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
-        //std::cout << "MATCHED GEN PHOTON  "<< pho->hasUserCand("matchedGenPhotom")<< std::endl;
         v_pho_pt.push_back( pho->pt() );
-       // std::cout << "Photon Pt " << pho->pt() << std::endl;
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
         v_pho_e.push_back( pho->energy() );
@@ -1002,14 +985,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         tmpVec.SetE( pho->energy() );
         LorentzVector thisPhoV4( tmpVec );
         v_pho_p4.push_back( thisPhoV4 );
-        //v_pho_mva.push_back( pho->userFloat("EGMPhotonMVA") );
-        //v_pho_mva.push_back( pho->phoIdMvaDWrtChosenVtx(vtxHT));
-        //std::cout << "This is the EGMPhotonMVA" << pho->userFloat("EGMPhotonMVA") << std::endl;
-        //std::cout<< "This is the other MVA value" << pho->userFloat("phoIdMvaWrtChosenVtx") <<std::endl;
-       // std::cout<< "HELLO" << ->phoIdMvaWrtChosenVtx() << std::endl;
         v_pho_mva.push_back(pho->phoIdMvaDWrtVtx(vtx_to_use));
-        //std::cout << "Photon MVA value " << pho->phoIdMvaDWrtVtx(vtx_to_use)<<std::endl;
-        //v_pho_mva.push_back(leadmva_);
         v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
         //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() );
         //      v_pho_neutralHadronIso.push_back  ( pho->neutralHadronIso() );
@@ -1291,7 +1267,16 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   } 
                   if ( best < INT_MAX) {
                      auto &extra = phosTemp[best];
-                     
+                     v_reco_genmatch.push_back( extra->p4() );
+                     v_genmatch_pt.push_back( extra->pt());
+                     v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
+                     v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
+                     v_genmatch_full5x5_r9.push_back(extra->full5x5_r9());
+                     v_genmatch_chargedHadronIso.push_back(extra->chargedHadronIso());
+                     v_genmatch_hadronicOverEm.push_back(extra->hadronicOverEm());
+                     v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
+                     v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
+                     v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
                      }  
                }
                                                          
