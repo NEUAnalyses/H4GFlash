@@ -345,7 +345,10 @@ public:
     std::vector<float> v_genmatch_passElectronVeto;
     std::vector<float> v_genmatch_pt;
     std::vector<float> v_genmatch_mva;   
-
+    std::vector<float> v_genmatch_eta;
+    std::vector<float> v_genmatch_phi;
+    std::vector<float> v_genmatch_trackIso;
+    std::vector<float> v_genmatching;
     double genTotalWeight;
     
     //Parameters
@@ -597,6 +600,9 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_genmatch_passElectronVeto",&v_genmatch_passElectronVeto);
     outTree->Branch("v_genmatch_pt",&v_genmatch_pt);
     outTree->Branch("v_genmatch_mva",&v_genmatch_mva);
+    outTree->Branch("v_genmatch_eta",&v_pho_eta);
+    outTree->Branch("v_genmatch_phi",&v_pho_phi);
+    outTree->Branch("v_genmatch_trackIso",&v_genmatch_trackIso);
    //---- gen level variables
     outTree->Branch("v_genreco_dR",&v_genreco_dR);
     outTree->Branch("v_genreco_ptdiff",&v_genreco_ptdiff);
@@ -626,6 +632,7 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_genpho_dr", &v_genpho_dr);
     outTree->Branch("myTriggerResults", &myTriggerResults);
     outTree->Branch("v_dr_genreco",&v_dr_genreco);
+    outTree->Branch("v_genmatching",&v_genmatching);
     std::map<std::string, std::string> replacements;
     globVar_->bookTreeVariables(outTree, replacements);
     
@@ -914,6 +921,10 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_sigmaIetaIeta.clear();
     v_genmatch_pt.clear();
     v_genmatch_mva.clear();
+    v_genmatch_eta.clear();
+    v_genmatch_phi.clear();
+    v_genmatch_trackIso.clear();
+    v_genmatching.clear();
    //try to get the vertices//
    //vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
    //vtxHT_         = consumes<reco::VertexCollection>(vtxTag_);
@@ -975,6 +986,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         v_pho_pt.push_back( pho->pt() );
+        std::cout << "Reco pt " << pho->pt() << std::endl;
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
         v_pho_e.push_back( pho->energy() );
@@ -1241,6 +1253,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     float maxGenDeltaR = 0.1;
     float bestptdiff = 99e15;
     unsigned int best = INT_MAX;
+    float genmatching = 0.;
     edm::Handle<edm::View<reco::GenParticle> > genParticles;
     if( ! iEvent.isRealData() ) {
         
@@ -1268,7 +1281,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if ( best < INT_MAX) {
                      auto &extra = phosTemp[best];
                      v_reco_genmatch.push_back( extra->p4() );
+                     genmatching = 1.0;
+                     //v_genmatching.push_back(genmatching);
                      v_genmatch_pt.push_back( extra->pt());
+                     std::cout << "Gen matched pt " << extra->pt() << std::endl;
+                     v_genmatch_eta.push_back( extra->superCluster()->eta());
+                     v_genmatch_phi.push_back( extra->superCluster()->phi());
                      v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
                      v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
                      v_genmatch_full5x5_r9.push_back(extra->full5x5_r9());
@@ -1277,7 +1295,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
                      v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
                      v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
-                     }  
+                     v_genmatch_trackIso.push_back( extra->trackIso()); 
+                    }
+                  else {
+                     genmatching = -999.;
+                    }
+                  v_genmatching.push_back(genmatching);  
                }
                                                          
            }
