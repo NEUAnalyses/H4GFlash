@@ -322,6 +322,7 @@ public:
     std::vector<float>  v_pho_pfMVA   ;
     std::vector<float>  v_pho_conversion ; 
     std::vector<LorentzVector>  v_reco_genmatch;
+    std::vector<LorentzVector>  v_reco_notgenmatch;
     std::vector<float>  v_genpho_pt;
     std::vector<float>  v_gen_pdgid;   
     std::vector<float>  v_genmom_pdgid; 
@@ -343,6 +344,7 @@ public:
     std::vector<float> v_genmatch_ecalPFClusterIso;
     std::vector<float> v_genmatch_sigmaIetaIeta;
     std::vector<float> v_genmatch_passElectronVeto;
+    std::vector<float> v_notgenmatch_passElectronVeto;
     std::vector<float> v_genmatch_pt;
     std::vector<float> v_genmatch_mva;   
     std::vector<float> v_genmatch_eta;
@@ -589,7 +591,7 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_matchflag"                               ,      &v_matchflag                 );   
     outTree->Branch("v_reco_genmatch"                           ,      &v_reco_genmatch             );
     outTree->Branch("v_genpho_pt"                               ,      &v_genpho_pt                 );
-
+    outTree->Branch("v_reco_notgenmatch"                        ,      &v_reco_notgenmatch          );
 // Reco level  Variables of gen matched photons 
     outTree->Branch("v_genmatch_full5x5_r9" , &v_genmatch_full5x5_r9 );
     outTree->Branch("v_genmatch_chargedHadronIso", &v_genmatch_chargedHadronIso);
@@ -598,6 +600,7 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_genmatch_ecalPFClusterIso", &v_genmatch_ecalPFClusterIso);
     outTree->Branch("v_genmatch_sigmaIetaIeta", &v_genmatch_sigmaIetaIeta); 
     outTree->Branch("v_genmatch_passElectronVeto",&v_genmatch_passElectronVeto);
+    outTree->Branch("v_notgenmatch_passElectronVeto",&v_notgenmatch_passElectronVeto);
     outTree->Branch("v_genmatch_pt",&v_genmatch_pt);
     outTree->Branch("v_genmatch_mva",&v_genmatch_mva);
     outTree->Branch("v_genmatch_eta",&v_pho_eta);
@@ -666,7 +669,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     
-    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
     
     using namespace edm;
@@ -889,6 +892,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_pho_etOutsideMustache.clear();
     v_pho_pfMVA.clear();
     v_reco_genmatch.clear();
+    v_reco_notgenmatch.clear();
     v_genpho_p4_mommass.clear();
     v_genpho_p4_momid.clear();
     v_genpho_p4_pt.clear();
@@ -913,6 +917,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genreco_dR.clear();
     v_genreco_ptdiff.clear();
     v_genmatch_passElectronVeto.clear();
+    v_notgenmatch_passElectronVeto.clear();
     v_genmatch_full5x5_r9.clear();
     v_genmatch_chargedHadronIso.clear();
     v_genmatch_hadronicOverEm.clear();
@@ -986,7 +991,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         v_pho_pt.push_back( pho->pt() );
-        std::cout << "Reco pt " << pho->pt() << std::endl;
+        //std::cout << "Reco pt " << pho->pt() << std::endl;
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
         v_pho_e.push_back( pho->energy() );
@@ -1249,26 +1254,24 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         genTotalWeight = 1;
       }
       
-    // Look for best reco-matched gen photon
-    float maxGenDeltaR = 0.1;
-    float bestptdiff = 99e15;
-    unsigned int best = INT_MAX;
-    float genmatching = 0.;
     edm::Handle<edm::View<reco::GenParticle> > genParticles;
     if( ! iEvent.isRealData() ) {
-        
         iEvent.getByToken(genParticlesToken_,genParticles);
-        const auto &genPhotons = *genParticles; 
+        const auto &genPhotons = *genParticles;
+        std::vector<int> mylist2;
        // ---- Save prompt photon gen information
+       //std::cout << "Number of gen photons " << genPhotons.size() << std::endl;
         for(size_t g=0; g < genPhotons.size(); g++) {
-             auto gen = genPhotons.ptrAt(g);
+            float maxGenDeltaR = 0.1;
+            float bestptdiff = 99e15;
+            unsigned int best = INT_MAX;
+            auto gen = genPhotons.ptrAt(g);
             if( gen->isPromptFinalState() == 0 ) continue;
             if( gen->pdgId() != 22) continue;
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
                {
                  v_genpho_p4.push_back( gen->p4() );
-      // Find best matched reco photon
-                 for ( size_t i = 0; i < phosTemp.size(); ++i) {
+                 for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
                   const flashgg::Photon * pho = phosTemp[i];         
                   float dR = reco::deltaR(*pho,*gen);
                   if (dR > maxGenDeltaR){continue;}
@@ -1276,16 +1279,17 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if ( ptdiff < bestptdiff ) {
                      bestptdiff = ptdiff;
                      best = i;
-                     }
-                  } 
-                  if ( best < INT_MAX) {
-                     auto &extra = phosTemp[best];
-                     v_reco_genmatch.push_back( extra->p4() );
-                     genmatching = 1.0;
-                     //v_genmatching.push_back(genmatching);
-                     v_genmatch_pt.push_back( extra->pt());
-                     std::cout << "Gen matched pt " << extra->pt() << std::endl;
-                     v_genmatch_eta.push_back( extra->superCluster()->eta());
+                    }
+                  }
+                 
+                  mylist2.push_back(best);
+               }
+           }  // Loop over gen photons ends here
+           for ( int r=0 ; r<(int) genPhotons.size(); ++r) {
+              for (int t=0; t< (int)phosTemp.size(); ++t) {
+                 if (t == mylist2[r]) { 
+                     auto &extra = phosTemp[t];
+                     //v_genmatch_eta.push_back( extra->superCluster()->eta());
                      v_genmatch_phi.push_back( extra->superCluster()->phi());
                      v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
                      v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
@@ -1295,22 +1299,29 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
                      v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
                      v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
-                     v_genmatch_trackIso.push_back( extra->trackIso()); 
-                    }
-                  else {
-                     genmatching = -999.;
-                    }
-                  v_genmatching.push_back(genmatching);  
-               }
-                                                         
-           }
+                     v_genmatch_trackIso.push_back( extra->trackIso());                   
+                 //std::cout << " Matching done  "<< " " <<  "The value of r "<< r << "   " << "The value of t " << t << std::endl; }
+                     }
+                 else {
+                     //auto &extra = phosTemp[t];
+                     v_genmatch_eta.push_back(-999);
+                     v_genmatch_phi.push_back(-999);
+                     v_notgenmatch_passElectronVeto.push_back(-999);
+                     v_genmatch_mva.push_back(-999);
+                     v_genmatch_full5x5_r9.push_back(-999);
+                     v_genmatch_chargedHadronIso.push_back(-999);
+                     v_genmatch_hadronicOverEm.push_back(-999);
+                     //v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
+                     //v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
+                     //v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());
+                     //v_genmatch_trackIso.push_back( extra->trackIso());
+                  //std::cout<<  "No matching done " << " " << "The value of r " << r <<  "   "  << "The value of t " << t << std::endl;}  
+                  }
+             }  
          } 
            // if (g2 > g) {
                
-
-
-
-
+   }
 
 
 
