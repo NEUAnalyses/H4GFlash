@@ -1289,7 +1289,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               for (int t=0; t< (int)phosTemp.size(); ++t) {
                  if (t == mylist2[r]) { 
                      auto &extra = phosTemp[t];
-                     //v_genmatch_eta.push_back( extra->superCluster()->eta());
+                     v_genmatch_p4.push_back( extra->p4());
+                     v_genmatch_eta.push_back( extra->superCluster()->eta());
                      v_genmatch_phi.push_back( extra->superCluster()->phi());
                      v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
                      v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
@@ -1303,18 +1304,18 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                  //std::cout << " Matching done  "<< " " <<  "The value of r "<< r << "   " << "The value of t " << t << std::endl; }
                      }
                  else {
-                     //auto &extra = phosTemp[t];
+                     //v_genmatch_p4.push_back(-999);
                      v_genmatch_eta.push_back(-999);
                      v_genmatch_phi.push_back(-999);
-                     v_notgenmatch_passElectronVeto.push_back(-999);
+                     v_genmatch_passElectronVeto.push_back(-999);
                      v_genmatch_mva.push_back(-999);
                      v_genmatch_full5x5_r9.push_back(-999);
                      v_genmatch_chargedHadronIso.push_back(-999);
                      v_genmatch_hadronicOverEm.push_back(-999);
-                     //v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
-                     //v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
-                     //v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());
-                     //v_genmatch_trackIso.push_back( extra->trackIso());
+                     v_genmatch_hasPixelSeed.push_back(-999);
+                     v_genmatch_ecalPFClusterIso.push_back(-999);
+                     v_genmatch_sigmaIetaIeta.push_back(-999);
+                     v_genmatch_trackIso.push_back(-999);
                   //std::cout<<  "No matching done " << " " << "The value of r " << r <<  "   "  << "The value of t " << t << std::endl;}  
                   }
              }  
