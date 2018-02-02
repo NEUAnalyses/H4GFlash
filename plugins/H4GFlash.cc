@@ -347,7 +347,7 @@ public:
     std::vector<float> v_notgenmatch_passElectronVeto;
     std::vector<float> v_genmatch_pt;
     std::vector<float> v_genmatch_mva;   
-    std::vector<float> v_genmatch_eta;
+    std::vector<unsigned int> v_genmatch_eta;
     std::vector<float> v_genmatch_phi;
     std::vector<float> v_genmatch_trackIso;
     std::vector<float> v_genmatching;
@@ -1260,7 +1260,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         const auto &genPhotons = *genParticles;
         std::vector<int> mylist2;
        // ---- Save prompt photon gen information
-       //std::cout << "Number of gen photons " << genPhotons.size() << std::endl;
+     //  std::cout << "Number of gen photons " << genPhotons.size() << std::endl;
         for(size_t g=0; g < genPhotons.size(); g++) {
             float maxGenDeltaR = 0.1;
             float bestptdiff = 99e15;
@@ -1269,7 +1269,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if( gen->isPromptFinalState() == 0 ) continue;
             if( gen->pdgId() != 22) continue;
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
-               {
+               { 
                  v_genpho_p4.push_back( gen->p4() );
                  for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
                   const flashgg::Photon * pho = phosTemp[i];         
@@ -1281,15 +1281,24 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      best = i;
                     }
                   }
-                 
+                                  
                   mylist2.push_back(best);
                }
            }  // Loop over gen photons ends here
-           for ( int r=0 ; r<(int) genPhotons.size(); ++r) {
+             std::cout << "Number of gen photons that make the selections " << v_genpho_p4.size() << std::endl;
+            // for (int h=0; h<(int)mylist2.size();++h){
+             //std::cout << "Value of best " << mylist2[h] << std::endl;
+            // }
+           for ( int r=0 ; r<(int) v_genpho_p4.size(); ++r) {
               for (int t=0; t< (int)phosTemp.size(); ++t) {
+                 //auto &extra = phosTemp[t];
+                 //v_genmatch_p4.push_back( extra->p4());
+                 //std::cout << extra->pt() << std::endl;
                  if (t == mylist2[r]) { 
                      auto &extra = phosTemp[t];
-                     v_genmatch_p4.push_back( extra->p4());
+                     std::cout << extra->pt() << std::endl;
+                     //v_genmatch_p4.push_back( extra->p4());
+                     v_genmatch_pt.push_back( extra->pt());
                      v_genmatch_eta.push_back( extra->superCluster()->eta());
                      v_genmatch_phi.push_back( extra->superCluster()->phi());
                      v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
@@ -1300,11 +1309,12 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
                      v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
                      v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
-                     v_genmatch_trackIso.push_back( extra->trackIso());                   
-                 //std::cout << " Matching done  "<< " " <<  "The value of r "<< r << "   " << "The value of t " << t << std::endl; }
+                     v_genmatch_trackIso.push_back( extra->trackIso()); 
+                 //std::cout << " Matching done  "<< " " <<  "The value of r "<< r << "   " << "The value of t " << t << std::endl; 
                      }
                  else {
                      //v_genmatch_p4.push_back(-999);
+                     v_genmatch_pt.push_back(-999);
                      v_genmatch_eta.push_back(-999);
                      v_genmatch_phi.push_back(-999);
                      v_genmatch_passElectronVeto.push_back(-999);
@@ -1315,15 +1325,15 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_hasPixelSeed.push_back(-999);
                      v_genmatch_ecalPFClusterIso.push_back(-999);
                      v_genmatch_sigmaIetaIeta.push_back(-999);
-                     v_genmatch_trackIso.push_back(-999);
-                  //std::cout<<  "No matching done " << " " << "The value of r " << r <<  "   "  << "The value of t " << t << std::endl;}  
-                  }
-             }  
+                     v_genmatch_trackIso.push_back(-999); 
+                 // std::cout<<  "No matching done " << " " << "The value of r " << r <<  "   "  << "The value of t " << t << std::endl; 
+                  } 
+               
          } 
            // if (g2 > g) {
-               
-   }
-
+         }      
+   
+       }
 
 
 
