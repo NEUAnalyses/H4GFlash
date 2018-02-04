@@ -53,7 +53,12 @@ class SkimmedTreeTools:
       self.p2_genmatch = n.zeros(1, dtype=float)
       self.p3_genmatch = n.zeros(1, dtype=float)
       self.p4_genmatch = n.zeros(1, dtype=float)
+      self.p1_genmatching = n.zeros(1, dtype=float)
+      self.p2_genmatching = n.zeros(1, dtype=float)
+      self.p3_genmatching = n.zeros(1, dtype=float)
+      self.p4_genmatching = n.zeros(1, dtype=float)
       self.p_mindr = n.zeros(1, dtype=float)
+      self.p_maxdr = n.zeros(1, dtype=float)
       self.p_maxmass = n.zeros(1, dtype=float)
       self.dp1_pt = n.zeros(1, dtype=float)
       self.dp1_eta = n.zeros(1, dtype=float)
@@ -84,6 +89,9 @@ class SkimmedTreeTools:
       self.passTrigger = n.zeros(1, dtype=float)
       self.v_pho_genmatch = n.zeros(1,dtype=float)
       self.v_pho_r9 = n.zeros(1,dtype=float)
+      self.cut8 = n.zeros(1, dtype=float)
+      self.totevs = n.zeros(1, dtype=float)
+
    def MakeSkimmedTree(self):
       outTree = TTree("H4GSel", "H4G Selected Events")
       SetOwnership(outTree,0)
@@ -136,7 +144,12 @@ class SkimmedTreeTools:
       outTree.Branch('p2_genmatch',self.p2_genmatch, 'p2_genmatch/D')
       outTree.Branch('p3_genmatch',self.p3_genmatch, 'p3_genmatch/D')
       outTree.Branch('p4_genmatch',self.p4_genmatch, 'p4_genmatch/D')
+      outTree.Branch('p1_genmatching',self.p1_genmatching, 'p1_genmatching/D')
+      outTree.Branch('p2_genmatching',self.p2_genmatching, 'p2_genmatching/D')
+      outTree.Branch('p3_genmatching',self.p3_genmatching, 'p3_genmatching/D')      
+      outTree.Branch('p4_genmatching',self.p4_genmatching, 'p4_genmatching/D')
       outTree.Branch('p_mindr', self.p_mindr, 'p_mindr/D')
+      outTree.Branch('p_maxdr', self.p_maxdr, 'p_maxdr/D')
       outTree.Branch('p_maxmass',self.p_maxmass, 'p_maxmass/D')
       outTree.Branch('dp1_pt', self.dp1_pt, 'dp1_pt/D')
       outTree.Branch('dp1_eta', self.dp1_eta, 'dp1_eta/D')
@@ -165,6 +178,9 @@ class SkimmedTreeTools:
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
       outTree.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      outTree.Branch('cut8',self.cut8,'cut8/D')
+      outTree.Branch('totevs',self.totevs, 'totevs/D')      
+
       return outTree
 
 
@@ -228,45 +244,35 @@ class SkimmedTreeTools:
       pho1_id = -99
       pho2 = 0
       pho2_id = -99
-      dummy1 = ""
-      dummy2 = ""
       #print "Number of photons", len(Phos)
       for i1,p1 in enumerate(Phos):
          for i2,p2 in enumerate(Phos):
             if(i2 <=i1): continue
             if p1.Pt() < 30: continue  # pt of leading photon
-            if p2.Pt() < 20: continue  # pt of subleading photon
+            if p2.Pt() < 18: continue  # pt of subleading photon
             if PSeed[Phos_id[i1]] == 1 or PSeed[Phos_id[i2]] == 1: continue # pixel veto condition on both photons
             if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
             
-            if abs(p1.Eta()) < 1.479: # 1 photon in EB
+            if abs(p1.Eta()) < 1.479: # 1st photon in EB
                if abs(p2.Eta()) < 1.479: # 2nd photon in EB
-                  if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 1 : EBEB with R9 > 0.85
-                     if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                         thisDipho = p1+p2
-                         if thisDipho.M() < 55: continue
-                         pho1 = p1
-                         pho1_id = Phos_id[i1]
-                         pho2 = p2
-                         pho2_id = Phos_id[i2]
-                         break
-                  elif R9[Phos_id[i1]] < 0.85 and R9[Phos_id[i1]] > 0.5 and  R9[Phos_id[i2]] < 0.85 and R9[Phos_id[i2]] > 0.5:  # Case 2 : EBEB with 0.5< R9 <0.85
-                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                          if SigmaIEtaIEta[Phos_id[i1]] < 0.015 and SigmaIEtaIEta[Phos_id[i2]] < 0.015:
-                             if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
-                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
-                                   thisDipho = p1+p2
-                                   if thisDipho.M() < 55: continue
-                                   pho1 = p1
-                                   pho1_id = Phos_id[i1]
-                                   pho2 = p2
-                                   pho2_id = Phos_id[i2]
-                                   break
-               elif abs(p2.Eta()) > 1.479: # 2nd photon in EE
+                  if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i2]] > 0.5:  # Case 1 : EBEB with R9 > 0.85
+                     if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
+                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+                           if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+ 			      if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                 thisDipho = p1+p2
+                                 if thisDipho.M() < 55: continue
+                                 pho1 = p1
+                                 pho1_id = Phos_id[i1]
+                                 pho2 = p2
+                                 pho2_id = Phos_id[i2]
+                                 break
+            elif abs(p1.Eta()) > 1.479: # 1st photon in EE
+                 if abs(p2.Eta()) < 1.479: # 2nd photon in EB
                     if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 3 : EBEE
-                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                          if SigmaIEtaIEta[Phos_id[i1]] < 0.015 and SigmaIEtaIEta[Phos_id[i2]] < 0.015:
+                       if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
                              if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
                                 if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
                                    thisDipho = p1+p2
@@ -276,13 +282,12 @@ class SkimmedTreeTools:
                                    pho2 = p2
                                    pho2_id = Phos_id[i2]
                                    break  
-            elif abs(p1.Eta()) > 1.479:  # 1st photon in EE
-                 if abs(p2.Eta()) > 1.479: #  2nd photon in EE
+                 elif abs(p2.Eta()) > 1.479: #  2nd photon in EE
                     if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:   # Case 4 : EEEE
-                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                          if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.035:         
+                       if HoE[Phos_id[i1]] < 0.035 and HoE[Phos_id[i2]] < 0.035:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.0275 and SigmaIEtaIEta[Phos_id[i2]] < 0.0275:         
                              if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
-                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:  
+                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0: 
                                    thisDipho = p1+p2
                                    if thisDipho.M() < 55: continue
                                    pho1 = p1
@@ -293,9 +298,10 @@ class SkimmedTreeTools:
          if pho1 !=0 and pho2 != 0: break              
 
       dipho = pho1+pho2
+      #print "Trigger dipho mass  ",dipho.M()
       if dipho == 0: return 0
       else: return [dipho, pho1, pho1_id, pho2, pho2_id]
-
+      #print "Trigger dipho mass  ",dipho.M()
    # Phos: a list of 4 (and only 4!) TLorentzVectors
    def MakePairing(self, Phos):
       minDM = 100000
