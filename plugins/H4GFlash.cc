@@ -347,10 +347,11 @@ public:
     std::vector<float> v_notgenmatch_passElectronVeto;
     std::vector<float> v_genmatch_pt;
     std::vector<float> v_genmatch_mva;   
-    std::vector<unsigned int> v_genmatch_eta;
+    std::vector<float> v_genmatch_eta;
     std::vector<float> v_genmatch_phi;
     std::vector<float> v_genmatch_trackIso;
     std::vector<float> v_genmatching;
+    std::vector<float> v_genmatch_int;
     double genTotalWeight;
     
     //Parameters
@@ -603,8 +604,8 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_notgenmatch_passElectronVeto",&v_notgenmatch_passElectronVeto);
     outTree->Branch("v_genmatch_pt",&v_genmatch_pt);
     outTree->Branch("v_genmatch_mva",&v_genmatch_mva);
-    outTree->Branch("v_genmatch_eta",&v_pho_eta);
-    outTree->Branch("v_genmatch_phi",&v_pho_phi);
+    outTree->Branch("v_genmatch_eta",&v_genmatch_eta);
+    outTree->Branch("v_genmatch_phi",&v_genmatch_phi);
     outTree->Branch("v_genmatch_trackIso",&v_genmatch_trackIso);
    //---- gen level variables
     outTree->Branch("v_genreco_dR",&v_genreco_dR);
@@ -636,6 +637,7 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("myTriggerResults", &myTriggerResults);
     outTree->Branch("v_dr_genreco",&v_dr_genreco);
     outTree->Branch("v_genmatching",&v_genmatching);
+    outTree->Branch("v_genmatch_int",&v_genmatch_int);
     std::map<std::string, std::string> replacements;
     globVar_->bookTreeVariables(outTree, replacements);
     
@@ -930,22 +932,11 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_phi.clear();
     v_genmatch_trackIso.clear();
     v_genmatching.clear();
-   //try to get the vertices//
-   //vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
-   //vtxHT_         = consumes<reco::VertexCollection>(vtxTag_);
-   //edm::Handle<reco::VertexCollection> vtxH;
-   //iEvent.getByToken(vtxHT_,vtxH); 
-    
+    v_genmatch_int.clear();     
+
     std::vector<const flashgg::Photon*> phosTemp;
-   // std::vector<const flashgg::Photon*> bestPhoton;
-    
-    //edm::Ptr<reco::Vertex> vtx = diphotons->ptrAt(i)->vtx(); 
-    // Loop over diphotons
-    
-    //const edm::Ptr<reco::Vertex> vtx;
-
-
-    edm ::Ptr<reco::Vertex> vtx;  
+    std::vector<const flashgg::Photon*> extra;
+    edm ::Ptr<reco::Vertex> vtx;
     edm::Ptr<reco::Vertex> vtx_to_use;
     vtx_to_use = vertex->ptrAt(0);
     for (size_t i = 0; i < (diphotons->size()); ++i){
@@ -983,15 +974,100 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 phosTemp.push_back(pho2);
             }
         }}
-    // ---- now use the list of photons just created to iterate
-   //std::cout<< "Number of photons  "<< phosTemp.size() << endl;
-   for ( size_t i = 0; i < phosTemp.size(); ++i) {
-        
+    // MC Weights
+    edm::Handle<GenEventInfoProduct> genEvtInfo;
+    if( ! iEvent.isRealData() ) {
+      iEvent.getByToken(genInfoToken_, genEvtInfo);
+      genTotalWeight = genEvtInfo->weight();
+      } else {
+        genTotalWeight = 1;
+      }  // MC weights end
+     
+    //unsigned int best = INT_MAX;  
+    std::vector<int> mylist2;
+    edm::Handle<edm::View<reco::GenParticle> > genParticles;
+    if( ! iEvent.isRealData() ) {
+        iEvent.getByToken(genParticlesToken_,genParticles);
+        const auto &genPhotons = *genParticles;
+        for(size_t g=0; g < genPhotons.size(); g++) {
+            float maxGenDeltaR = 0.1;
+            float bestptdiff = 99e15;
+            unsigned int best = INT_MAX;
+            auto gen = genPhotons.ptrAt(g);
+            if( gen->isPromptFinalState() == 0 ) continue;
+            if( gen->pdgId() != 22) continue;
+            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
+               { 
+                 v_genpho_p4.push_back( gen->p4() );
+                 for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
+                  const flashgg::Photon * pho = phosTemp[i];         
+                  float dR = reco::deltaR(*pho,*gen);
+                  if (dR > maxGenDeltaR){continue;}
+                  float ptdiff =  fabs(gen->pt()-pho->pt());
+                  if ( ptdiff < bestptdiff ) {
+                     bestptdiff = ptdiff;
+                     best = i;
+                     //std::cout << " Values of best " << best << std::endl;
+                    }
+                  }
+                                  
+                  mylist2.push_back(best);
+               }
+           }  // Loop over gen photons ends here
+           for ( int r=0 ; r<(int) v_genpho_p4.size(); ++r) {
+              for (int t=0; t< (int)phosTemp.size(); ++t) {
+                 
+                 if (t == mylist2[r]) { 
+                     auto &extra = phosTemp[t];
+                     v_genmatch_p4.push_back( extra->p4());
+                     v_genmatch_pt.push_back( extra->pt());
+                     //std::cout << "Value of t " << t <<  std::endl;
+                     v_genmatch_eta.push_back( extra->superCluster()->eta());
+                     v_genmatch_phi.push_back( extra->superCluster()->phi());
+                     v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
+                     v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
+                     v_genmatch_full5x5_r9.push_back(extra->full5x5_r9());
+                     v_genmatch_chargedHadronIso.push_back(extra->chargedHadronIso());
+                     v_genmatch_hadronicOverEm.push_back(extra->hadronicOverEm());
+                     v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
+                     v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
+                     v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
+                     v_genmatch_trackIso.push_back( extra->trackIso());
+                     v_genmatch_int.push_back(1); 
+                     }
+                 else {
+                     v_genmatch_pt.push_back(-999);
+                     v_genmatch_eta.push_back(-999);
+                     v_genmatch_phi.push_back(-999);
+                     v_genmatch_passElectronVeto.push_back(-999);
+                     v_genmatch_mva.push_back(-999);
+                     v_genmatch_full5x5_r9.push_back(-999);
+                     v_genmatch_chargedHadronIso.push_back(-999);
+                     v_genmatch_hadronicOverEm.push_back(-999);
+                     v_genmatch_hasPixelSeed.push_back(-999);
+                     v_genmatch_ecalPFClusterIso.push_back(-999);
+                     v_genmatch_sigmaIetaIeta.push_back(-999);
+                     v_genmatch_trackIso.push_back(-999); 
+                     v_genmatch_int.push_back(-999);
+                  } 
+               
+         } 
+         }      
+  }
+ /*  for (int m =0; m<(int)mylist2.size(); ++m) {
+       std::cout << "Outside " <<mylist2[m] << std::endl;
+       } */
+   std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl; 
+   for (int i = 0; i < (int)phosTemp.size(); ++i) {
+        //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl;
         const flashgg::Photon * pho = phosTemp[i];
+        for (int m =0; m<(int)mylist2.size(); ++m) {
+      // std::cout << "Inside " << mylist2[m] << std::endl;
+       if (i == m) {std::cout << "Value of matched i " << i << std::endl;}
+       }
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         v_pho_pt.push_back( pho->pt() );
-        //std::cout << "Reco pt " << pho->pt() << std::endl;
         v_pho_eta.push_back( pho->superCluster()->eta() );
         v_pho_phi.push_back( pho->superCluster()->phi() );
         v_pho_e.push_back( pho->energy() );
@@ -1004,38 +1080,17 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_p4.push_back( thisPhoV4 );
         v_pho_mva.push_back(pho->phoIdMvaDWrtVtx(vtx_to_use));
         v_pho_hadronicOverEm.push_back    ( pho->hadronicOverEm() );
-        //      v_pho_chargedHadronIso.push_back  ( pho->chargedHadronIso() );
-        //      v_pho_neutralHadronIso.push_back  ( pho->neutralHadronIso() );
-        //      v_pho_photonIso.push_back         ( pho->photonIso() );
         v_pho_passElectronVeto.push_back  ( pho->passElectronVeto() );
         v_pho_hasPixelSeed.push_back      ( pho->hasPixelSeed() );
-        //      v_pho_ecalPFClusterIso.push_back  ( pho->ecalPFClusterIso() );
-        //      v_pho_hcalPFClusterIso.push_back  ( pho->hcalPFClusterIso() );
         v_pho_eMax.push_back              ( pho->eMax() );
         v_pho_e3x3.push_back              ( pho->e3x3() );
-        //      v_pho_subClusRawE1.push_back      ( pho->subClusRawE1() );
-        //      v_pho_subClusDPhi1.push_back      ( pho->subClusDPhi1() );
-        //      v_pho_subClusDEta1.push_back      ( pho->subClusDEta1() );
-        //      v_pho_subClusRawE2.push_back      ( pho->subClusRawE2() );
-        //      v_pho_subClusDPhi2.push_back      ( pho->subClusDPhi2() );
-        //      v_pho_subClusDEta2.push_back      ( pho->subClusDEta2() );
-        //      v_pho_subClusRawE3.push_back      ( pho->subClusRawE3() );
-        //      v_pho_subClusDPhi3.push_back      ( pho->subClusDPhi3() );
-        //      v_pho_subClusDEta3.push_back      ( pho->subClusDEta3() );
         v_pho_iPhi.push_back              ( pho->iPhi() );
         v_pho_iEta.push_back              ( pho->iEta() );
         v_pho_r9.push_back                ( pho->old_r9() );
         v_pho_full5x5_r9.push_back        ( pho->full5x5_r9() );
-        
-        
-        
-        
         v_pho_sigmaIetaIeta        .push_back(  pho-> sigmaIetaIeta       ()  );
         v_pho_sigmaIphiIphi        .push_back(  pho->  showerShapeVariables() . sigmaIphiIphi       );
-        //      v_pho_dr03HcalTowerSumEt   .push_back(  pho-> dr03HcalTowerSumEt  ()  );
-        //      v_pho_dr03EcalRecHitSumEt  .push_back(  pho-> dr03EcalRecHitSumEt ()  );
-        //      v_pho_dr03TkSumPt          .push_back(  pho-> dr03TkSumPt         ()  );
-        // v_pho_full5x5_sigmaPhiPhi  .push_back(  pho->full5x5_sigmaPhiPhi          ()  );       
+
         v_pho_e2nd                 .push_back(  pho-> e2nd                ()  );
         v_pho_eTop                 .push_back(  pho-> eTop                ()  );
         v_pho_eBottom              .push_back(  pho-> eBottom             ()  );
@@ -1066,43 +1121,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         v_pho_ecalIso              .push_back(  pho-> ecalIso             ()  );
         v_pho_trackIso             .push_back(  pho-> trackIso            ()  );
         v_pho_conversion           .push_back(  pho->hasConversionTracks  ()  );
-        //      v_pho_scRawEnergy          .push_back(  pho-> scRawEnergy         ()  );
-        //      v_pho_scCalibEnergy        .push_back(  pho-> scCalibEnergy       ()  );
-        //      v_pho_scPreShowerEnergy    .push_back(  pho-> scPreShowerEnergy   ()  );
-        //      v_pho_scEta                .push_back(  pho-> scEta               ()  );
-        //      v_pho_scPhi                .push_back(  pho-> scPhi               ()  );
-        //      v_pho_scEtaWidth           .push_back(  pho-> scEtaWidth          ()  );
-        //      v_pho_scPhiWidth           .push_back(  pho-> scPhiWidth          ()  );
-        //      v_pho_seedClusEnergy       .push_back(  pho-> seedClusEnergy      ()  );
-        //
-        //      v_pho_sigmaIEtaIEta        .push_back(  pho-> sigmaIEtaIEta       ()  );
-        //      v_pho_sigmaIEtaIPhi        .push_back(  pho-> sigmaIEtaIPhi       ()  );
-        //      v_pho_sigmaIPhiIPhi        .push_back(  pho-> sigmaIPhiIPhi       ()  );
-        //
-        //      v_pho_scPreShowerEnergyOverSCRawEnergy     .push_back(  pho-> scPreShowerEnergyOverSCRawEnergy            ()  );
-        //      v_pho_scSeedR9                             .push_back(  pho-> scSeedR9                                    ()  );
-        //      v_pho_seedClusEnergyOverSCRawEnergy        .push_back(  pho-> seedClusEnergyOverSCRawEnergy               ()  );
-        //      v_pho_eMaxOverSCRawEnergy                  .push_back(  pho-> eMaxOverSCRawEnergy                         ()  );
-        //      v_pho_e2ndOverSCRawEnergy                  .push_back(  pho-> e2ndOverSCRawEnergy                         ()  );
-        //      v_pho_seedLeftRightAsym                    .push_back(  pho-> seedLeftRightAsym                           ()  );
-        //      v_pho_seedTopBottomAsym                    .push_back(  pho-> seedTopBottomAsym                           ()  );
-        //      v_pho_maxSubClusDRRawEnergyOverSCRawEnergy .push_back(  pho-> maxSubClusDRRawEnergyOverSCRawEnergy        ()  );
-        //
-        //      v_pho_subClusRawEnergyOverSCRawEnergy_0   .push_back(  pho->  subClusRawEnergyOverSCRawEnergy           (0)  );
-        //      v_pho_subClusRawEnergy_0                  .push_back(  pho->  subClusRawEnergy                          (0)  );
-        //      v_pho_subClusDPhi_0                       .push_back(  pho->  subClusDPhi                               (0)  );
-        //      v_pho_subClusDEta_0                       .push_back(  pho->  subClusDEta                               (0)  );
-        //
-        //      v_pho_subClusRawEnergyOverSCRawEnergy_1   .push_back(  pho->  subClusRawEnergyOverSCRawEnergy           (1)  );
-        //      v_pho_subClusRawEnergy_1                  .push_back(  pho->  subClusRawEnergy                          (1)  );
-        //      v_pho_subClusDPhi_1                       .push_back(  pho->  subClusDPhi                               (1)  );
-        //      v_pho_subClusDEta_1                       .push_back(  pho->  subClusDEta                               (1)  );
-        //
-        //      v_pho_subClusRawEnergyOverSCRawEnergy_2   .push_back(  pho->  subClusRawEnergyOverSCRawEnergy           (2)  );
-        //      v_pho_subClusRawEnergy_2                  .push_back(  pho->  subClusRawEnergy                          (2)  );
-        //      v_pho_subClusDPhi_2                       .push_back(  pho->  subClusDPhi                               (2)  );
-        //      v_pho_subClusDEta_2                       .push_back(  pho->  subClusDEta                               (2)  );
-        
         v_pho_e1x5                                        .push_back(  pho->   e1x5                                    ()    );
         v_pho_e2x5                                        .push_back(  pho->   e2x5                                    ()    );
         v_pho_e5x5                                        .push_back(  pho->   e5x5                                    ()    );
@@ -1197,7 +1215,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     thisH4GDipho.ip2 = p;
                 }
                 // ---- save all possible combinations,
-                // ---- but of course only once, then we require p2 > p
+                //                 // ---- but of course only once, then we require p2 > p
                 v_h4g_diphos.push_back(thisH4GDipho);
             }
             
@@ -1206,13 +1224,13 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             vecDEta.push_back(deltaeta);
             
         }
-        
         //---- vector of the distances between the photon and all other photons in the event
         v_pho_dr.push_back(vecDR);
         v_pho_dphi.push_back(vecDPhi);
         v_pho_deta.push_back(vecDEta);
     }
     // ---- Make tetraphotons
+
     for ( size_t q1 = 0; q1 < v_h4g_diphos.size(); q1++) {
         H4GTools::H4G_DiPhoton Dipho1 = v_h4g_diphos[q1];
         for ( size_t q2 = q1+1; q2 < v_h4g_diphos.size(); q2++) {
@@ -1244,99 +1262,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //v_h4g_tetraphos.push_back(thisTetra);
         }
         
-    }
-    // MC Weights
-    edm::Handle<GenEventInfoProduct> genEvtInfo;
-    if( ! iEvent.isRealData() ) {
-      iEvent.getByToken(genInfoToken_, genEvtInfo);
-      genTotalWeight = genEvtInfo->weight();
-      } else {
-        genTotalWeight = 1;
-      }
-      
-    edm::Handle<edm::View<reco::GenParticle> > genParticles;
-    if( ! iEvent.isRealData() ) {
-        iEvent.getByToken(genParticlesToken_,genParticles);
-        const auto &genPhotons = *genParticles;
-        std::vector<int> mylist2;
-       // ---- Save prompt photon gen information
-     //  std::cout << "Number of gen photons " << genPhotons.size() << std::endl;
-        for(size_t g=0; g < genPhotons.size(); g++) {
-            float maxGenDeltaR = 0.1;
-            float bestptdiff = 99e15;
-            unsigned int best = INT_MAX;
-            auto gen = genPhotons.ptrAt(g);
-            if( gen->isPromptFinalState() == 0 ) continue;
-            if( gen->pdgId() != 22) continue;
-            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
-               { 
-                 v_genpho_p4.push_back( gen->p4() );
-                 for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
-                  const flashgg::Photon * pho = phosTemp[i];         
-                  float dR = reco::deltaR(*pho,*gen);
-                  if (dR > maxGenDeltaR){continue;}
-                  float ptdiff =  fabs(gen->pt()-pho->pt());
-                  if ( ptdiff < bestptdiff ) {
-                     bestptdiff = ptdiff;
-                     best = i;
-                    }
-                  }
-                                  
-                  mylist2.push_back(best);
-               }
-           }  // Loop over gen photons ends here
-             std::cout << "Number of gen photons that make the selections " << v_genpho_p4.size() << std::endl;
-            // for (int h=0; h<(int)mylist2.size();++h){
-             //std::cout << "Value of best " << mylist2[h] << std::endl;
-            // }
-           for ( int r=0 ; r<(int) v_genpho_p4.size(); ++r) {
-              for (int t=0; t< (int)phosTemp.size(); ++t) {
-                 //auto &extra = phosTemp[t];
-                 //v_genmatch_p4.push_back( extra->p4());
-                 //std::cout << extra->pt() << std::endl;
-                 if (t == mylist2[r]) { 
-                     auto &extra = phosTemp[t];
-                     std::cout << extra->pt() << std::endl;
-                     //v_genmatch_p4.push_back( extra->p4());
-                     v_genmatch_pt.push_back( extra->pt());
-                     v_genmatch_eta.push_back( extra->superCluster()->eta());
-                     v_genmatch_phi.push_back( extra->superCluster()->phi());
-                     v_genmatch_passElectronVeto.push_back(extra->passElectronVeto());
-                     v_genmatch_mva.push_back(extra->phoIdMvaDWrtVtx(vtx_to_use));
-                     v_genmatch_full5x5_r9.push_back(extra->full5x5_r9());
-                     v_genmatch_chargedHadronIso.push_back(extra->chargedHadronIso());
-                     v_genmatch_hadronicOverEm.push_back(extra->hadronicOverEm());
-                     v_genmatch_hasPixelSeed.push_back(extra->hasPixelSeed());
-                     v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
-                     v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
-                     v_genmatch_trackIso.push_back( extra->trackIso()); 
-                 //std::cout << " Matching done  "<< " " <<  "The value of r "<< r << "   " << "The value of t " << t << std::endl; 
-                     }
-                 else {
-                     //v_genmatch_p4.push_back(-999);
-                     v_genmatch_pt.push_back(-999);
-                     v_genmatch_eta.push_back(-999);
-                     v_genmatch_phi.push_back(-999);
-                     v_genmatch_passElectronVeto.push_back(-999);
-                     v_genmatch_mva.push_back(-999);
-                     v_genmatch_full5x5_r9.push_back(-999);
-                     v_genmatch_chargedHadronIso.push_back(-999);
-                     v_genmatch_hadronicOverEm.push_back(-999);
-                     v_genmatch_hasPixelSeed.push_back(-999);
-                     v_genmatch_ecalPFClusterIso.push_back(-999);
-                     v_genmatch_sigmaIetaIeta.push_back(-999);
-                     v_genmatch_trackIso.push_back(-999); 
-                 // std::cout<<  "No matching done " << " " << "The value of r " << r <<  "   "  << "The value of t " << t << std::endl; 
-                  } 
-               
-         } 
-           // if (g2 > g) {
-         }      
-   
-       }
-
-
-
+    }  
 
 
             //vecgenDR.push_back(deltargen);
