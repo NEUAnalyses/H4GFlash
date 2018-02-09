@@ -54,17 +54,10 @@ def main(argv):
    cut5 = n.zeros(1, dtype=float)  # > 1 photon + ID
    cut6 = n.zeros(1, dtype=float)  # > 2 photons + ID
    cut7 = n.zeros(1, dtype=float)  # > 3 photons + ID
-   cut8 = n.zeros(1, dtype=float)  # > 3 photons + Trigger
-   cut9 = n.zeros(1, dtype=float)  #photon pt>15 
-   cut10 = n.zeros(1, dtype=float) #abs (eta)<2.5
-   cut11 = n.zeros(1, dtype=float) #abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9
-   cut12 = n.zeros(1, dtype=float) #abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9
-   #cut13 = n.zeros(1, dtype=float) #pass electron veto
-  # cut14 = n.zeros(1, dtype=float) #MVA value
-  # cut15 = n.zeros(1, dtype=float)
-  # cut16 = n.zeros(1, dtype=float)
-  # cut17 = n.zeros(1, dtype=float)
-  # cut18 = n.zeros(1, dtype=float)
+   cut8 = n.zeros(1, dtype=float)  # all photons have passed the pre-selection
+   cut9 = n.zeros(1, dtype=float)  # 3 photon category photons
+   cut10 = n.zeros(1, dtype=float) # 2 photon category photons
+   cut11 = n.zeros(1, dtype=float) # 4 photon category photons
 
    outTree.Branch('totevs', totevs, 'totevs/D')
    outTree.Branch('cut0', cut0, 'cut0/D')
@@ -79,21 +72,6 @@ def main(argv):
    outTree.Branch('cut9', cut9, 'cut9/D')
    outTree.Branch('cut10', cut10, 'cut10/D')
    outTree.Branch('cut11', cut11, 'cut11/D')
-   outTree.Branch('cut12', cut12, 'cut12/D')
-   #outTree.Branch('cut13', cut13, 'cut13/D')
-   #outTree.Branch('cut14', cut14, 'cut14/D')
-   #outTree.Branch('cut15', cut15, 'cut15/D')
-   #outTree.Branch('cut16', cut16, 'cut16/D')
-   #outTree.Branch('cut17', cut17, 'cut17/D')
-   #outTree.Branch('cut18', cut18, 'cut18/D')
-
-
-
-
-
-
-
-
 
    evtCounter = 0
    totevs[0] = tree.GetEntries()
@@ -118,14 +96,6 @@ def main(argv):
       cut9[0] = 0
       cut10[0] = 0
       cut11[0] = 0
-      cut12[0] = 0
-      #cut13[0] = 0
-      #cut14[0] = 0
-      #cut15[0] = 0
-      #cut16[0] = 0
-      #cut17[0] = 0
-      #cut18[0] = 0
-
 
       Phos = []
       Phos_id = []
@@ -150,9 +120,9 @@ def main(argv):
          cut2[0] = 1
       if len(Phos) > 3:
          cut3[0] = 1
+
       Phos.sort(key=lambda x: x.Pt(), reverse=True)   
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
-#      sPhos,sPhos_id = treeSkimmer.MakePhotonSelectionCutBased(Phos, Phos_id, tree.rho, tree.v_pho_chargedHadronIso, tree.v_pho_neutralHadronIso, tree.v_pho_photonIso, tree.v_pho_hadronicOverEm, tree.v_pho_full5x5_sigmaIetaIeta, tree.v_pho_passElectronVeto)
 
       if len(sPhos) > 0:
          cut4[0] = 1
@@ -163,12 +133,9 @@ def main(argv):
       if len(sPhos) > 3:
          cut7[0] = 1
          
-      #if len(sPhos) > 3:
-         #R9, CHIso, HoE, PSeed
       triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
       if triggeredDipho != 0:  #no diphoton triggered
          cut8[0] = 1
-         #print " Number of photons " , len(sPhos)
          if len(sPhos)==3:
             cut9[0] = 1
          elif len(sPhos)==2:
