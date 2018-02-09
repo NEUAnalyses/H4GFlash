@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = '/eos/cms/store/user/torimoto/physics/4gamma/2018/Signal/sig60.root'
-   outputfile = 'test.root'
+   inputfiles = '/eos/user/t/twamorka/2018/Feb2018/sig60.root'
+   outputfile = 'Feb5_2018/Eff60.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -150,7 +150,7 @@ def main(argv):
          cut2[0] = 1
       if len(Phos) > 3:
          cut3[0] = 1
-      
+      Phos.sort(key=lambda x: x.Pt(), reverse=True)   
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
 #      sPhos,sPhos_id = treeSkimmer.MakePhotonSelectionCutBased(Phos, Phos_id, tree.rho, tree.v_pho_chargedHadronIso, tree.v_pho_neutralHadronIso, tree.v_pho_photonIso, tree.v_pho_hadronicOverEm, tree.v_pho_full5x5_sigmaIetaIeta, tree.v_pho_passElectronVeto)
 
