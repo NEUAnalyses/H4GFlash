@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = '/eos/cms/store/user/twamorka/4gamma/Dec18/sig0p1.root'
-   outputfile = 'Eff_v2/sig0p1.root'
+   inputfiles = '/eos/cms/store/user/torimoto/physics/4gamma/2018/Signal/sig60.root'
+   outputfile = 'test.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -46,21 +46,26 @@ def main(argv):
 
    outTree = TTree("H4GEff", "Tree to calculate efficiencies")
    totevs = n.zeros(1, dtype=float)
-   cut0 = n.zeros(1, dtype=float)
-   cut1 = n.zeros(1, dtype=float)
-   cut2 = n.zeros(1, dtype=float)
-   cut3 = n.zeros(1, dtype=float)
-   cut4 = n.zeros(1, dtype=float)
-   cut5 = n.zeros(1, dtype=float)
-   cut6 = n.zeros(1, dtype=float)
-   cut7 = n.zeros(1, dtype=float)
-   cut8 = n.zeros(1, dtype=float)
-   cut9 = n.zeros(1, dtype=float)
-   cut10 = n.zeros(1, dtype=float)
-   cut11 = n.zeros(1, dtype=float)
-   cut12 = n.zeros(1, dtype=float)
-   cut13 = n.zeros(1, dtype=float)
-   #cut14 = n.zeros(1, dtype=float)
+   cut0 = n.zeros(1, dtype=float)  #more than 0 photons
+   cut1 = n.zeros(1, dtype=float)  #more than 1 photon
+   cut2 = n.zeros(1, dtype=float)  #more than 2 photons
+   cut3 = n.zeros(1, dtype=float)  #more than 3 photons
+   cut4 = n.zeros(1, dtype=float)  # > 0 photons + ID
+   cut5 = n.zeros(1, dtype=float)  # > 1 photon + ID
+   cut6 = n.zeros(1, dtype=float)  # > 2 photons + ID
+   cut7 = n.zeros(1, dtype=float)  # > 3 photons + ID
+   cut8 = n.zeros(1, dtype=float)  # > 3 photons + Trigger
+   cut9 = n.zeros(1, dtype=float)  #photon pt>15 
+   cut10 = n.zeros(1, dtype=float) #abs (eta)<2.5
+   cut11 = n.zeros(1, dtype=float) #abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < -0.9
+   cut12 = n.zeros(1, dtype=float) #abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < -0.9
+   #cut13 = n.zeros(1, dtype=float) #pass electron veto
+  # cut14 = n.zeros(1, dtype=float) #MVA value
+  # cut15 = n.zeros(1, dtype=float)
+  # cut16 = n.zeros(1, dtype=float)
+  # cut17 = n.zeros(1, dtype=float)
+  # cut18 = n.zeros(1, dtype=float)
+
    outTree.Branch('totevs', totevs, 'totevs/D')
    outTree.Branch('cut0', cut0, 'cut0/D')
    outTree.Branch('cut1', cut1, 'cut1/D')
@@ -75,8 +80,21 @@ def main(argv):
    outTree.Branch('cut10', cut10, 'cut10/D')
    outTree.Branch('cut11', cut11, 'cut11/D')
    outTree.Branch('cut12', cut12, 'cut12/D')
-   outTree.Branch('cut13', cut13, 'cut13/D')
+   #outTree.Branch('cut13', cut13, 'cut13/D')
    #outTree.Branch('cut14', cut14, 'cut14/D')
+   #outTree.Branch('cut15', cut15, 'cut15/D')
+   #outTree.Branch('cut16', cut16, 'cut16/D')
+   #outTree.Branch('cut17', cut17, 'cut17/D')
+   #outTree.Branch('cut18', cut18, 'cut18/D')
+
+
+
+
+
+
+
+
+
    evtCounter = 0
    totevs[0] = tree.GetEntries()
 
@@ -88,21 +106,27 @@ def main(argv):
       if evt%1000 == 0: print "## Analyzing event ", evt
       tree.GetEntry(evt)
 
-      cut0[0] = 0 # more than >0 photons
-      cut1[0] = 0 # more than >1 photon
-      cut2[0] = 0 # more than >2 photons
-      cut3[0] = 0 # more than >3 photons
-      cut4[0] = 0 # >0 photons + ID
-      cut5[0] = 0 # >1 photon + ID
-      cut6[0] = 0 # >2 photons + ID
-      cut7[0] = 0 # > 3 photons + ID
-      cut8[0] = 0 # > 3 photons + Trigger
-      cut9[0] = 0 # pT > 15GeV
-      #cut10[0] = 0 # abs (eta) < 2.5
-      #cut11[0] = 0 # abs(pho.Eta()) < 1.5 and MVA[Phos_id[i]] < 0.2
-      #cut12[0] = 0 # abs(pho.Eta()) > 1.5 and MVA[Phos_id[i]] < 0.2
-      #cut13[0] = 0 # pass electron veto
-      #cut14[0] = 0 # cut2+cut12
+      cut0[0] = 0
+      cut1[0] = 0
+      cut2[0] = 0
+      cut3[0] = 0
+      cut4[0] = 0
+      cut5[0] = 0
+      cut6[0] = 0
+      cut7[0] = 0
+      cut8[0] = 0
+      cut9[0] = 0
+      cut10[0] = 0
+      cut11[0] = 0
+      cut12[0] = 0
+      #cut13[0] = 0
+      #cut14[0] = 0
+      #cut15[0] = 0
+      #cut16[0] = 0
+      #cut17[0] = 0
+      #cut18[0] = 0
+
+
       Phos = []
       Phos_id = []
 
@@ -117,8 +141,7 @@ def main(argv):
         if minDR > 0.001:
            Phos.append(p4)
            Phos_id.append(p)
-      Phos.sort(key=lambda x: x.Pt(), reverse=True)
-      #print evt, "number of photons", len(Phos)
+
       if len(Phos) > 0:
          cut0[0] = 1
       if len(Phos) > 1:
@@ -127,7 +150,7 @@ def main(argv):
          cut2[0] = 1
       if len(Phos) > 3:
          cut3[0] = 1
-			
+      
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
 #      sPhos,sPhos_id = treeSkimmer.MakePhotonSelectionCutBased(Phos, Phos_id, tree.rho, tree.v_pho_chargedHadronIso, tree.v_pho_neutralHadronIso, tree.v_pho_photonIso, tree.v_pho_hadronicOverEm, tree.v_pho_full5x5_sigmaIetaIeta, tree.v_pho_passElectronVeto)
 
@@ -140,11 +163,18 @@ def main(argv):
       if len(sPhos) > 3:
          cut7[0] = 1
          
-      if len(sPhos) > 3:
+      #if len(sPhos) > 3:
          #R9, CHIso, HoE, PSeed
-         triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta)
-         if triggeredDipho != 0: #no diphoton triggered
-            cut8[0] = 1
+      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+      if triggeredDipho != 0:  #no diphoton triggered
+         cut8[0] = 1
+         #print " Number of photons " , len(sPhos)
+         if len(sPhos)==3:
+            cut9[0] = 1
+         elif len(sPhos)==2:
+            cut10[0] = 1
+         elif len(sPhos) >3:
+            cut11[0] = 1
 
       evtCounter += 1
 
