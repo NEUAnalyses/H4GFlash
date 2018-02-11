@@ -989,6 +989,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( ! iEvent.isRealData() ) {
         iEvent.getByToken(genParticlesToken_,genParticles);
         const auto &genPhotons = *genParticles;
+        //std::cout << "Number of gen photons" << genPhotons.size()<< std::endl;
         for(size_t g=0; g < genPhotons.size(); g++) {
             float maxGenDeltaR = 0.1;
             float bestptdiff = 99e15;
@@ -999,6 +1000,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
                { 
                  v_genpho_p4.push_back( gen->p4() );
+                 //std::cout << "Number of reco photons" << phosTemp.size() << std::endl;
                  for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
                   const flashgg::Photon * pho = phosTemp[i];         
                   float dR = reco::deltaR(*pho,*gen);
@@ -1033,7 +1035,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_ecalPFClusterIso.push_back(extra->ecalPFClusterIso());
                      v_genmatch_sigmaIetaIeta.push_back(extra->sigmaIetaIeta());                     
                      v_genmatch_trackIso.push_back( extra->trackIso());
-                     v_genmatch_int.push_back(1); 
+                     //v_genmatch_int.push_back(1); 
                      }
                  else {
                      v_genmatch_pt.push_back(-999);
@@ -1048,7 +1050,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      v_genmatch_ecalPFClusterIso.push_back(-999);
                      v_genmatch_sigmaIetaIeta.push_back(-999);
                      v_genmatch_trackIso.push_back(-999); 
-                     v_genmatch_int.push_back(-999);
+                     //v_genmatch_int.push_back(-999);
                   } 
                
          } 
@@ -1057,14 +1059,14 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  /*  for (int m =0; m<(int)mylist2.size(); ++m) {
        std::cout << "Outside " <<mylist2[m] << std::endl;
        } */
-   std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl; 
+   //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl; 
    for (int i = 0; i < (int)phosTemp.size(); ++i) {
         //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl;
         const flashgg::Photon * pho = phosTemp[i];
-        for (int m =0; m<(int)mylist2.size(); ++m) {
-      // std::cout << "Inside " << mylist2[m] << std::endl;
-       if (i == m) {std::cout << "Value of matched i " << i << std::endl;}
-       }
+        if(std::find (mylist2.begin(),mylist2.end(),i)!=mylist2.end())
+          {v_genmatch_int.push_back(1);
+          }
+        else{v_genmatch_int.push_back(-999);}
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         v_pho_pt.push_back( pho->pt() );
