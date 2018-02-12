@@ -101,7 +101,7 @@ public:
     //Out tree elements:
     edm::Service<TFileService> fs;
     TTree* outTree;
-    int n_pho, run, lumi, evtnum, passTrigger;
+    int n_pho, run, lumi, evtnum, passTrigger,nicematch;
     double rho;
     std::vector<H4GTools::H4G_DiPhoton> v_h4g_diphos;
     std::vector<H4GTools::H4G_TetraPhoton> v_h4g_tetraphos;
@@ -352,6 +352,8 @@ public:
     std::vector<float> v_genmatch_trackIso;
     std::vector<float> v_genmatching;
     std::vector<float> v_genmatch_int;
+    std::vector<float> v_nicematch;
+
     double genTotalWeight;
     
     //Parameters
@@ -413,6 +415,7 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     
     outTree->Branch("rho", &rho, "rho/D");
     outTree->Branch("passTrigger", &passTrigger, "passTrigger/I");
+     outTree->Branch("nicematch", &nicematch, "rho/I");
     outTree->Branch("v_h4g_diphos", &v_h4g_diphos);
     //outTree->Branch("v_h4g_tetraphos", &v_h4g_tetraphos);
     outTree->Branch("n_pho", &n_pho, "n_pho/I");
@@ -638,6 +641,8 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_dr_genreco",&v_dr_genreco);
     outTree->Branch("v_genmatching",&v_genmatching);
     outTree->Branch("v_genmatch_int",&v_genmatch_int);
+    outTree->Branch("v_nicematch",&v_nicematch);
+
     std::map<std::string, std::string> replacements;
     globVar_->bookTreeVariables(outTree, replacements);
     
@@ -933,6 +938,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_trackIso.clear();
     v_genmatching.clear();
     v_genmatch_int.clear();     
+    v_nicematch.clear();
 
     std::vector<const flashgg::Photon*> phosTemp;
     std::vector<const flashgg::Photon*> extra;
@@ -983,10 +989,14 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         genTotalWeight = 1;
       }  // MC weights end
      
-    //unsigned int best = INT_MAX;  
+    //unsigned int best = INT_MAX;
+    std::vector<int> mylist1;  
     std::vector<int> mylist2;
+    std::vector<int> mylist3;
     edm::Handle<edm::View<reco::GenParticle> > genParticles;
+    //std::cout << "I am here" << std::endl;
     if( ! iEvent.isRealData() ) {
+        //std::cout << "I am here " << std::endl;
         iEvent.getByToken(genParticlesToken_,genParticles);
         const auto &genPhotons = *genParticles;
         //std::cout << "Number of gen photons" << genPhotons.size()<< std::endl;
@@ -998,9 +1008,9 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if( gen->isPromptFinalState() == 0 ) continue;
             if( gen->pdgId() != 22) continue;
             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)
-               { 
+               { std::cout << "I am here " << std::endl;
                  v_genpho_p4.push_back( gen->p4() );
-                 //std::cout << "Number of reco photons" << phosTemp.size() << std::endl;
+                 mylist1.push_back(1);
                  for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
                   const flashgg::Photon * pho = phosTemp[i];         
                   float dR = reco::deltaR(*pho,*gen);
@@ -1009,7 +1019,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if ( ptdiff < bestptdiff ) {
                      bestptdiff = ptdiff;
                      best = i;
-                     //std::cout << " Values of best " << best << std::endl;
+                     mylist3.push_back(1);
+                     std::cout << " Gen photon that has been matched " << g << std::endl;
                     }
                   }
                                   
@@ -1056,17 +1067,26 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          } 
          }      
   }
- /*  for (int m =0; m<(int)mylist2.size(); ++m) {
-       std::cout << "Outside " <<mylist2[m] << std::endl;
-       } */
+std::cout << "The size of list1 " << mylist1.size() << std::endl;
+std::cout << "The size of list3 " << mylist3.size() << std::endl;
+if (mylist1.size() == mylist3.size()){
+   std::cout << "Nice match found " << std::endl;
+   nicematch =1 ;}
+else{
+std::cout << "Nice match not found " << std::endl;
+nicematch = 0;}
+
+
    //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl; 
    for (int i = 0; i < (int)phosTemp.size(); ++i) {
         //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl;
         const flashgg::Photon * pho = phosTemp[i];
         if(std::find (mylist2.begin(),mylist2.end(),i)!=mylist2.end())
-          {v_genmatch_int.push_back(1);
+          {
+            v_genmatch_int.push_back(1);
           }
-        else{v_genmatch_int.push_back(-999);}
+        else{ 
+         v_genmatch_int.push_back(-999);}
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
         v_pho_pt.push_back( pho->pt() );
