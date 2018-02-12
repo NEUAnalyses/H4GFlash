@@ -7,9 +7,9 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   #inputfiles= '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/test/test2.root'
-   inputfiles = '/eos/user/t/twamorka/2018/Feb2018/sig55.root'
-   outputfile = 'Feb9_2018/sig55.root'
+   inputfiles= '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/test/test.root'
+   #inputfiles = '/eos/user/t/twamorka/2018/Feb2018/sig10.root'
+   outputfile = 'output.root'
 
    maxEvts = -1
    nfakes = 0
@@ -125,6 +125,7 @@ def main(argv):
           treeSkimmer.p_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[m]]
           treeSkimmer.p_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[m]]
           treeSkimmer.p_genmatch[0] = tree.v_pho_genmatch[sPhos_id[m]]
+          treeSkimmer.p_match[0] = tree.v_genmatch_int[sPhos_id[m]]
           for n in range(0, len(sPhos)):
               if (n!=m and n>m):
                  dr = sPhos[m].DeltaR(sPhos[n])
@@ -184,11 +185,11 @@ def main(argv):
          treeSkimmer.p2_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[1]]
          treeSkimmer.p3_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[2]]
  
-         #treeSkimmer.p1_match_3[0] = tree.v_genmatch_int[sPhos_id[0]]
-         #treeSkimmer.p2_match_3[0] = tree.v_genmatch_int[sPhos_id[1]]
-         #treeSkimmer.p3_match_3[0] = tree.v_genmatch_int[sPhos_id[2]]       
+         treeSkimmer.p1_match_3[0] = tree.v_genmatch_int[sPhos_id[0]]
+         treeSkimmer.p2_match_3[0] = tree.v_genmatch_int[sPhos_id[1]]
+         treeSkimmer.p3_match_3[0] = tree.v_genmatch_int[sPhos_id[2]]       
   
-         print " Min dr for 3 photon category " , min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
+         #print " Min dr for 3 photon category " , min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          treeSkimmer.p_mindr_3[0] = min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          treeSkimmer.p_maxdr_3[0] = max(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          P12 = sPhos[0] + sPhos[1]
@@ -259,7 +260,10 @@ def main(argv):
 
          treeSkimmer.p1_genmatch_2[0] = tree.v_pho_genmatch[sPhos_id[0]]
          treeSkimmer.p2_genmatch_2[0] = tree.v_pho_genmatch[sPhos_id[1]]
-     
+ 
+         treeSkimmer.p1_match_2[0] = tree.v_genmatch_int[sPhos_id[0]]
+         treeSkimmer.p2_match_2[0] = tree.v_genmatch_int[sPhos_id[1]]
+
          treeSkimmer.p_mindr_2[0] = sPhos[0].DeltaR(sPhos[1])
          
          Pgggg = sPhos[0] + sPhos[1]
@@ -329,7 +333,12 @@ def main(argv):
           treeSkimmer.p2_genmatch[0] = tree.v_pho_genmatch[sPhos_id[1]]
           treeSkimmer.p3_genmatch[0] = tree.v_pho_genmatch[sPhos_id[2]]
           treeSkimmer.p4_genmatch[0] = tree.v_pho_genmatch[sPhos_id[3]]
-   
+    
+          treeSkimmer.p1_match[0] = tree.v_genmatch_int[sPhos_id[0]]
+          treeSkimmer.p2_match[0] = tree.v_genmatch_int[sPhos_id[1]]
+          treeSkimmer.p3_match[0] = tree.v_genmatch_int[sPhos_id[2]]
+          treeSkimmer.p4_match[0] = tree.v_genmatch_int[sPhos_id[3]]
+
           treeSkimmer.p_mindr[0] = min( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3])) 
           treeSkimmer.p_maxdr[0] = max( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]) )      
           P12 = sPhos[0] + sPhos[1]
