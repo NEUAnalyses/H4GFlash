@@ -145,11 +145,14 @@ def main(argv):
          #print " 3 photon category"
          #triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
          #if triggeredDipho == 0: continue
+         #print "Number of genmatch photons " , tree.v_genmatch_pt.size()
+         #nicematch = 1
          for g in range(0,tree.v_genmatch_pt.size()):
-             print " Pt of genmatch pho " , tree.v_genmatch_pt[g]
-             if tree.v_genmatch_pt[g] ==-999:
+             nicematch = 1
+             print "Photon Number " , g, " Pt of genmatch pho " , tree.v_genmatch_pt[g]
+             if tree.v_genmatch_pt[g] < 0:
                 nicematch = 0
-             else: nicematch = 1
+             print  "nicematch value ", nicematch
          treeSkimmer.p1_pt_3[0] = sPhos[0].Pt()
          treeSkimmer.p2_pt_3[0] = sPhos[1].Pt()
          treeSkimmer.p3_pt_3[0] = sPhos[2].Pt()
