@@ -7,9 +7,9 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   inputfiles= '/eos/cms/store/user/twamorka/sig10.root'
-   #inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig10.root'
-   outputfile = 'test.root'
+   #inputfiles= '/eos/cms/store/user/twamorka/sig10.root'
+   inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig15.root'
+   outputfile = 'Feb9_2018/sig15.root'
 
    maxEvts = -1
    nfakes = 0
@@ -149,10 +149,10 @@ def main(argv):
          #nicematch = 1
          for g in range(0,tree.v_genmatch_pt.size()):
              nicematch = 1
-             print "Photon Number " , g, " Pt of genmatch pho " , tree.v_genmatch_pt[g]
+             #print "Photon Number " , g, " Pt of genmatch pho " , tree.v_genmatch_pt[g]
              if tree.v_genmatch_pt[g] < 0:
                 nicematch = 0
-             print  "nicematch value ", nicematch
+             #print  "nicematch value ", nicematch
          treeSkimmer.p1_pt_3[0] = sPhos[0].Pt()
          treeSkimmer.p2_pt_3[0] = sPhos[1].Pt()
          treeSkimmer.p3_pt_3[0] = sPhos[2].Pt()
