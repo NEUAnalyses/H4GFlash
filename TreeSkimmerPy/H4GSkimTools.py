@@ -163,7 +163,7 @@ class SkimmedTreeTools:
       self.tp_eta_3 = n.zeros(1,dtype=float)
       self.tp_phi_3 = n.zeros(1,dtype=float)
       self.tp_mass_3 = n.zeros(1,dtype=float)
-
+      self.nicematch = n.zeros(1,dtype=float)
 
       self.p1_pt_2 = n.zeros(1, dtype=float)
       self.p2_pt_2 = n.zeros(1, dtype=float)
@@ -217,6 +217,7 @@ class SkimmedTreeTools:
        outTree_all.Branch('p_drmin', self.p_drmin, 'p_drmin/D')
        outTree_all.Branch('p_drmax', self.p_drmax, 'p_drmax/D')
        outTree_all.Branch('p_npho', self.p_npho, 'p_npho/D')
+       #outTree_all.Branch('nicematch',self.nicematch,'nicematch/D')
        return outTree_all
 
    def MakeSkimmedTree(self):
@@ -305,7 +306,7 @@ class SkimmedTreeTools:
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
       outTree.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
-
+      #outTree.Branch('nicematch',self.nicematch,'nicematch/D')
       return outTree
 
    def MakeSkimmedTree_3(self):
@@ -364,6 +365,8 @@ class SkimmedTreeTools:
       outTree_3.Branch('tp_eta_3',self.tp_eta_3,'tp_eta_3/D')
       outTree_3.Branch('tp_phi_3',self.tp_phi_3,'tp_phi_3/D')
       outTree_3.Branch('tp_mass_3',self.tp_mass_3,'tp_mass_3/D')
+      outTree_3.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      outTree_3.Branch('nicematch',self.nicematch,'nicematch/D')
       return outTree_3
      
    def MakeSkimmedTree_2(self):

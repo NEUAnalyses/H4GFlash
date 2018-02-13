@@ -7,9 +7,9 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   inputfiles= '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/test/test.root'
-   #inputfiles = '/eos/user/t/twamorka/2018/Feb2018/sig10.root'
-   outputfile = 'output.root'
+   inputfiles= '/eos/cms/store/user/twamorka/sig10.root'
+   #inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig10.root'
+   outputfile = 'test.root'
 
    maxEvts = -1
    nfakes = 0
@@ -72,7 +72,8 @@ def main(argv):
       treeSkimmer.npu[0] = tree.npu
       treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
       treeSkimmer.passTrigger[0] = tree.passTrigger
-      
+      #treeSkimmer.nicematch[0] = tree.nicematch       
+ 
       Phos = []
       Phos_id = []
     
@@ -141,8 +142,14 @@ def main(argv):
 
       ## yahan se 3 categories me split ho sakta hai
       if len(sPhos) == 3:
+         #print " 3 photon category"
          #triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
          #if triggeredDipho == 0: continue
+         for g in range(0,tree.v_genmatch_pt.size()):
+             print " Pt of genmatch pho " , tree.v_genmatch_pt[g]
+             if tree.v_genmatch_pt[g] ==-999:
+                nicematch = 0
+             else: nicematch = 1
          treeSkimmer.p1_pt_3[0] = sPhos[0].Pt()
          treeSkimmer.p2_pt_3[0] = sPhos[1].Pt()
          treeSkimmer.p3_pt_3[0] = sPhos[2].Pt()
@@ -201,10 +208,23 @@ def main(argv):
          treeSkimmer.dphigh_mass_3[0] = P12.M()
          treeSkimmer.p_maxmass_3[0] = max(P12.M(),P13.M(),P23.M()) 
         
-         #a1 = ""
-         
-         #if (P12.M() < P13.M() and P12.M() < P23.M()):
-            #a1 = P12
+         a1 = ""
+         diff_12_13 = abs(P12.M()-P13.M())
+         diff_12_23 = abs(P12.M()-P23.M())
+         diff_13_23 = abs(P13.M()-P23.M())
+         #print " diff_12_13 " , diff_12_13 , "diff_12_23 ", diff_12_23 , "diff_13_23 ", diff_13_23
+         #print "12 mass ", P12.M() , "13 mass  ", P13.M() , "23 mass ", P23.M()
+         #print "12 13 mass diff " , P12.M()-P13.M() ," 12 23 mass diff ", P12.M()-P23.M(), "13 23 mass diff ", P13.M()-P23.M()
+         if diff_12_13 < diff_12_23 and diff_12_13 < diff_13_23:
+           #print " I am here"
+            a1 = P13
+            #print " Case 1 a1 mass ", a1.M()
+         if diff_13_23 < diff_12_13 and diff_13_23 < diff_12_23:
+            a1 = P23
+            #print "Case 2 a1 mass ", a1.M()
+         if diff_12_23 < diff_12_13 and diff_12_23 < diff_13_23:
+            a1 = P12
+            #print "Case 3 a1 mass ", a1.M()
             #treeSkimmer.dp1_dr_3 = sPhos[0].DeltaR(sPhos[1])
          #elif (P13.M() < P12.M() and P13.M() < P23.M()):
             #a1 = P13
@@ -225,7 +245,7 @@ def main(argv):
          treeSkimmer.tp_eta_3[0] = Pgggg.Eta()
          treeSkimmer.tp_phi_3[0] = Pgggg.Phi()
          treeSkimmer.tp_mass_3[0] = Pgggg.M()         
-      
+         treeSkimmer.nicematch[0] = nicematch
          outTree_3.Fill()
 
       elif len(sPhos) == 2:
@@ -347,7 +367,9 @@ def main(argv):
           P23 = sPhos[1] + sPhos[2]
           P24 = sPhos[1] + sPhos[3]
           P34 = sPhos[2] + sPhos[3]
-   
+          #print "P12 Mass " , P12.M() , "P13 Mass ", P13.M() , "P14 Mass " , P14.M() , "P23 Mass ", P23.M() , "P24 Mass  ", P24.M(), "P34 Mass ", P34.M() 
+          #print " 12 34 Diff ", P12.M() - P34.M () , " 13 24 Diff " , P13.M() - P24.M() , "14 23 Diff ", P14.M() - P23.M()  
+ 
           treeSkimmer.dphigh_mass[0] = P12.M()
           treeSkimmer.p_maxmass[0] = max((P12.M(),P13.M(),P14.M(),P23.M(),P24.M(),P34.M()))
           pairedDiphos = treeSkimmer.MakePairing(sPhos)
@@ -371,7 +393,7 @@ def main(argv):
           treeSkimmer.dp2_eta[0] = PP2.Eta()
           treeSkimmer.dp2_phi[0] = PP2.Phi()
           treeSkimmer.dp2_mass[0] = PP2.M()
-
+         # print "4 photon a mass ", PP1.M()
           Pgggg = sPhos[0] + sPhos[1] + sPhos[2] + sPhos[3]
           treeSkimmer.tp_pt[0] = Pgggg.Pt()
           treeSkimmer.tp_eta[0] = Pgggg.Eta()
