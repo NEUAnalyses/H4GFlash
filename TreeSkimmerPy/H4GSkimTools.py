@@ -164,6 +164,7 @@ class SkimmedTreeTools:
       self.tp_phi_3 = n.zeros(1,dtype=float)
       self.tp_mass_3 = n.zeros(1,dtype=float)
       self.nicematch = n.zeros(1,dtype=float)
+      self.genmatch_cat = n.zeros(1,dtype=float)
 
       self.p1_pt_2 = n.zeros(1, dtype=float)
       self.p2_pt_2 = n.zeros(1, dtype=float)
@@ -367,6 +368,7 @@ class SkimmedTreeTools:
       outTree_3.Branch('tp_mass_3',self.tp_mass_3,'tp_mass_3/D')
       outTree_3.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
       outTree_3.Branch('nicematch',self.nicematch,'nicematch/D')
+      outTree_3.Branch('genmatch_cat',self.genmatch_cat,'genmatch_cat/D')
       return outTree_3
      
    def MakeSkimmedTree_2(self):

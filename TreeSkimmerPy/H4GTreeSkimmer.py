@@ -7,9 +7,9 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   #inputfiles= '/eos/cms/store/user/twamorka/sig10.root'
-   inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig15.root'
-   outputfile = 'Feb9_2018/sig15.root'
+   #inputfiles= '../test/test1.root'
+   inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig0p1.root'
+   outputfile = 'test1.root'
 
    maxEvts = -1
    nfakes = 0
@@ -142,17 +142,24 @@ def main(argv):
 
       ## yahan se 3 categories me split ho sakta hai
       if len(sPhos) == 3:
-         #print " 3 photon category"
-         #triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
-         #if triggeredDipho == 0: continue
-         #print "Number of genmatch photons " , tree.v_genmatch_pt.size()
-         #nicematch = 1
+         nicematch = []
          for g in range(0,tree.v_genmatch_pt.size()):
-             nicematch = 1
-             #print "Photon Number " , g, " Pt of genmatch pho " , tree.v_genmatch_pt[g]
-             if tree.v_genmatch_pt[g] < 0:
-                nicematch = 0
-             #print  "nicematch value ", nicematch
+             if tree.v_genmatch_pt[g] > 0:
+                nicematch.append(1)
+
+         if len(nicematch) == 0:
+            n_genmatch = 0
+         elif len(nicematch) == 1 :
+            n_genmatch = 1
+         elif len(nicematch) == 2:
+            n_genmatch = 2
+         elif len(nicematch) ==3 :
+            n_genmatch = 3
+         elif len(nicematch) == 4:
+            n_genmatch = 4
+         else: n_genmatch = 5
+        
+         treeSkimmer.genmatch_cat[0] = n_genmatch
          treeSkimmer.p1_pt_3[0] = sPhos[0].Pt()
          treeSkimmer.p2_pt_3[0] = sPhos[1].Pt()
          treeSkimmer.p3_pt_3[0] = sPhos[2].Pt()
@@ -248,7 +255,7 @@ def main(argv):
          treeSkimmer.tp_eta_3[0] = Pgggg.Eta()
          treeSkimmer.tp_phi_3[0] = Pgggg.Phi()
          treeSkimmer.tp_mass_3[0] = Pgggg.M()         
-         treeSkimmer.nicematch[0] = nicematch
+         #treeSkimmer.nicematch[0] = nicematch
          outTree_3.Fill()
 
       elif len(sPhos) == 2:
