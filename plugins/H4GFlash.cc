@@ -363,8 +363,9 @@ public:
    std::vector<float> v_daughter_id;
    std::vector<LorentzVector> v_daughter_p4;
    std::vector<LorentzVector> v_4case;
-    double genTotalWeight;
-    
+   std::vector<LorentzVector> v_daughterofa_p4;
+   std::vector<LorentzVector> v_photonDaughters_p4;
+   double genTotalWeight; 
     //Parameters
     std::vector<std::string> myTriggers;
     
@@ -660,7 +661,8 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_daughter_id",&v_daughter_id);
     outTree->Branch("v_daughter_p4",&v_daughter_p4);
     outTree->Branch("v_4case",&v_4case);
-
+    outTree->Branch("v_daughterofa_p4",&v_daughterofa_p4);
+    outTree->Branch("v_photonDaughters_p4",&v_photonDaughters_p4);
     std::map<std::string, std::string> replacements;
     globVar_->bookTreeVariables(outTree, replacements);
     
@@ -961,7 +963,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_daughter_id.clear();
     v_daughter_p4.clear();
     v_4case.clear();
-
+    v_daughterofa_p4.clear();
+    v_photonDaughters_p4.clear();
     //Create a list pf photons from diphotons
     std::vector<const flashgg::Photon*> phosTemp;
     std::vector<const flashgg::Photon*> extra;
@@ -1021,7 +1024,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::Handle<GenEventInfoProduct> genEvtInfo;
 
         iEvent.getByToken(genInfoToken_, genEvtInfo);
-        genTotalWeight = genEvtInfo->weight();
+        genTotalWeight = genEvtInfght;o->weight();
 
         edm::Handle<edm::View<pat::PackedGenParticle> > genPhotons;
         iEvent.getByToken(genPhotonsToken_,genPhotons);
@@ -1039,29 +1042,18 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //unsigned int best = INT_MAX;
     std::vector<int> mylist1;  
     std::vector<int> mylist2;
-    std::vector<int> mylist3;
-    std::vector<int> mylist4;
    
-    edm::Handle<edm::View<reco::GenParticle> > genParticles;
-    iEvent.getByToken(genParticlesToken_,genParticles);
-    //const auto &genPhotons = *genParticles; 
+   edm::Handle<edm::View<reco::GenParticle> > genParticles;
+   iEvent.getByToken(genParticlesToken_,genParticles);
    if( ! iEvent.isRealData() ) {
-         //iEvent.getByToken(genParticlesToken_,genParticles);
-         //const auto &genPhotons = *genParticles;
-         for(size_t g=0; g < genParticles->size(); g++) {
-            float maxGenDeltaR = 0.1;
-            float bestptdiff = 99e15;
-            unsigned int best = INT_MAX;
-            auto gen = genParticles->ptrAt(g);
-            v_genpho_id.push_back(gen->pdgId());
-            if( gen->isPromptFinalState() == 0 ) continue;
-            if( gen->pdgId() != 22) continue;
-            //if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)  // for matching -- only consider events with 4 gen photons ???
-                { 
-                 v_genpho_p4.push_back( gen->p4() );
-                 //std::cout << "The mother is " << gen->mother(0)->pdgId() << std::endl;
-                 v_mother_id.push_back(gen->mother(0)->pdgId());
-                 for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
+      for(size_t g=0; g < genParticles->size(); g++) {
+         auto gen = genParticles->ptrAt(g);
+         if( gen->isPromptFinalState() == 0 ) continue;
+         if( gen->pdgId() != 22) continue;
+         if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)  // for matching -- only consider events with 4 gen photons ???
+            { 
+             v_genpho_p4.push_back( gen->p4() );
+             /*    for ( size_t i = 0; i < phosTemp.size(); ++i) {  // Find the best matched reco photon
                   const flashgg::Photon * pho = phosTemp[i];         
                   float dR = reco::deltaR(*pho,*gen);
                   if (dR > maxGenDeltaR){continue;}
@@ -1070,63 +1062,60 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      bestptdiff = ptdiff;
                      best = i;  // best refers to index of reco photon that has been matched
                     }
-                  }
-                  mylist2.push_back(best);
-               }
-            int n_genpho = v_genpho_p4.size();
-           if (n_genpho == 4 && gen->mother(0)->pdgId() == 25){
-              v_4case.push_back(gen->p4()); 
-             }
-           }
-  if (v_genpho_p4.size()==2){
- 
-     for (size_t k = 0; k < v_genpho_p4.size() ; k++) {
-         //LorentzVector genpho_2 = v_genpho_p4[k];
-         //std::cout << "This is the 2 gen photon case " << std::endl;
-}
-}
-  if (v_genpho_p4.size()==4){
-
-     for (size_t l = 0; l < v_genpho_p4.size() ; l++) {
-         //LorentzVector genpho_2 = v_genpho_p4[k];
-         //std::cout << "This is the 4 gen photon case " << std::endl;
-         }
+                  } 
+                  mylist2.push_back(best);  */
             }
-//if (n_genpho == 4){
-  // for (int m = 0; m<(int) genPhotons.size(); m++) {
-      //  auto mom = genPhotons.ptrAt(m);
-      //  std::cout << "The mom is "<< mom->mother()->pdgId() << std::endl;
-//  }
-//} 
-
-
-
-
- 
-           /* for ( int r=0 ; r<(int) v_genpho_p4.size(); ++r) {
+         }
+         /*if (v_genpho_p4.size()==4){
+             for (size_t l = 0; l < v_genpho_p4.size() ; l++) {
+                 LorentzVector genpho_2 = v_genpho_p4[l];
+                 float maxGenDeltaR = 0.1;
+                 float bestptdiff = 99e15;
+                 unsigned int best = INT_MAX;
+                 for ( size_t i = 0; i < phosTemp.size(); ++i) { 
+                     const flashgg::Photon * pho = phosTemp[i];    
+                     float dR = reco::deltaR(*pho,genpho_2);
+                     if (dR > maxGenDeltaR){continue;}
+                     float ptdiff =  fabs(genpho_2.pt()-pho->pt());
+                     if ( ptdiff < bestptdiff ) {
+                        bestptdiff = ptdiff;
+                        best = i;
+                        }
+                     } 
+                     mylist2.push_back(best);
+                   }
+                 }
+           for ( int r=0 ; r<(int) v_genpho_p4.size(); ++r) {
                for (int t=0; t< (int)phosTemp.size(); ++t) {
-                  if (t == mylist2[r]) {
-                     auto &extra = phosTemp[t];
-                     v_genmatch_p4.push_back( extra->p4());
-                     v_genmatch_pt.push_back( extra->pt());
+                   if (t == mylist2[r]) {
+                      auto &extra = phosTemp[t];
+                      v_genmatch_p4.push_back( extra->p4());
+                      v_genmatch_pt.push_back( extra->pt());
                      }
                   else {
                      v_genmatch_pt.push_back(-999);
+                       } 
                   } 
-               
-               } 
-             } */     
-          // } 
-        edm::Handle<edm::View<reco::GenParticle> > genParticles;
-        iEvent.getByToken(genParticlesToken_,genParticles);
+            }    */
         //---- Loop over gen particles
-        for (size_t gp=0; gp<genParticles->size(); ++gp) {
+        //edm::Handle<edm::View<reco::GenParticle> > photonDaughters;
+        //iEvent.getByToken(genParticlesToken_,photonDaughters);
+        for (size_t gp=0; gp<genParticles->size(); gp+=2) {
             const auto gen = genParticles->ptrAt(gp);
-            
             int type = gen->pdgId();
-            
             if ( abs(type) == 25 ){ //---- a
-                std::cout << "The daughter of a " << gen->daughter(0)->pdgId() << std::endl;
+                auto gen_pho1 = genParticles->ptrAt(1);
+                auto gen_pho2 = genParticles->ptrAt(2);
+                auto daughter1 = gen_pho1->daughter(0);
+                auto daughter2 = gen_pho1->daughter(1);
+                auto daughter3 = gen_pho2->daughter(0);
+                auto daughter4 = gen_pho2->daughter(1);
+                v_photonDaughters_p4.push_back(daughter1->p4());
+                v_photonDaughters_p4.push_back(daughter2->p4());
+                v_photonDaughters_p4.push_back(daughter3->p4());
+                v_photonDaughters_p4.push_back(daughter4->p4());
+                //std::cout << daughter1->pt() << "  " << daughter2->pt() <<"  " <<  daughter3->pt() << "  " << daughter4->pt() << std::endl;
+                std::cout << "mother 1 "<< gen_pho1->pdgId() << "mother 2 "<< gen_pho2->pdgId() << "daug1 "<< daughter1->pdgId() << "daug 2 " << daughter2->pdgId() << "daug 3 " << daughter3->pdgId() << "daug 4 " << daughter4->pdgId() << std::endl;
                 v_daughter_id.push_back(gen->daughter(0)->pdgId());
                 v_daughter_p4.push_back(gen->daughter(0)->p4());
                 v_gen_a_mass .push_back(gen->mass());
@@ -1136,21 +1125,52 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 v_gen_a_id .push_back(1. * type);  
             }
             if ( abs(type) == 35 ) { //---- X
-                std::cout << "This is the daughter of h " << gen->daughter(0)->pdgId() << std::endl;
                 v_gen_X_mass .push_back(gen->mass());
                 v_gen_X_pt .push_back(gen->pt());
                 v_gen_X_phi.push_back(gen->phi());
                 v_gen_X_eta.push_back(gen->eta());
                 v_gen_X_id .push_back(1. * type);  
             }
-if (( abs(type) == 11 || abs(type) == 13 || abs(type) == 15 ) && (gen->isPromptFinalState() == 1)) {//---- leptons (only prompt)
-               std::cout << "This is the daughter of rest " << gen->daughter(0)->pdgId() << std::endl; 
-               v_genlep_p4.push_back( gen->p4() );
+            if (( abs(type) == 11 || abs(type) == 13 || abs(type) == 15 ) && (gen->isPromptFinalState() == 1)) {//---- leptons (only prompt)
+                   v_genlep_p4.push_back( gen->p4() );
             }
         }
 } 
-  //std::cout << "Number of reco photons in this event " << phosTemp.size() << std::endl; 
-   for (int i = 0; i < (int)phosTemp.size(); ++i) {
+   
+
+for (int f=0 ;f<(int)v_photonDaughters_p4.size(); f++){
+    LorentzVector child = v_photonDaughters_p4[f];
+    float maxGenDeltaR = 0.1;
+    float bestptdiff = 99e15;
+    unsigned int best = INT_MAX;
+    for ( size_t i = 0; i < phosTemp.size(); ++i) {
+        const flashgg::Photon * pho = phosTemp[i];
+        float dR = deltaR(*pho,child);
+        std::cout << "gen pho number "<< f << "reco pho number " << i << std::endl;
+        if (dR > maxGenDeltaR){continue;}
+        float ptdiff =  fabs(child.pt()-pho->pt());
+        if ( ptdiff < bestptdiff ) {
+           bestptdiff = ptdiff;
+           best = i;
+        }
+     }
+        mylist2.push_back(best);
+}
+
+for ( int r=0 ; r<(int) v_photonDaughters_p4.size(); ++r) {
+    for (int t=0; t< (int)phosTemp.size(); ++t) {
+        if (t == mylist2[r]) {
+        auto &extra = phosTemp[t];
+        v_genmatch_p4.push_back( extra->p4());
+        v_genmatch_pt.push_back( extra->pt());
+        }
+        //else {
+        //v_genmatch_pt.push_back(-999);
+        //}
+    }
+}
+
+for (int i = 0; i < (int)phosTemp.size(); ++i) {
         const flashgg::Photon * pho = phosTemp[i];
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") ); 
