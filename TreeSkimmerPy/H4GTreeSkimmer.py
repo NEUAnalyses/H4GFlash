@@ -7,8 +7,8 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   inputfiles = '/eos/cms/store/user/torimoto/physics/4gamma/for4Gamma/D.root'
-   outputfile = 'for4Gamma/D.root'
+   inputfiles = '/eos/cms/store/user/twamorka/for4Gamma/sig45.root'
+   outputfile = 'for4Gamma_v2/sig45.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -106,7 +106,9 @@ def main(argv):
          sPhos = [x[0] for x in totmatrix]
          sPhos_id = [x[1] for x in totmatrix]
 
-      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+      #triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+      triggeredDipho = treeSkimmer.MakeTriggerSelection_v2(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+
       if triggeredDipho == 0: continue
       treeSkimmer.p_npho[0] = len(sPhos)
       listdr = []

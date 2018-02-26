@@ -499,7 +499,7 @@ class SkimmedTreeTools:
 
       return fPhos, fPhos_id
 
-   def MakeTriggerSelection(self, Phos, Phos_id, R9, CHIso, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
+   def MakeTriggerSelection(self, Phos, Phos_id, R9, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
       #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
       pho1 = 0
       pho1_id = -99
@@ -574,6 +574,97 @@ class SkimmedTreeTools:
       dipho = pho1+pho2
       if dipho == 0: return 0
       else: return [dipho, pho1, pho1_id, pho2, pho2_id]
+
+   def MakeTriggerSelection_v2(self, Phos, Phos_id, R9, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
+      #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
+      pho1 = 0
+      pho1_id = -99
+      pho2 = 0
+      pho2_id = -99
+      #print "Number of photons", len(Phos)
+      for i1,p1 in enumerate(Phos):
+         for i2,p2 in enumerate(Phos):
+            if(i2 <=i1): continue
+            if p1.Pt() < 30: continue  # pt of leading photon
+            if p2.Pt() < 18: continue  # pt of subleading photon
+            if PSeed[Phos_id[i1]] == 1: continue
+            if PSeed[Phos_id[i2]] == 1: continue
+            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
+            if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
+
+            if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479: # Case 1 : EB EB
+               if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:
+                  if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                     thisDipho = p1+p2
+                     if thisDipho.M() < 55: continue
+                     pho1 = p1
+                     pho1_id = Phos_id[i1]
+                     pho2 = p2
+                     pho2_id = Phos_id[i2]
+                     break
+            elif abs(p1.Eta()) < 1.479  and abs(p2.Eta()) < 1.479: # Case 2 : EB EB  R9 >0.5 and < 0,85
+                 if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i1]] < 0.85:
+                    if R9[Phos_id[i2]] > 0.5 and R9[Phos_id[i2]] < 0.85:
+                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                          if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+                             if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0:
+                                if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                   thisDipho = p1+p2
+                                   if thisDipho.M() < 55: continue
+                                   pho1 = p1
+                                   pho1_id = Phos_id[i1]
+                                   pho2 = p2
+                                   pho2_id = Phos_id[i2]
+                                   break
+
+            elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479: # Case 3 : EE EB
+                 if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 3 : EBEE
+                    if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                thisDipho = p1+p2
+                                if thisDipho.M() < 55: continue
+                                pho1 = p1
+                                pho1_id = Phos_id[i1]
+                                pho2 = p2
+                                pho2_id = Phos_id[i2]
+                                break
+            elif abs(p1.Eta()) < 1.479 and abs(p2.Eta()) > 1.479: # Case 4 : EB EE
+                 if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:
+                    if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                thisDipho = p1+p2
+                                if thisDipho.M() < 55: continue
+                                pho1 = p1
+                                pho1_id = Phos_id[i1]
+                                pho2 = p2
+                                pho2_id = Phos_id[i2]
+                                break            
+            elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) > 1.479: # Case 5 : EE EE
+                 if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:
+                    if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+                       if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.035:
+                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
+                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                                thisDipho = p1+p2
+                                if thisDipho.M() < 55: continue
+                                pho1 = p1
+                                pho1_id = Phos_id[i1]
+                                pho2 = p2
+                                pho2_id = Phos_id[i2]
+                                break
+         if pho1 !=0 and pho2 != 0: break
+
+      dipho = pho1+pho2
+      if dipho == 0: return 0
+      else: return [dipho, pho1, pho1_id, pho2, pho2_id]
+
+
+
+
    # Phos: a list of 4 (and only 4!) TLorentzVectors
    def MakePairing(self, Phos):
       minDM = 100000
