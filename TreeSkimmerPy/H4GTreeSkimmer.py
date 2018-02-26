@@ -7,10 +7,8 @@ from H4GSkimTools import *
 #from H4GSkimTools_3 import *
 #from H4GSkimTools_2 import *
 def main(argv):
-   #inputfiles= '../test/test1.root'
-   inputfiles = '/eos/cms/store/user/twamorka/Feb_2018/Signal/sig0p1.root'
-   outputfile = 'test1.root'
-
+   inputfiles = '/eos/cms/store/user/torimoto/physics/4gamma/for4Gamma/D.root'
+   outputfile = 'for4Gamma/D.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -71,7 +69,7 @@ def main(argv):
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
       treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
-      treeSkimmer.passTrigger[0] = tree.passTrigger
+      #treeSkimmer.passTrigger[0] = tree.passTrigger
       #treeSkimmer.nicematch[0] = tree.nicematch       
  
       Phos = []
@@ -92,7 +90,7 @@ def main(argv):
       Phos.sort(key=lambda x: x.Pt(), reverse=True)
       #Make photon selection first because the triggered photons *must* be selected
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
-      
+
       if nfakes > 0 :
          fPhos, fPhos_id = treeSkimmer.SelectWithFakes(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
          if len(fPhos) < nfakes:
@@ -111,7 +109,6 @@ def main(argv):
       triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
       if triggeredDipho == 0: continue
       treeSkimmer.p_npho[0] = len(sPhos)
-      #print "Number of photons " , len(sPhos)
       listdr = []
       for m in range(0, len(sPhos)):
           treeSkimmer.p_pt[0] =  sPhos[m].Pt()
@@ -126,7 +123,9 @@ def main(argv):
           treeSkimmer.p_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[m]]
           treeSkimmer.p_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[m]]
           treeSkimmer.p_genmatch[0] = tree.v_pho_genmatch[sPhos_id[m]]
-          treeSkimmer.p_match[0] = tree.v_genmatch_int[sPhos_id[m]]
+          treeSkimmer.p_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[m]]
+          #treeSkimmer.p_match[0] = tree.v_genmatch_int[sPhos_id[m]]
+          treeSkimmer.p_passTrigger[0] = tree.passTrigger
           for n in range(0, len(sPhos)):
               if (n!=m and n>m):
                  dr = sPhos[m].DeltaR(sPhos[n])
@@ -135,30 +134,35 @@ def main(argv):
       treeSkimmer.p_drmax[0] = max(listdr)
  
       outTree_all.Fill()
- ## here write the code to save info of photons irrespective of how many photons there are in the event
-
-## in a separate loop try to calculate mindr here
-  
-
-      ## yahan se 3 categories me split ho sakta hai
+ 
+# Split into 3 categories here
       if len(sPhos) == 3:
          nicematch = []
+         match = 0
+         #print " how many genmatch ", tree.v_genmatch_pt.size()
          for g in range(0,tree.v_genmatch_pt.size()):
+             #print tree.v_genmatch_pt[g]
              if tree.v_genmatch_pt[g] > 0:
+                match = 1
+                #print " the value of match ", match
                 nicematch.append(1)
-
-         if len(nicematch) == 0:
+         #print " is this right" , match 
+         #print " Value of nucematch ", nicematch
+         #print " how many times " , nicematch.count(1)
+         if nicematch.count(1) == 0:
+            #print " only one good match"
             n_genmatch = 0
-         elif len(nicematch) == 1 :
+         elif nicematch.count(1) == 1 :
             n_genmatch = 1
-         elif len(nicematch) == 2:
+         elif nicematch.count(1) == 2:
             n_genmatch = 2
-         elif len(nicematch) ==3 :
+         elif nicematch.count(1) ==3 :
             n_genmatch = 3
-         elif len(nicematch) == 4:
+         elif nicematch.count(1) == 4:
             n_genmatch = 4
-         else: n_genmatch = 5
-        
+         elif nicematch.count(1) > 4:
+            n_genmatch = 5
+         #treeSkimmer.nicematch[0] = tree.nicematch  
          treeSkimmer.genmatch_cat[0] = n_genmatch
          treeSkimmer.p1_pt_3[0] = sPhos[0].Pt()
          treeSkimmer.p2_pt_3[0] = sPhos[1].Pt()
@@ -201,10 +205,14 @@ def main(argv):
          treeSkimmer.p1_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[0]]
          treeSkimmer.p2_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[1]]
          treeSkimmer.p3_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[2]]
+
+         treeSkimmer.p1_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
+         treeSkimmer.p2_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
+         treeSkimmer.p3_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[2]]
  
-         treeSkimmer.p1_match_3[0] = tree.v_genmatch_int[sPhos_id[0]]
-         treeSkimmer.p2_match_3[0] = tree.v_genmatch_int[sPhos_id[1]]
-         treeSkimmer.p3_match_3[0] = tree.v_genmatch_int[sPhos_id[2]]       
+         #treeSkimmer.p1_match_3[0] = tree.v_genmatch_int[sPhos_id[0]]
+         #treeSkimmer.p2_match_3[0] = tree.v_genmatch_int[sPhos_id[1]]
+         #treeSkimmer.p3_match_3[0] = tree.v_genmatch_int[sPhos_id[2]]       
   
          #print " Min dr for 3 photon category " , min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          treeSkimmer.p_mindr_3[0] = min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
@@ -290,9 +298,11 @@ def main(argv):
 
          treeSkimmer.p1_genmatch_2[0] = tree.v_pho_genmatch[sPhos_id[0]]
          treeSkimmer.p2_genmatch_2[0] = tree.v_pho_genmatch[sPhos_id[1]]
- 
-         treeSkimmer.p1_match_2[0] = tree.v_genmatch_int[sPhos_id[0]]
-         treeSkimmer.p2_match_2[0] = tree.v_genmatch_int[sPhos_id[1]]
+
+         treeSkimmer.p1_hadronicOverEm_2[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
+         treeSkimmer.p2_hadronicOverEm_2[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]] 
+         #treeSkimmer.p1_match_2[0] = tree.v_genmatch_int[sPhos_id[0]]
+         #treeSkimmer.p2_match_2[0] = tree.v_genmatch_int[sPhos_id[1]]
 
          treeSkimmer.p_mindr_2[0] = sPhos[0].DeltaR(sPhos[1])
          
@@ -358,16 +368,21 @@ def main(argv):
           treeSkimmer.p2_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[1]]
           treeSkimmer.p3_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[2]]
           treeSkimmer.p4_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[3]]      
+
+          treeSkimmer.p1_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
+          treeSkimmer.p2_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
+          treeSkimmer.p3_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[2]]
+          treeSkimmer.p4_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[3]]
       
           treeSkimmer.p1_genmatch[0] = tree.v_pho_genmatch[sPhos_id[0]]
           treeSkimmer.p2_genmatch[0] = tree.v_pho_genmatch[sPhos_id[1]]
           treeSkimmer.p3_genmatch[0] = tree.v_pho_genmatch[sPhos_id[2]]
           treeSkimmer.p4_genmatch[0] = tree.v_pho_genmatch[sPhos_id[3]]
     
-          treeSkimmer.p1_match[0] = tree.v_genmatch_int[sPhos_id[0]]
-          treeSkimmer.p2_match[0] = tree.v_genmatch_int[sPhos_id[1]]
-          treeSkimmer.p3_match[0] = tree.v_genmatch_int[sPhos_id[2]]
-          treeSkimmer.p4_match[0] = tree.v_genmatch_int[sPhos_id[3]]
+          #treeSkimmer.p1_match[0] = tree.v_genmatch_int[sPhos_id[0]]
+          #treeSkimmer.p2_match[0] = tree.v_genmatch_int[sPhos_id[1]]
+          #treeSkimmer.p3_match[0] = tree.v_genmatch_int[sPhos_id[2]]
+          #treeSkimmer.p4_match[0] = tree.v_genmatch_int[sPhos_id[3]]
 
           treeSkimmer.p_mindr[0] = min( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3])) 
           treeSkimmer.p_maxdr[0] = max( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]) )      

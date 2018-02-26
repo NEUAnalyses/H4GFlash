@@ -21,6 +21,8 @@ class SkimmedTreeTools:
       self.p_drmax = n.zeros(1, dtype=float)
       self.p_npho = n.zeros(1, dtype=float)      
       self.p_match = n.zeros(1, dtype=float)
+      self.p_hadronicOverEm = n.zeros(1, dtype=float)
+      self.p_passTrigger = n.zeros(1, dtype=float)
 
       self.p1_pt = n.zeros(1, dtype=float)
       self.p2_pt = n.zeros(1, dtype=float)
@@ -74,6 +76,10 @@ class SkimmedTreeTools:
       self.p2_genmatching = n.zeros(1, dtype=float)
       self.p3_genmatching = n.zeros(1, dtype=float)
       self.p4_genmatching = n.zeros(1, dtype=float)
+      self.p1_hadronicOverEm = n.zeros(1, dtype=float)
+      self.p2_hadronicOverEm = n.zeros(1, dtype=float)
+      self.p3_hadronicOverEm = n.zeros(1, dtype=float)
+      self.p4_hadronicOverEm = n.zeros(1, dtype=float)
       self.p1_match = n.zeros(1, dtype=float)
       self.p2_match = n.zeros(1, dtype=float)
       self.p3_match = n.zeros(1, dtype=float)
@@ -150,6 +156,9 @@ class SkimmedTreeTools:
       self.p1_match_3 = n.zeros(1, dtype=float)
       self.p2_match_3 = n.zeros(1, dtype=float)
       self.p3_match_3 = n.zeros(1, dtype=float)
+      self.p1_hadronicOverEm_3 = n.zeros(1, dtype=float)
+      self.p2_hadronicOverEm_3 = n.zeros(1, dtype=float)
+      self.p3_hadronicOverEm_3 = n.zeros(1, dtype=float)
       self.p_mindr_3 = n.zeros(1, dtype=float)
       self.p_maxdr_3 = n.zeros(1, dtype=float)
       self.dphigh_mass_3 = n.zeros(1, dtype=float)
@@ -192,6 +201,8 @@ class SkimmedTreeTools:
       self.p2_genmatch_2 = n.zeros(1, dtype=float)
       self.p1_match_2 = n.zeros(1, dtype=float)
       self.p2_match_2 = n.zeros(1, dtype=float)
+      self.p1_hadronicOverEm_2 = n.zeros(1, dtype=float)
+      self.p2_hadronicOverEm_2 = n.zeros(1, dtype=float)
       self.p_mindr_2 = n.zeros(1,dtype=float)
       self.tp_pt_2 = n.zeros(1,dtype=float)
       self.tp_eta_2 = n.zeros(1,dtype=float)
@@ -218,7 +229,8 @@ class SkimmedTreeTools:
        outTree_all.Branch('p_drmin', self.p_drmin, 'p_drmin/D')
        outTree_all.Branch('p_drmax', self.p_drmax, 'p_drmax/D')
        outTree_all.Branch('p_npho', self.p_npho, 'p_npho/D')
-       #outTree_all.Branch('nicematch',self.nicematch,'nicematch/D')
+       outTree_all.Branch('p_hadronicOverEm',self.p_hadronicOverEm,'p_hadronicOverEm/D')
+       outTree_all.Branch('p_passTrigger',self.p_passTrigger,'p_passTrigger/D')
        return outTree_all
 
    def MakeSkimmedTree(self):
@@ -277,6 +289,10 @@ class SkimmedTreeTools:
       outTree.Branch('p2_match',self.p2_match, 'p2_match/D')
       outTree.Branch('p3_match',self.p3_match, 'p3_match/D')
       outTree.Branch('p4_match',self.p4_match, 'p4_match/D')
+      outTree.Branch('p1_hadronicOverEm',self.p1_hadronicOverEm,'p1_hadronicOverEm/D')
+      outTree.Branch('p2_hadronicOverEm',self.p2_hadronicOverEm,'p2_hadronicOverEm/D')
+      outTree.Branch('p3_hadronicOverEm',self.p3_hadronicOverEm,'p3_hadronicOverEm/D')
+      outTree.Branch('p4_hadronicOverEm',self.p4_hadronicOverEm,'p4_hadronicOverEm/D')
       outTree.Branch('p_mindr', self.p_mindr, 'p_mindr/D')
       outTree.Branch('p_maxdr', self.p_maxdr, 'p_maxdr/D')
       outTree.Branch('p_maxmass',self.p_maxmass, 'p_maxmass/D')
@@ -352,7 +368,10 @@ class SkimmedTreeTools:
       outTree_3.Branch('p3_sigmaEtaEta_3',self.p3_sigmaEtaEta_3,'p3_sigmaEtaEta_3/D')
       outTree_3.Branch('p1_full5x5_sigmaEtaEta_3',self.p1_full5x5_sigmaEtaEta_3,'p1_full5x5_sigmaEtaEta_3/D')
       outTree_3.Branch('p2_full5x5_sigmaEtaEta_3',self.p2_full5x5_sigmaEtaEta_3,'p2_full5x5_sigmaEtaEta_3/D')
-      outTree_3.Branch('p3_full5x5_sigmaEtaEta_3',self.p3_full5x5_sigmaEtaEta_3,'p3_full5x5_sigmaEtaEta_3/D')      
+      outTree_3.Branch('p3_full5x5_sigmaEtaEta_3',self.p3_full5x5_sigmaEtaEta_3,'p3_full5x5_sigmaEtaEta_3/D')     
+      outTree_3.Branch('p1_hadronicOverEm_3',self.p1_hadronicOverEm_3,'p1_hadronicOverEm_3/D') 
+      outTree_3.Branch('p2_hadronicOverEm_3',self.p2_hadronicOverEm_3,'p2_hadronicOverEm_3/D')
+      outTree_3.Branch('p3_hadronicOverEm_3',self.p3_hadronicOverEm_3,'p3_hadronicOverEm_3/D')
       outTree_3.Branch('p_mindr_3', self.p_mindr_3, 'p_mindr_3/D')
       outTree_3.Branch('p_maxdr_3', self.p_maxdr_3, 'p_maxdr_3/D')
       outTree_3.Branch('dphigh_mass_3', self.dphigh_mass_3, 'dphigh_mass_3/D')
@@ -369,6 +388,7 @@ class SkimmedTreeTools:
       outTree_3.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
       outTree_3.Branch('nicematch',self.nicematch,'nicematch/D')
       outTree_3.Branch('genmatch_cat',self.genmatch_cat,'genmatch_cat/D')
+      outTree_3.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
       return outTree_3
      
    def MakeSkimmedTree_2(self):
@@ -401,11 +421,15 @@ class SkimmedTreeTools:
       outTree_2.Branch('p2_sigmaEtaEta_2',self.p2_sigmaEtaEta_2,'p2_sigmaEtaEta_2/D')
       outTree_2.Branch('p1_full5x5_sigmaEtaEta_2',self.p1_full5x5_sigmaEtaEta_2,'p1_full5x5_sigmaEtaEta_2/D')
       outTree_2.Branch('p2_full5x5_sigmaEtaEta_2',self.p2_full5x5_sigmaEtaEta_2,'p2_full5x5_sigmaEtaEta_2/D')
+      outTree_2.Branch('p1_hadronicOverEm_2',self.p1_hadronicOverEm_2,'p1_hadronicOverEm_2/D')
+      outTree_2.Branch('p2_hadronicOverEm_2',self.p2_hadronicOverEm_2,'p2_hadronicOverEm_2/D')
       outTree_2.Branch('p_mindr_2',self.p_mindr_2,'p_mindr_2/D')
       outTree_2.Branch('tp_pt_2',self.tp_pt_2,'tp_pt_2/D')
       outTree_2.Branch('tp_eta_2',self.tp_eta_2,'tp_eta_2/D')
       outTree_2.Branch('tp_phi_2',self.tp_phi_2,'tp_phi_2/D')
       outTree_2.Branch('tp_mass_2',self.tp_mass_2,'tp_mass_2/D')
+      outTree_2.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      outTree_2.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
       return outTree_2
 
    def FillEvent(self, inputTree):
@@ -419,6 +443,15 @@ class SkimmedTreeTools:
    
             
 
+   def triggerpass(self,Phos,Phos_id,Trigger):
+       tPhos = []
+       tPhos_id = []
+       for i,pho in enumerate(Phos):
+           if Trigger == 0: continue
+           #print Trigger[Phos_id[i]]
+           tPhos.append(pho)
+           tPhos_id.append(Phos_id[i])
+       return tPhos, tPhos_id
 
 
    def MakePhotonSelection(self, Phos, Phos_id, MVA, el):
@@ -427,12 +460,16 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15:continue
          if abs(pho.Eta()) > 2.5: continue
+         #print " I made the pt cut "
          if abs(pho.Eta()) < 1.479 and MVA[Phos_id[i]] < -0.9: continue
          if abs(pho.Eta()) > 1.479 and MVA[Phos_id[i]] < -0.9: continue
-         if el[Phos_id[i]] == 0: continue 
+         #print " I made the mva cut"
+         if el[Phos_id[i]] == 0: continue
+         #print " I made the elec cut"
          sPhos.append(pho)
          sPhos_id.append(Phos_id[i])
       return sPhos, sPhos_id
+
    def MakePhotonSelectionCutBased(self, Phos, Phos_id, rho, chiso, nhiso, phiso, hoe, sieie, el):
       sPhos = []
       sPhos_id = []
@@ -474,17 +511,17 @@ class SkimmedTreeTools:
             if(i2 <=i1): continue
             if p1.Pt() < 30: continue  # pt of leading photon
             if p2.Pt() < 18: continue  # pt of subleading photon
-            if PSeed[Phos_id[i1]] == 1 or PSeed[Phos_id[i2]] == 1: continue # pixel veto condition on both photons
+            if PSeed[Phos_id[i1]] == 1: continue
+            if PSeed[Phos_id[i2]] == 1: continue 
             if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
-            
+
             if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479: # Case 1 : EB EB
-               if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i2]] > 0.5:  # Case 1 : EBEB with R9 > 0.85
+               if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i2]] > 0.5:
                   if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
                      if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
                         if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
  			   if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
-                               #print " EB EB case"
                                thisDipho = p1+p2
                                if thisDipho.M() < 55: continue
                                pho1 = p1
@@ -495,13 +532,9 @@ class SkimmedTreeTools:
             elif abs(p1.Eta()) < 1.479  and abs(p2.Eta()) > 1.479: # Case 2 : EB EE
                  if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:
                     if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
-                          #print " I Am here"
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          #print " I Am here 0"
                           if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0:
-                             #print " I am here 1"
                              if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
-                                print " EB EE  case"
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
@@ -516,7 +549,6 @@ class SkimmedTreeTools:
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
                           if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
                              if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
-                                print " EE EB case"
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
@@ -530,7 +562,6 @@ class SkimmedTreeTools:
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0275 and SigmaIEtaIEta[Phos_id[i2]] < 0.0275:         
                           if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
                              if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
-                                #print "EE EE case" 
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
@@ -541,10 +572,8 @@ class SkimmedTreeTools:
          if pho1 !=0 and pho2 != 0: break              
 
       dipho = pho1+pho2
-      #print "Trigger dipho mass  ",dipho.M()
       if dipho == 0: return 0
       else: return [dipho, pho1, pho1_id, pho2, pho2_id]
-      #print "Trigger dipho mass  ",dipho.M()
    # Phos: a list of 4 (and only 4!) TLorentzVectors
    def MakePairing(self, Phos):
       minDM = 100000
