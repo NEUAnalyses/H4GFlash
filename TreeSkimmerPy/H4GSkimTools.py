@@ -515,13 +515,20 @@ class SkimmedTreeTools:
             if PSeed[Phos_id[i2]] == 1: continue 
             if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
             if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
-
+            
+            #print " photon 1 ", abs(p1.Eta()) ," photon 2 ", abs(p2.Eta())
+            #print " photon 1 r9 " , R9[Phos_id[i1]] ," photon 2 R9  ", R9[Phos_id[i2]]
+            #print " photon 1 hoe ", HoE[Phos_id[i1]] , " photon 2 hoe ", HoE[Phos_id[i2]]
+            #print " photon 1 etaeta " , SigmaIEtaIEta[Phos_id[i1]] , "photon 2 etaeta ", SigmaIEtaIEta[Phos_id[i2]]
+            #print " photon 1 ecaliso ", ECALIso[Phos_id[i1]] ," photon 2 ecaliso ", ECALIso[Phos_id[i2]]
+            #print " photom 1 trackiso ", trackIso[Phos_id[i1]] , " photon 2 trackiso ", trackIso[Phos_id[i2]]
             if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479: # Case 1 : EB EB
+               #print " EB EB case"
                if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i2]] > 0.5:
                   if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
                      if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                        if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
- 			   if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                        if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
+ 			   if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
                                thisDipho = p1+p2
                                if thisDipho.M() < 55: continue
                                pho1 = p1
@@ -530,11 +537,12 @@ class SkimmedTreeTools:
                                pho2_id = Phos_id[i2]
                                break
             elif abs(p1.Eta()) < 1.479  and abs(p2.Eta()) > 1.479: # Case 2 : EB EE
+		 #print " EB EE case"
                  if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:
                     if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0:
-                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                          if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
+                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
@@ -544,11 +552,12 @@ class SkimmedTreeTools:
                                 break
 
             elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479: # Case 3 : EE EB
+		 #print " EE EB case"
                  if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 3 : EBEE
                     if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
-                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                          if ECALIso[Phos_id[i1]] < 4.0  + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
+                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
@@ -557,18 +566,19 @@ class SkimmedTreeTools:
                                 pho2_id = Phos_id[i2]
                                 break  
             elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) > 1.479: # Case 4 : EE EE
+		 #print " EE EE case"
                  if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:  
                     if HoE[Phos_id[i1]] < 0.035 and HoE[Phos_id[i2]] < 0.035:
                        if SigmaIEtaIEta[Phos_id[i1]] < 0.0275 and SigmaIEtaIEta[Phos_id[i2]] < 0.0275:         
-                          if ECALIso[Phos_id[i1]] < 4.0 and ECALIso[Phos_id[i2]] < 4.0 :
-                             if trackIso[Phos_id[i1]] < 6.0 and trackIso[Phos_id[i2]] < 6.0:
+                          if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
+                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p2.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
                                 thisDipho = p1+p2
                                 if thisDipho.M() < 55: continue
                                 pho1 = p1
                                 pho1_id = Phos_id[i1]
                                 pho2 = p2
                                 pho2_id = Phos_id[i2]
-                                break 
+                                break
          if pho1 !=0 and pho2 != 0: break              
 
       dipho = pho1+pho2
