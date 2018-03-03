@@ -636,7 +636,7 @@ class SkimmedTreeTools:
             elif (abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479) : # Case 4 : EE EB
                  if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.85:  
                     if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+                       if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
                           if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt() :
                              if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt() :
                                 if PSeed[Phos_id[i1]] == 1: continue
