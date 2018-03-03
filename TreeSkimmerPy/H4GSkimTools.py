@@ -460,12 +460,9 @@ class SkimmedTreeTools:
       for i,pho in enumerate(Phos):
          if pho.Pt() < 15:continue
          if abs(pho.Eta()) > 2.5: continue
-         #print " I made the pt cut "
          if abs(pho.Eta()) < 1.479 and MVA[Phos_id[i]] < -0.9: continue
          if abs(pho.Eta()) > 1.479 and MVA[Phos_id[i]] < -0.9: continue
-         #print " I made the mva cut"
          if el[Phos_id[i]] == 0: continue
-         #print " I made the elec cut"
          sPhos.append(pho)
          sPhos_id.append(Phos_id[i])
       return sPhos, sPhos_id
