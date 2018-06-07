@@ -8,8 +8,8 @@ from analyzertools import *
 
 def main(argv):
    #inputfiles = '/eos/cms/store/user/torimoto/physics/4gamma/2018/Signal/sig50.root'
-   inputfiles = '/eos/cms/store/user/twamorka/Mar17_2018/sig1.root'
-   outputfile = 'Mar26_2018/gen1.root'
+   inputfiles = '/eos/user/t/twamorka/FatPho0p1_Match0p15/sig1.root'
+   outputfile = 'test.root'
    try:
       opts, args = getopt.getopt(argv,"hi:o:",["inputFiles=","outputFile="])
    except getopt.GetoptError:
@@ -107,24 +107,16 @@ def main(argv):
       
       acc = []
       acceptance = ""
+      pho1out = []
+      pho2out = []
+      pho3out = []
+      pho4out = []
+      fatphoout = []
+      isopho1out = []
+      isopho2out = []
+      fatpho1out = []
+      fatpho2out = []
 
-      for k in range(0,len(Genphos)):
-          if Genphos[k].Pt() > 15 and abs(Genphos[k].Eta()) < 2.5:
-             acc.append(1)
-
-      for a in acc:
-          if acc.count(1) == 0:
-             acceptance = 0
-          elif acc.count(1) == 1:
-              acceptance = 1
-          elif acc.count(1) == 2:
-              acceptance = 2
-          elif acc.count(1) == 3:
-              acceptance = 3
-          elif acc.count(1) == 4:
-              acceptance = 4
-
-#print " how many photons in the acceptance ", acceptance
 
       if len(Genphos) > 0:
          gen1 = Genphos[0]
@@ -143,7 +135,8 @@ def main(argv):
       gen24 = gen2+gen4
       gen34 = gen3+gen4
 
-     
+#print gen1.Pt() , gen2.Pt(), gen3.Pt(), gen4.Pt()
+      
       Genmaker.gen1_pt[0] = gen1.Pt()
       Genmaker.gen2_pt[0] = gen2.Pt()
       Genmaker.gen3_pt[0] = gen3.Pt()
@@ -161,8 +154,7 @@ def main(argv):
 
       
       for d in drlist:
-          #print "drlist  ",d
-          if d < 0.3:
+          if d < 0.1:
              fatphoton.append(1)
 
       category = ""
@@ -182,7 +174,9 @@ def main(argv):
       pho2 = ""
       pho3 = ""
       pho4 = ""
-
+      fourpho = []
+      threepho = []
+      twopho = []
       if category == 4:  # all photons are resolved
 
          pho1 = gen1
@@ -190,6 +184,20 @@ def main(argv):
          pho3 = gen3
          pho4 = gen4
          
+         fourpho.append(pho1)
+         fourpho.append(pho2)
+         fourpho.append(pho3)
+         fourpho.append(pho4)
+         #print " 4 photon case"
+         #print pho1.Pt() , pho2.Pt(), pho3.Pt(), pho4.Pt()
+         fourpho.sort(key=lambda x: x.Pt(), reverse=True) # now sort in pt order and save kinematics
+         
+         pho1 = fourpho[0]
+         pho2 = fourpho[1]
+         pho3 = fourpho[2]
+         pho4 = fourpho[3]
+         
+         #print pho1.Pt() , pho2.Pt(), pho3.Pt(), pho4.Pt()
          Genmaker.p1_pt_case1[0] = pho1.Pt()
          Genmaker.p2_pt_case1[0] = pho2.Pt()
          Genmaker.p3_pt_case1[0] = pho3.Pt()
@@ -198,11 +206,38 @@ def main(argv):
          Genmaker.p2_eta_case1[0] = pho2.Eta()
          Genmaker.p3_eta_case1[0] = pho3.Eta()
          Genmaker.p4_eta_case1[0] = pho4.Eta()
+         Genmaker.p12_dr_case1[0] = pho1.DeltaR(pho2)
+         Genmaker.p13_dr_case1[0] = pho1.DeltaR(pho3)
+         Genmaker.p14_dr_case1[0] = pho1.DeltaR(pho4)
+         Genmaker.p23_dr_case1[0] = pho2.DeltaR(pho3)
+         Genmaker.p24_dr_case1[0] = pho2.DeltaR(pho4)
+         Genmaker.p34_dr_case1[0] = pho3.DeltaR(pho4)
+         Genmaker.p12_mass_case1[0] = (pho1+pho2).M()
+         Genmaker.p13_mass_case1[0] = (pho1+pho3).M()
+         Genmaker.p14_mass_case1[0] = (pho1+pho4).M()
+         Genmaker.p23_mass_case1[0] = (pho2+pho3).M()
+         Genmaker.p24_mass_case1[0] = (pho2+pho4).M()
+         Genmaker.p34_mass_case1[0] = (pho3+pho4).M()
          Genmaker.tp_mass_case1[0] = (pho1+pho2+pho3+pho4).M()
          
+         
+         if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+            pho1out.append(1)
+         if (pho2.Pt() < 18 or abs(pho2.Eta()) > 2.5):
+            pho2out.append(1)
+         if (pho3.Pt() < 10 or abs(pho3.Eta()) > 2.5):
+            pho3out.append(1)
+         if (pho4.Pt() < 10 or abs(pho4.Eta()) > 2.5):
+            pho4out.append(1)
+         
+         Genmaker.Pho1out[0] = len(pho1out)
+         Genmaker.Pho2out[0] = len(pho2out)
+         Genmaker.Pho3out[0] = len(pho3out)
+         Genmaker.Pho4out[0] = len(pho4out)
+
          outTree_case1.Fill()
 
-      elif category == 3: # 1 fat photon
+      elif category == 3: # 1 fat (sorry, merged :P) photon
     
 
            if  Photon1.DeltaR(Photon2) == min(drlist):
@@ -213,8 +248,6 @@ def main(argv):
                elif Photon4.Pt() > Photon3.Pt():
                   pho2 = Photon4
                   pho3 = Photon3
-
-      
            elif Photon3.DeltaR(Photon4) == min(drlist):
                 pho1 = Photon3+Photon4
                 if Photon1.Pt() > Photon2.Pt():
@@ -223,14 +256,37 @@ def main(argv):
                 elif Photon2.Pt() > Photon1.Pt():
                    pho2 = Photon2
                    pho3 = Photon1
-
+           threepho.append(pho1)
+           threepho.append(pho2)
+           threepho.append(pho3)
+           threepho.sort(key=lambda x: x.Pt(), reverse=True)
+           pho1 = threepho[0]
+           pho2 = threepho[1]
+           pho3 = threepho[2]
+      #print pho1.Pt() , pho2.Pt(), pho3.Pt()
            Genmaker.fatpho_pt_case2[0]  = pho1.Pt()
            Genmaker.isopho1_pt_case2[0] = pho2.Pt()
            Genmaker.isopho2_pt_case2[0] = pho3.Pt()
            Genmaker.fatpho_eta_case2[0] = pho1.Eta()
            Genmaker.isopho1_eta_case2[0] = pho2.Eta()
            Genmaker.isopho2_eta_case2[0] = pho3.Eta()
+           Genmaker.fatpho_isopho1_dr_case2[0] = pho1.DeltaR(pho2)
+           Genmaker.fatpho_isopho2_dr_case2[0] = pho1.DeltaR(pho3)
+           Genmaker.isopho1_isopho2_dr_case2[0] = pho2.DeltaR(pho3)
+           Genmaker.fatpho_mass_case2[0] = pho1.M()
+           Genmaker.isopho12_mass_case2[0] = (pho2+pho3).M()
            Genmaker.tp_mass_case2[0] = (pho1+pho2+pho3).M()
+           
+           if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+              fatphoout.append(1)
+           if (pho2.Pt() < 18 or abs(pho2.Eta()) > 2.5):
+              isopho1out.append(1)
+           if (pho3.Pt() < 10 or abs(pho3.Eta()) > 2.5):
+              isopho2out.append(1)
+           
+           Genmaker.Fatphoout[0] = len(fatphoout)
+           Genmaker.Isopho1out[0] = len(isopho1out)
+           Genmaker.Isopho2out[0] = len(isopho2out)
            
            outTree_case2.Fill()
  
@@ -246,14 +302,29 @@ def main(argv):
            elif Photon3.DeltaR(Photon4) == min(drlist):
                 pho1 = Photon3+Photon4
                 pho2 = Photon1+Photon2
-           
-
+           twopho.append(pho1)
+           twopho.append(pho2)
+           twopho.sort(key=lambda x: x.Pt(), reverse=True)
+           pho1 = twopho[0]
+           pho2 = twopho[1]
+           #print pho1.Pt() , pho2.Pt()
            Genmaker.fatpho1_pt_case3[0] = pho1.Pt()
            Genmaker.fatpho2_pt_case3[0] = pho2.Pt()
            Genmaker.fatpho1_eta_case3[0] = pho1.Eta()
-           Genmaker.fatpho2_eta_case3[0] = pho1.Eta()
+           Genmaker.fatpho2_eta_case3[0] = pho2.Eta()
+           Genmaker.fatpho1_fatpho2_dr_case3[0] = pho1.DeltaR(pho2)
+           Genmaker.fatpho1_mass_case3[0] = pho1.M()
+           Genmaker.fatpho2_mass_case3[0] = pho2.M()
            Genmaker.tp_mass_case3[0] = (pho1+pho2).M()
 
+           if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+               fatpho1out.append(1)
+           if (pho2.Pt() < 18 or abs(pho1.Eta()) > 2.5):
+               fatpho2out.append(1)
+           
+           Genmaker.Fatpho1out[0] = len(fatpho1out)
+           Genmaker.Fatpho2out[0] = len(fatpho2out)
+           
            outTree_case3.Fill()
 
 

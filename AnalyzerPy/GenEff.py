@@ -5,20 +5,20 @@ import numpy as np
 
 
 files = [
-         "Apr7_2018/fatpho_0p3/gen_11_0p1.root",
-         "Apr7_2018/fatpho_0p3/gen_11_1.root",
-         "Apr7_2018/fatpho_0p3/gen_11_5.root",
-         "Apr7_2018/fatpho_0p3/gen_11_10.root",
-         "Apr7_2018/fatpho_0p3/gen_11_15.root",
-         "Apr7_2018/fatpho_0p3/gen_11_20.root",
-         "Apr7_2018/fatpho_0p3/gen_11_25.root",
-         "Apr7_2018/fatpho_0p3/gen_11_30.root",
-         "Apr7_2018/fatpho_0p3/gen_11_35.root",
-         "Apr7_2018/fatpho_0p3/gen_11_40.root",
-         "Apr7_2018/fatpho_0p3/gen_11_45.root",
-         "Apr7_2018/fatpho_0p3/gen_11_50.root",
-         "Apr7_2018/fatpho_0p3/gen_11_55.root",
-         "Apr7_2018/fatpho_0p3/gen_11_60.root"
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_0p1.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_1.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_5.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_10.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_15.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p150_20.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_25.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_30.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_35.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_40.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_45.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_50.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_55.root",
+         "TreesforGenlevelEff/gen_pt30and18_Match0p15_60.root"
          ]
 
 masses = [0.1, 1, 5 , 10, 15, 20, 25, 30 ,35, 40, 45, 50, 55, 60]
@@ -133,23 +133,23 @@ canvas = TCanvas( 'canvas', 'gen cat efficiency', 200, 10, 1000, 600 )
 
 bin_edges = np.array([0.1,1, 5 , 10, 15, 20, 25,30 ,35, 40, 45, 50, 55, 60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80], dtype='float64')
 
-h1f_4A_4 = TH1F( 'h1f_4A_4', '4resolved:4 in acceptance', len(bin_edges)-1, bin_edges )
-h1f_4A_3 = TH1F( 'h1f_4A_3', '4resolved:3 in acceptance', len(bin_edges)-1, bin_edges )
+h1f_4A_4 = TH1F( 'h1f_4A_4', '4resolved:All in acceptance', len(bin_edges)-1, bin_edges )
+h1f_4A_3 = TH1F( 'h1f_4A_3', '4resolved:1 Missing', len(bin_edges)-1, bin_edges )
 #h1f_4A_2 = TH1F( 'h1f_4A_2', '4resolved:2 in acceptance', len(bin_edges)-1, bin_edges )
 #h1f_4A_1 = TH1F( 'h1f_4A_1', '4resolved:1 in acceptance', len(bin_edges)-1, bin_edges )
 #h1f_4A_0 = TH1F( 'h1f_4A_0', '4resolved:0 in acceptance', len(bin_edges)-1, bin_edges )
 h1f_4A_other = TH1F( 'h1f_4A_other', '4resolved:Other', len(bin_edges)-1, bin_edges )
 
-h1f_3A_4 = TH1F( 'h1f_3A_4', '2resolved+1Fat:3 in acceptance', len(bin_edges)-1, bin_edges )
-h1f_3A_3 = TH1F( 'h1f_3A_3', '2resolved+1Fat:2 in acceptance', len(bin_edges)-1, bin_edges )
+h1f_3A_4 = TH1F( 'h1f_3A_4', '2resolved+1Merged:All in acceptance', len(bin_edges)-1, bin_edges )
+h1f_3A_3 = TH1F( 'h1f_3A_3', '2resolved+1Merged:1 Missing', len(bin_edges)-1, bin_edges )
 #h1f_3A_2 = TH1F( 'h1f_3A_2', '2resolved+1Fat:1 in acceptance', len(bin_edges)-1, bin_edges )
 #h1f_3A_1 = TH1F( 'h1f_3A_1', '2resolved+1Fat:0 in acceptance', len(bin_edges)-1, bin_edges )
-h1f_3A_other = TH1F( 'h1f_3A_other', '2resolved+1Fat:Other', len(bin_edges)-1, bin_edges )
+h1f_3A_other = TH1F( 'h1f_3A_other', '2resolved+1Merged:Other', len(bin_edges)-1, bin_edges )
 
-h1f_2A_4 = TH1F( 'h1f_2A_4', '2Fat:2 in acceptance', len(bin_edges)-1, bin_edges )
-h1f_2A_3 = TH1F( 'h1f_2A_3', '2Fat:1 in acceptance', len(bin_edges)-1, bin_edges )
+h1f_2A_4 = TH1F( 'h1f_2A_4', '2Merged:All in acceptance', len(bin_edges)-1, bin_edges )
+h1f_2A_3 = TH1F( 'h1f_2A_3', '2Merged:1 Missing', len(bin_edges)-1, bin_edges )
 #h1f_2A_2 = TH1F( 'h1f_2A_2', '2Fat:0 in acceptance', len(bin_edges)-1, bin_edges )
-h1f_2A_other = TH1F( 'h1f_2A_other', '2Fat:other', len(bin_edges)-1, bin_edges )
+h1f_2A_other = TH1F( 'h1f_2A_other', '2Merged:other', len(bin_edges)-1, bin_edges )
 
 
 
@@ -179,12 +179,13 @@ cNiceBlue = TColor.GetColor('#51A7F9')
 cNiceBlueDark = TColor.GetColor('#2175E0')
 cNiceGreen = TColor.GetColor('#6FBF41')
 cNiceGreenDark = TColor.GetColor('#008040')
+cNiceRed = TColor.GetColor('#FA4912')
 
-h1f_4A_4.SetFillColor(cNiceBlue)
-h1f_4A_4.SetLineColor(cNiceBlue)
-h1f_4A_3.SetFillColor(cNiceBlue)
-h1f_4A_3.SetLineColor(cNiceBlue)
-h1f_4A_3.SetFillStyle(3006)
+h1f_4A_4.SetFillColor(cNiceRed)
+h1f_4A_4.SetLineColor(cNiceRed)
+h1f_4A_3.SetFillColor(cNiceRed)
+h1f_4A_3.SetLineColor(cNiceRed)
+h1f_4A_3.SetFillStyle(3004)
 #h1f_4A_2.SetFillColor(cNiceBlue)
 #h1f_4A_2.SetLineColor(cNiceBlue)
 #h1f_4A_2.SetFillStyle(3015)
@@ -194,36 +195,36 @@ h1f_4A_3.SetFillStyle(3006)
 #h1f_4A_0.SetFillColor(cNiceBlue)
 #h1f_4A_0.SetLineColor(cNiceBlue)
 #h1f_4A_0.SetFillStyle(3015)
-h1f_4A_other.SetFillColor(cNiceBlue)
-h1f_4A_other.SetLineColor(cNiceBlue)
-h1f_4A_other.SetFillStyle(3015)
+h1f_4A_other.SetFillColor(cNiceRed)
+h1f_4A_other.SetLineColor(cNiceRed)
+h1f_4A_other.SetFillStyle(3244)
 
-h1f_3A_4.SetFillColor(kAzure+4)
-h1f_3A_4.SetLineColor(kAzure+4)
-h1f_3A_3.SetFillColor(kAzure+4)
-h1f_3A_3.SetLineColor(kAzure+4)
-h1f_3A_3.SetFillStyle(3006)
+h1f_3A_4.SetFillColor(cNiceGreenDark)
+h1f_3A_4.SetLineColor(cNiceGreenDark)
+h1f_3A_3.SetFillColor(cNiceGreenDark)
+h1f_3A_3.SetLineColor(cNiceGreenDark)
+h1f_3A_3.SetFillStyle(3004)
 #h1f_3A_2.SetFillColor(kAzure+4)
 #h1f_3A_2.SetLineColor(kAzure+4)
 #h1f_3A_2.SetFillStyle(3015)
 #h1f_3A_1.SetFillColor(kAzure+4)
 #h1f_3A_1.SetLineColor(kAzure+4)
 #h1f_3A_1.SetFillStyle(3015)
-h1f_3A_other.SetFillColor(kAzure+4)
-h1f_3A_other.SetLineColor(kAzure+4)
-h1f_3A_other.SetFillStyle(3015)
+h1f_3A_other.SetFillColor(cNiceGreenDark)
+h1f_3A_other.SetLineColor(cNiceGreenDark)
+h1f_3A_other.SetFillStyle(3244)
 
-h1f_2A_4.SetFillColor(kAzure+3)
-h1f_2A_4.SetLineColor(kAzure+3)
-h1f_2A_3.SetFillColor(kAzure+3)
-h1f_2A_3.SetLineColor(kAzure+3)
-h1f_2A_3.SetFillStyle(3006)
+h1f_2A_4.SetFillColor(cNiceBlueDark)
+h1f_2A_4.SetLineColor(cNiceBlueDark)
+h1f_2A_3.SetFillColor(cNiceBlueDark)
+h1f_2A_3.SetLineColor(cNiceBlueDark)
+h1f_2A_3.SetFillStyle(3004)
 #h1f_2A_2.SetFillColor(kAzure+3)
 #h1f_2A_2.SetLineColor(kAzure+3)
 #h1f_2A_2.SetFillStyle(30015)
-h1f_2A_other.SetFillColor(kAzure+3)
-h1f_2A_other.SetLineColor(kAzure+3)
-h1f_2A_other.SetFillStyle(3015)
+h1f_2A_other.SetFillColor(cNiceBlueDark)
+h1f_2A_other.SetLineColor(cNiceBlueDark)
+h1f_2A_other.SetFillStyle(3244)
 
 
 
@@ -314,11 +315,11 @@ leg.SetHeader("Gen level categories")
 #leg.AddEntry(h1f,"4 resolved ",'f')
 leg.AddEntry(h1f_4A_4,"4 resolved: All in acceptance",'f')
 leg.AddEntry(h1f_3A_4,"2 resolved + 1 Fat: All in acceptance",'f')
-leg.AddEntry(h1f_2A_4,"2 Fat: All in acceptance",'f')
+leg.AddEntry(h1f_2A_4,"2 Merged: All in acceptance",'f')
 
 leg.AddEntry(h1f_4A_3,"4 resolved: 1 Missing ",'f')
-leg.AddEntry(h1f_3A_3,"2 resolved + 1 Fat: 1 Missing",'f')
-leg.AddEntry(h1f_2A_3,"2 Fat: 1 Missing",'f')
+leg.AddEntry(h1f_3A_3,"2 resolved + 1 Merged: 1 Missing",'f')
+leg.AddEntry(h1f_2A_3,"2 Merged: 1 Missing",'f')
 
 #leg.AddEntry(h1f_4A_2,"4 resolved: Other",'f')
 #leg.AddEntry(h1f_3A_2,"2 resolved + 1 Fat: Other",'f')
@@ -333,11 +334,11 @@ leg.AddEntry(h1f_4A_other,"4 resolved: Other",'f')
 
 
 
-leg.AddEntry(h1f_3A_other,"2 resolved + 1 Fat: Other",'f')
+leg.AddEntry(h1f_3A_other,"2 resolved + 1 Merged: Other",'f')
 
 
 
-leg.AddEntry(h1f_2A_other,"2 Fat: Other",'f')
+leg.AddEntry(h1f_2A_other,"2 Merged: Other",'f')
 
 #leg.AddEntry(h1f_4A_14,"4 resolved : all in acceptance 14 GeV threshold",'f')
 #leg.AddEntry(h1f_4A_13,"4 resolved : all in acceptance 13 GeV threshold",'f')
@@ -369,9 +370,9 @@ leg.Draw("same")
 
 #canvas.BuildLegend()
 canvas.Update()
-canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/H4G_forPrelim/GenlevelCat/fatpho_0p3/ptthresh_11_other.png")
-canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/H4G_forPrelim/GenlevelCat/fatpho_0p3/ptthresh_11_other.pdf")
-canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/H4G_forPrelim/GenlevelCat/fatpho_0p3/ptthresh_11_other.root")
+canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/Higgsto4Gamma/GenLevel/GenCategorization.png")
+canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/Higgsto4Gamma/GenLevel/GenCategorization.pdf")
+canvas.SaveAs("/afs/cern.ch/user/t/twamorka/www/Higgsto4Gamma/GenLevel/GenCategorization.root")
 
 
        
