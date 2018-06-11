@@ -5,6 +5,29 @@ DEBUG = 0
 
 class SkimmedTreeTools:
    def __init__(self):
+      self.p0_npho = n.zeros(1, dtype=float)
+      self.p0_pt = n.zeros(1, dtype=float)
+      self.p0_eta = n.zeros(1, dtype=float)
+      self.p0_phi = n.zeros(1, dtype=float)
+      self.p0_mva = n.zeros(1, dtype=float)
+      self.p0_conversion = n.zeros(1, dtype=float)
+      self.p0_passTrigger = n.zeros(1, dtype=float)
+      self.p0_r9 = n.zeros(1, dtype=float)
+      self.p0_full5x5_r9 = n.zeros(1, dtype=float)
+      self.p0_full5x5_sigmaetaeta = n.zeros(1, dtype=float)
+      self.p0_sigmaetaeta = n.zeros(1, dtype=float)
+      self.p0_genmatchpt = n.zeros(1, dtype=float)
+      self.p0_resolvedcount = n.zeros(1, dtype=float)
+      self.p0_outofptcount = n.zeros(1, dtype=float)
+      self.p0_outofetacount = n.zeros(1, dtype=float)
+      self.p0_fulle5x5 = n.zeros(1, dtype=float)
+      self.p0_e5x5 = n.zeros(1, dtype=float)
+      self.p0_Pho1out = n.zeros(1, dtype=float)
+      self.p0_Pho2out = n.zeros(1, dtype=float)
+      self.p0_Pho3out = n.zeros(1, dtype=float)
+      self.p0_Pho4out = n.zeros(1, dtype=float)
+      #self.p0_pt_test = n.zeros(1, dtype=float)
+
       self.p_pt = n.zeros(1, dtype=float)
       self.p_M = n.zeros(1, dtype=float)
       self.p_eta = n.zeros(1, dtype=float)
@@ -22,12 +45,17 @@ class SkimmedTreeTools:
       self.p_npho = n.zeros(1, dtype=float)      
       self.p_match = n.zeros(1, dtype=float)
       self.p_hadronicOverEm = n.zeros(1, dtype=float)
+      self.p_conversion = n.zeros(1, dtype=float)
+      self.p_e5x5 = n.zeros(1, dtype=float)
+      self.p_fulle5x5 = n.zeros(1, dtype=float)
       self.p_passTrigger = n.zeros(1, dtype=float)
+      self.p_matchpho_pt = n.zeros(1, dtype=float)
 
       self.p1_pt = n.zeros(1, dtype=float)
       self.p2_pt = n.zeros(1, dtype=float)
       self.p3_pt = n.zeros(1, dtype=float)
       self.p4_pt = n.zeros(1, dtype=float)
+
       self.p1_M = n.zeros(1, dtype=float)
       self.p2_M = n.zeros(1, dtype=float)
       self.p3_M = n.zeros(1, dtype=float)
@@ -44,6 +72,10 @@ class SkimmedTreeTools:
       self.p2_mva = n.zeros(1, dtype=float)
       self.p3_mva = n.zeros(1, dtype=float)
       self.p4_mva = n.zeros(1, dtype=float)
+      self.mva_max1 = n.zeros(1, dtype=float)
+      self.mva_max2 = n.zeros(1, dtype=float)
+      self.mva_max3 = n.zeros(1, dtype=float)
+      self.mva_max4 = n.zeros(1, dtype=float)
       self.p1_r9 = n.zeros(1, dtype=float)
       self.p2_r9 = n.zeros(1, dtype=float)
       self.p3_r9 = n.zeros(1, dtype=float)
@@ -72,6 +104,14 @@ class SkimmedTreeTools:
       self.p2_genmatch = n.zeros(1, dtype=float)
       self.p3_genmatch = n.zeros(1, dtype=float)
       self.p4_genmatch = n.zeros(1, dtype=float)
+      self.p1_conversion = n.zeros(1, dtype=float)
+      self.p2_conversion = n.zeros(1, dtype=float)
+      self.p3_conversion = n.zeros(1, dtype=float)
+      self.p4_conversion = n.zeros(1, dtype=float)
+      self.p1_matchpho_pt = n.zeros(1, dtype=float)
+      self.p2_matchpho_pt = n.zeros(1, dtype=float)
+      self.p3_matchpho_pt = n.zeros(1, dtype=float)
+      self.p4_matchpho_pt = n.zeros(1, dtype=float)
       self.p1_genmatching = n.zeros(1, dtype=float)
       self.p2_genmatching = n.zeros(1, dtype=float)
       self.p3_genmatching = n.zeros(1, dtype=float)
@@ -84,6 +124,14 @@ class SkimmedTreeTools:
       self.p2_match = n.zeros(1, dtype=float)
       self.p3_match = n.zeros(1, dtype=float)
       self.p4_match = n.zeros(1, dtype=float)
+      self.p1_e5x5 = n.zeros(1, dtype=float)
+      self.p2_e5x5 = n.zeros(1, dtype=float)
+      self.p3_e5x5 = n.zeros(1, dtype=float)
+      self.p4_e5x5 = n.zeros(1, dtype=float)
+      self.p1_fulle5x5 = n.zeros(1, dtype=float)
+      self.p2_fulle5x5 = n.zeros(1, dtype=float)
+      self.p3_fulle5x5 = n.zeros(1, dtype=float)
+      self.p4_fulle5x5 = n.zeros(1, dtype=float)
       self.p_mindr = n.zeros(1, dtype=float)
       self.p_maxdr = n.zeros(1, dtype=float)
       self.p_maxmass = n.zeros(1, dtype=float)
@@ -113,7 +161,10 @@ class SkimmedTreeTools:
       self.nvtx = n.zeros(1,dtype=int)
       self.npu = n.zeros(1,dtype=float)
       self.genTotalWeight = n.zeros(1,dtype=float) 
-      self.passTrigger = n.zeros(1, dtype=float)
+      self.p1_passTrigger = n.zeros(1, dtype=float)
+      self.p2_passTrigger = n.zeros(1, dtype=float)
+      self.p3_passTrigger = n.zeros(1, dtype=float)
+      self.p4_passTrigger = n.zeros(1, dtype=float)
       self.v_pho_genmatch = n.zeros(1,dtype=float)
       self.v_pho_r9 = n.zeros(1,dtype=float)
 
@@ -141,6 +192,12 @@ class SkimmedTreeTools:
       self.p1_full5x5_sigmaIetaIeta_3 = n.zeros(1, dtype=float)
       self.p2_full5x5_sigmaIetaIeta_3 = n.zeros(1, dtype=float)
       self.p3_full5x5_sigmaIetaIeta_3 = n.zeros(1, dtype=float)
+      self.p1_e5x5_3 = n.zeros(1, dtype=float)
+      self.p2_e5x5_3 = n.zeros(1, dtype=float)
+      self.p3_e5x5_3 = n.zeros(1, dtype=float)
+      self.p1_fulle5x5_3 = n.zeros(1, dtype=float)
+      self.p2_fulle5x5_3 = n.zeros(1, dtype=float)
+      self.p3_fulle5x5_3 = n.zeros(1, dtype=float)
       self.p1_sigmaIphiIphi_3 = n.zeros(1, dtype=float)
       self.p2_sigmaIphiIphi_3 = n.zeros(1, dtype=float)
       self.p3_sigmaIphiIphi_3 = n.zeros(1, dtype=float)
@@ -159,6 +216,12 @@ class SkimmedTreeTools:
       self.p1_hadronicOverEm_3 = n.zeros(1, dtype=float)
       self.p2_hadronicOverEm_3 = n.zeros(1, dtype=float)
       self.p3_hadronicOverEm_3 = n.zeros(1, dtype=float)
+      self.p1_matchpho_pt_3 = n.zeros(1, dtype=float)
+      self.p2_matchpho_pt_3 = n.zeros(1, dtype=float)
+      self.p3_matchpho_pt_3 = n.zeros(1, dtype=float)
+      self.p1_conversion_3 = n.zeros(1, dtype=float)
+      self.p2_conversion_3 = n.zeros(1, dtype=float)
+      self.p3_conversion_3 = n.zeros(1, dtype=float)
       self.p_mindr_3 = n.zeros(1, dtype=float)
       self.p_maxdr_3 = n.zeros(1, dtype=float)
       self.dphigh_mass_3 = n.zeros(1, dtype=float)
@@ -174,6 +237,7 @@ class SkimmedTreeTools:
       self.tp_mass_3 = n.zeros(1,dtype=float)
       self.nicematch = n.zeros(1,dtype=float)
       self.genmatch_cat = n.zeros(1,dtype=float)
+      self.genTotalWeight_3 = n.zeros(1,dtype=float)
 
       self.p1_pt_2 = n.zeros(1, dtype=float)
       self.p2_pt_2 = n.zeros(1, dtype=float)
@@ -191,6 +255,10 @@ class SkimmedTreeTools:
       self.p2_full5x5_r9_2 = n.zeros(1, dtype=float)
       self.p1_full5x5_sigmaIetaIeta_2 = n.zeros(1, dtype=float)
       self.p2_full5x5_sigmaIetaIeta_2 = n.zeros(1, dtype=float)
+      self.p1_e5x5_2 = n.zeros(1, dtype=float)
+      self.p2_e5x5_2 = n.zeros(1, dtype=float)
+      self.p1_fulle5x5_2 = n.zeros(1, dtype=float)
+      self.p2_fulle5x5_2 = n.zeros(1, dtype=float)
       self.p1_sigmaIphiIphi_2 = n.zeros(1, dtype=float)
       self.p2_sigmaIphiIphi_2 = n.zeros(1, dtype=float)
       self.p1_sigmaEtaEta_2 = n.zeros(1, dtype=float)
@@ -199,6 +267,10 @@ class SkimmedTreeTools:
       self.p2_full5x5_sigmaEtaEta_2 = n.zeros(1, dtype=float)
       self.p1_genmatch_2 = n.zeros(1, dtype=float)
       self.p2_genmatch_2 = n.zeros(1, dtype=float)
+      self.p1_matchpho_pt_2= n.zeros(1, dtype=float)
+      self.p2_matchpho_pt_2 = n.zeros(1, dtype=float)
+      self.p1_conversion_2 = n.zeros(1, dtype=float)
+      self.p2_conversion_2 = n.zeros(1, dtype=float)
       self.p1_match_2 = n.zeros(1, dtype=float)
       self.p2_match_2 = n.zeros(1, dtype=float)
       self.p1_hadronicOverEm_2 = n.zeros(1, dtype=float)
@@ -208,7 +280,36 @@ class SkimmedTreeTools:
       self.tp_eta_2 = n.zeros(1,dtype=float)
       self.tp_phi_2 = n.zeros(1,dtype=float)
       self.tp_mass_2 = n.zeros(1,dtype=float)
+      self.genTotalWeight_2 = n.zeros(1,dtype=float)
 
+   def MakeSkimmedTree_0(self):
+       outTree_0 = TTree("H4GSel_0", "H4G Selected Events:no cuts events ")
+       SetOwnership(outTree_0,0)
+       outTree_0.Branch('p0_npho',self.p0_npho,'p0_npho/D')
+       outTree_0.Branch('p0_pt',self.p0_pt,'p0_pt/D')
+       #outTree_0.Branch('p0_pt_test',self.p0_pt_test,'p0_pt_test/D')
+       outTree_0.Branch('p0_phi',self.p0_phi,'p0_phi/D')
+       outTree_0.Branch('p0_eta',self.p0_eta,'p0_eta/D')
+       outTree_0.Branch('p0_mva',self.p0_mva,'p0_mva/D')
+       outTree_0.Branch('p0_passTrigger',self.p0_passTrigger, 'p0_passTrigger/D')
+       outTree_0.Branch('p0_conversion',self.p0_conversion, 'p0_conversion/D')
+       outTree_0.Branch('p0_r9',self.p0_r9,'p0_r9/D')
+       outTree_0.Branch('p0_full5x5_r9',self.p0_full5x5_r9,'p0_full5x5_r9/D')
+       outTree_0.Branch('p0_sigmetaeta',self.p0_sigmaetaeta,'p0_sigmaetaeta/D')
+       outTree_0.Branch('p0_full5x5_sigmetaeta',self.p0_full5x5_sigmaetaeta,'p0_full5x5_sigmaetaeta/D')
+       outTree_0.Branch('p0_e5x5',self.p0_e5x5,'p0_e5x5/D')
+       outTree_0.Branch('p0_fulle5x5',self.p0_fulle5x5,'p0_fulle5x5/D')
+       outTree_0.Branch('p0_genmatchpt',self.p0_genmatchpt,'p0_genmatchpt/D')
+       outTree_0.Branch('p0_resolvedcount',self.p0_resolvedcount,'p0_resolvedcount/D')
+       outTree_0.Branch('p0_outofptcount',self.p0_outofptcount,'p0_putofptcount/D')
+       outTree_0.Branch('p0_outofetacount',self.p0_outofetacount,'p0_putofetacount/D')
+       outTree_0.Branch('p0_Pho1out',self.p0_Pho1out,'p0_Pho1out/D')
+       outTree_0.Branch('p0_Pho2out',self.p0_Pho2out,'p0_Pho2out/D')
+       outTree_0.Branch('p0_Pho3out',self.p0_Pho3out,'p0_Pho3out/D')
+       outTree_0.Branch('p0_Pho4out',self.p0_Pho4out,'p0_Pho4out/D')
+       
+       
+       return outTree_0
 
    def MakeSkimmedTree_all(self):
        outTree_all = TTree("H4GSel_all", "H4G Selected Events:all events ")
@@ -219,11 +320,14 @@ class SkimmedTreeTools:
        outTree_all.Branch('p_phi', self.p_phi, 'p_phi/D')
        outTree_all.Branch('p_mva', self.p_mva, 'p_mva/D')
        outTree_all.Branch('p_r9', self.p_r9, 'p_r9/D')
+       outTree_all.Branch('p_e5x5', self.p_e5x5, 'p_e5x5/D')
+       outTree_all.Branch('p_fulle5x5', self.p_fulle5x5, 'p_fulle5x5/D')
        outTree_all.Branch('p_full5x5_r9', self.p_full5x5_r9, 'p_full5x5_r9/D')
        outTree_all.Branch('p_sigmaEtaEta', self.p_sigmaEtaEta, 'p_sigmaEtaEta/D')
        outTree_all.Branch('p_full5x5_sigmaEtaEta', self.p_full5x5_sigmaEtaEta, 'p_full5x5_sigmaEtaEta/D')
        outTree_all.Branch('p_full5x5_sigmaIetaIeta', self.p_full5x5_sigmaIetaIeta, 'p_full5x5_sigmaIetaIeta/D')
        outTree_all.Branch('p_sigmaIphiIphi', self.p_sigmaIphiIphi, 'p_sigmaIphiIphi/D')
+       
        outTree_all.Branch('p_genmatch', self.p_genmatch, 'p_genmatch/D')
        outTree_all.Branch('p_match', self.p_match, 'p_match/D')
        outTree_all.Branch('p_drmin', self.p_drmin, 'p_drmin/D')
@@ -231,6 +335,8 @@ class SkimmedTreeTools:
        outTree_all.Branch('p_npho', self.p_npho, 'p_npho/D')
        outTree_all.Branch('p_hadronicOverEm',self.p_hadronicOverEm,'p_hadronicOverEm/D')
        outTree_all.Branch('p_passTrigger',self.p_passTrigger,'p_passTrigger/D')
+       outTree_all.Branch('p_conversion',self.p_conversion,'p_conversion/D')
+       outTree_all.Branch('p_matchpho_pt',self.p_matchpho_pt,'p_matchpho_pt/D')
        return outTree_all
 
    def MakeSkimmedTree(self):
@@ -257,6 +363,10 @@ class SkimmedTreeTools:
       outTree.Branch('p2_mva', self.p2_mva, 'p2_mva/D')
       outTree.Branch('p3_mva', self.p3_mva, 'p3_mva/D')
       outTree.Branch('p4_mva', self.p4_mva, 'p4_mva/D')
+      outTree.Branch('mva_max1', self.mva_max1, 'mva_max1/D')
+      outTree.Branch('mva_max2', self.mva_max2, 'mva_max2/D')
+      outTree.Branch('mva_max3', self.mva_max3, 'mva_max3/D')
+      outTree.Branch('mva_max4', self.mva_max4, 'mva_max4/D')
       outTree.Branch('p1_r9', self.p1_r9, 'p1_r9/D')
       outTree.Branch('p2_r9', self.p2_r9, 'p2_r9/D')
       outTree.Branch('p3_r9', self.p3_r9, 'p2_r9/D')
@@ -277,6 +387,14 @@ class SkimmedTreeTools:
       outTree.Branch('p2_full5x5_sigmaIetaIeta',self.p2_full5x5_sigmaIetaIeta, 'p2_full5x5_sigmaIetaIeta/D')
       outTree.Branch('p3_full5x5_sigmaIetaIeta',self.p3_full5x5_sigmaIetaIeta, 'p3_full5x5_sigmaIetaIeta/D')
       outTree.Branch('p4_full5x5_sigmaIetaIeta',self.p4_full5x5_sigmaIetaIeta, 'p4_full5x5_sigmaIetaIeta/D')
+      outTree.Branch('p1_fulle5x5',self.p1_fulle5x5,'p1_fulle5x5')
+      outTree.Branch('p2_fulle5x5',self.p2_fulle5x5,'p2_fulle5x5')
+      outTree.Branch('p3_fulle5x5',self.p3_fulle5x5,'p3_fulle5x5')
+      outTree.Branch('p4_fulle5x5',self.p4_fulle5x5,'p4_fulle5x5')
+      outTree.Branch('p1_e5x5',self.p1_e5x5,'p1_e5x5')
+      outTree.Branch('p2_e5x5',self.p2_e5x5,'p2_e5x5')
+      outTree.Branch('p3_e5x5',self.p3_e5x5,'p3_e5x5')
+      outTree.Branch('p4_e5x5',self.p4_e5x5,'p4_e5x5')
       outTree.Branch('p1_sigmaIphiIphi',self.p1_sigmaIphiIphi,'p1_sigmaIphiIphi/D')
       outTree.Branch('p2_sigmaIphiIphi',self.p2_sigmaIphiIphi,'p2_sigmaIphiIphi/D')
       outTree.Branch('p3_sigmaIphiIphi',self.p3_sigmaIphiIphi,'p3_sigmaIphiIphi/D')
@@ -285,6 +403,14 @@ class SkimmedTreeTools:
       outTree.Branch('p2_genmatch',self.p2_genmatch, 'p2_genmatch/D')
       outTree.Branch('p3_genmatch',self.p3_genmatch, 'p3_genmatch/D')
       outTree.Branch('p4_genmatch',self.p4_genmatch, 'p4_genmatch/D')
+      outTree.Branch('p1_matchpho_pt',self.p1_matchpho_pt,'p1_matchpho_pt/D')
+      outTree.Branch('p2_matchpho_pt',self.p2_matchpho_pt,'p2_matchpho_pt/D')
+      outTree.Branch('p3_matchpho_pt',self.p3_matchpho_pt,'p3_matchpho_pt/D')
+      outTree.Branch('p4_matchpho_pt',self.p4_matchpho_pt,'p4_matchpho_pt/D')
+      outTree.Branch('p1_conversion',self.p1_conversion,'p1_conversion/D')
+      outTree.Branch('p2_conversion',self.p2_conversion,'p2_conversion/D')
+      outTree.Branch('p3_conversion',self.p3_conversion,'p3_conversion/D')
+      outTree.Branch('p4_conversion',self.p4_conversion,'p4_conversion/D')
       outTree.Branch('p1_match',self.p1_match, 'p1_match/D')
       outTree.Branch('p2_match',self.p2_match, 'p2_match/D')
       outTree.Branch('p3_match',self.p3_match, 'p3_match/D')
@@ -322,7 +448,11 @@ class SkimmedTreeTools:
       outTree.Branch('nvtx', self.nvtx, 'nvtx/I')
       outTree.Branch('npu', self.npu, 'npu/D')
       outTree.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
-      outTree.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      outTree.Branch('p1_passTrigger',self.p1_passTrigger, 'p1_passTrigger/D')
+      outTree.Branch('p2_passTrigger',self.p2_passTrigger, 'p2_passTrigger/D')
+      outTree.Branch('p3_passTrigger',self.p3_passTrigger, 'p3_passTrigger/D')
+      outTree.Branch('p4_passTrigger',self.p4_passTrigger, 'p4_passTrigger/D')
+      
       #outTree.Branch('nicematch',self.nicematch,'nicematch/D')
       return outTree
 
@@ -360,6 +490,12 @@ class SkimmedTreeTools:
       outTree_3.Branch('p1_full5x5_sigmaIetaIeta_3',self.p1_full5x5_sigmaIetaIeta_3,'p1_full5x5_sigmaIetaIeta_3/D')
       outTree_3.Branch('p2_full5x5_sigmaIetaIeta_3',self.p2_full5x5_sigmaIetaIeta_3,'p2_full5x5_sigmaIetaIeta_3/D')
       outTree_3.Branch('p3_full5x5_sigmaIetaIeta_3',self.p3_full5x5_sigmaIetaIeta_3,'p3_full5x5_sigmaIetaIeta_3/D')
+      outTree_3.Branch('p1_fulle5x5_3',self.p1_fulle5x5_3,'p1_fulle5x5_3')
+      outTree_3.Branch('p2_fulle5x5_3',self.p2_fulle5x5_3,'p2_fulle5x5_3')
+      outTree_3.Branch('p3_fulle5x5_3',self.p3_fulle5x5_3,'p3_fulle5x5_3')
+      outTree_3.Branch('p1_e5x5_3',self.p1_e5x5_3,'p1_e5x5_3')
+      outTree_3.Branch('p2_e5x5_3',self.p2_e5x5_3,'p2_e5x5_3')
+      outTree_3.Branch('p3_e5x5_3',self.p3_e5x5_3,'p3_e5x5_3')
       outTree_3.Branch('p1_sigmaIphiIphi_3',self.p1_sigmaIphiIphi_3,'p1_sigmaIphiIphi_3/D')
       outTree_3.Branch('p2_sigmaIphiIphi_3',self.p2_sigmaIphiIphi_3,'p2_sigmaIphiIphi_3/D')
       outTree_3.Branch('p3_sigmaIphiIphi_3',self.p3_sigmaIphiIphi_3,'p3_sigmaIphiIphi_3/D')
@@ -372,6 +508,12 @@ class SkimmedTreeTools:
       outTree_3.Branch('p1_hadronicOverEm_3',self.p1_hadronicOverEm_3,'p1_hadronicOverEm_3/D') 
       outTree_3.Branch('p2_hadronicOverEm_3',self.p2_hadronicOverEm_3,'p2_hadronicOverEm_3/D')
       outTree_3.Branch('p3_hadronicOverEm_3',self.p3_hadronicOverEm_3,'p3_hadronicOverEm_3/D')
+      outTree_3.Branch('p1_matchpho_pt_3',self.p1_matchpho_pt_3,'p1_matchpho_pt_3/D')
+      outTree_3.Branch('p2_matchpho_pt_3',self.p2_matchpho_pt_3,'p2_matchpho_pt_3/D')
+      outTree_3.Branch('p3_matchpho_pt_3',self.p3_matchpho_pt_3,'p3_matchpho_pt_3/D')
+      outTree_3.Branch('p1_conversion_3',self.p1_conversion_3,'p1_conversion_3/D')
+      outTree_3.Branch('p2_conversion_3',self.p2_conversion_3,'p2_conversion_3/D')
+      outTree_3.Branch('p3_conversion_3',self.p3_conversion_3,'p3_conversion_3/D')
       outTree_3.Branch('p_mindr_3', self.p_mindr_3, 'p_mindr_3/D')
       outTree_3.Branch('p_maxdr_3', self.p_maxdr_3, 'p_maxdr_3/D')
       outTree_3.Branch('dphigh_mass_3', self.dphigh_mass_3, 'dphigh_mass_3/D')
@@ -385,10 +527,10 @@ class SkimmedTreeTools:
       outTree_3.Branch('tp_eta_3',self.tp_eta_3,'tp_eta_3/D')
       outTree_3.Branch('tp_phi_3',self.tp_phi_3,'tp_phi_3/D')
       outTree_3.Branch('tp_mass_3',self.tp_mass_3,'tp_mass_3/D')
-      outTree_3.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      #outTree_3.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
       outTree_3.Branch('nicematch',self.nicematch,'nicematch/D')
       outTree_3.Branch('genmatch_cat',self.genmatch_cat,'genmatch_cat/D')
-      outTree_3.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
+      outTree_3.Branch('genTotalWeight_3',self.genTotalWeight_3, 'genTotalWeight_3/D')
       return outTree_3
      
    def MakeSkimmedTree_2(self):
@@ -411,10 +553,18 @@ class SkimmedTreeTools:
       outTree_2.Branch('p2_genmatch_2',self.p2_genmatch_2, 'p2_genmatch_2/D')
       outTree_2.Branch('p1_match_2',self.p1_match_2, 'p1_match_2/D')
       outTree_2.Branch('p2_match_2',self.p2_match_2, 'p2_match_2/D')
+      outTree_2.Branch('p1_matchpho_pt_2',self.p1_matchpho_pt_2,'p1_matchpho_pt_2/D')
+      outTree_2.Branch('p2_matchpho_pt_2',self.p2_matchpho_pt_2,'p2_matchpho_pt_2/D')
+      outTree_2.Branch('p1_conversion_2',self.p1_conversion_2,'p1_conversion_2/D')
+      outTree_2.Branch('p2_conversion_2',self.p1_conversion_2,'p1_conversion_2/D')
       outTree_2.Branch('p1_full5x5_r9_2',self.p1_full5x5_r9_2, 'p1_full5x5_r9_2/D')
       outTree_2.Branch('p2_full5x5_r9_2',self.p2_full5x5_r9_2, 'p2_full5x5_r9_2/D')
       outTree_2.Branch('p1_full5x5_sigmaIetaIeta_2',self.p1_full5x5_sigmaIetaIeta_2,'p1_full5x5_sigmaIetaIeta_2/D')
       outTree_2.Branch('p2_full5x5_sigmaIetaIeta_2',self.p2_full5x5_sigmaIetaIeta_2,'p2_full5x5_sigmaIetaIeta_2/D')
+      outTree_2.Branch('p1_fulle5x5_2',self.p1_fulle5x5_2,'p1_fulle5x5_2')
+      outTree_2.Branch('p2_fulle5x5_2',self.p2_fulle5x5_2,'p2_fulle5x5_2')
+      outTree_2.Branch('p1_e5x5_2',self.p1_e5x5_2,'p1_e5x5_2')
+      outTree_2.Branch('p2_e5x5_2',self.p2_e5x5_2,'p2_e5x5_2')
       outTree_2.Branch('p1_sigmaIphiIphi_2',self.p1_sigmaIphiIphi_2,'p1_sigmaIphiIphi_2/D')
       outTree_2.Branch('p2_sigmaIphiIphi_2',self.p2_sigmaIphiIphi_2,'p2_sigmaIphiIphi_2/D')
       outTree_2.Branch('p1_sigmaEtaEta_2',self.p1_sigmaEtaEta_2,'p1_sigmaEtaEta_2/D')
@@ -428,8 +578,8 @@ class SkimmedTreeTools:
       outTree_2.Branch('tp_eta_2',self.tp_eta_2,'tp_eta_2/D')
       outTree_2.Branch('tp_phi_2',self.tp_phi_2,'tp_phi_2/D')
       outTree_2.Branch('tp_mass_2',self.tp_mass_2,'tp_mass_2/D')
-      outTree_2.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
-      outTree_2.Branch('genTotalWeight',self.genTotalWeight, 'genTotalWeight/D')
+      #outTree_2.Branch('passTrigger',self.passTrigger, 'passTrigger/D')
+      outTree_2.Branch('genTotalWeight_2',self.genTotalWeight_2, 'genTotalWeight_2/D')
       return outTree_2
 
    def FillEvent(self, inputTree):
@@ -452,13 +602,21 @@ class SkimmedTreeTools:
            tPhos.append(pho)
            tPhos_id.append(Phos_id[i])
        return tPhos, tPhos_id
-
+  
+   def PhotonCollection(self,Phos, Phos_id):
+      nPhos = []
+      nPhos_id = []
+      for i,pho in enumerate(Phos):
+         nPhos.append(pho)
+         nPhos_id.append(Phos_id[i])
+      return nPhos, nPhos_id
 
    def MakePhotonSelection(self, Phos, Phos_id, MVA, el):
       sPhos = []
       sPhos_id = []
       for i,pho in enumerate(Phos):
-         if pho.Pt() < 15:continue
+          #if pho.Pt() < 15:continue
+         if pho.Pt() < 10:continue
          if abs(pho.Eta()) > 2.5: continue
          if abs(pho.Eta()) < 1.479 and MVA[Phos_id[i]] < -0.9: continue
          if abs(pho.Eta()) > 1.479 and MVA[Phos_id[i]] < -0.9: continue
@@ -497,84 +655,6 @@ class SkimmedTreeTools:
       return fPhos, fPhos_id
 
    def MakeTriggerSelection(self, Phos, Phos_id, R9, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
-      #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
-      pho1 = 0
-      pho1_id = -99
-      pho2 = 0
-      pho2_id = -99
-      #print "Number of photons", len(Phos)
-      for i1,p1 in enumerate(Phos):
-         for i2,p2 in enumerate(Phos):
-            if(i2 <=i1): continue
-            if p1.Pt() < 30: continue  # pt of leading photon
-            if p2.Pt() < 18: continue  # pt of subleading photon
-            if PSeed[Phos_id[i1]] == 1: continue
-            if PSeed[Phos_id[i2]] == 1: continue 
-            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
-            if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
-            
-            if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479: # Case 1 : EB EB
-               if R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i2]] > 0.5:
-                  if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
-                     if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                        if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
- 			   if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                               thisDipho = p1+p2
-                               if thisDipho.M() < 55: continue
-                               pho1 = p1
-                               pho1_id = Phos_id[i1]
-                               pho2 = p2
-                               pho2_id = Phos_id[i2]
-                               break
-            elif abs(p1.Eta()) < 1.479  and abs(p2.Eta()) > 1.479: # Case 2 : EB EE
-                 if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:
-                    if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                                thisDipho = p1+p2
-                                if thisDipho.M() < 55: continue
-                                pho1 = p1
-                                pho1_id = Phos_id[i1]
-                                pho2 = p2
-                                pho2_id = Phos_id[i2]
-                                break
-
-            elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479: # Case 3 : EE EB
-		 #print " EE EB case"
-                 if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 3 : EBEE
-                    if HoE[Phos_id[i1]] < 0.07 and HoE[Phos_id[i2]] < 0.07:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          if ECALIso[Phos_id[i1]] < 4.0  + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                                thisDipho = p1+p2
-                                if thisDipho.M() < 55: continue
-                                pho1 = p1
-                             	pho1_id = Phos_id[i1]
-                                pho2 = p2
-                                pho2_id = Phos_id[i2]
-                                break  
-            elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) > 1.479: # Case 4 : EE EE
-		 #print " EE EE case"
-                 if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:  
-                    if HoE[Phos_id[i1]] < 0.035 and HoE[Phos_id[i2]] < 0.035:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.0275 and SigmaIEtaIEta[Phos_id[i2]] < 0.0275:         
-                          if ECALIso[Phos_id[i1]] < 4.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 4.0 + 0.012*p2.Pt():
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.012*p2.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                                thisDipho = p1+p2
-                                if thisDipho.M() < 55: continue
-                                pho1 = p1
-                                pho1_id = Phos_id[i1]
-                                pho2 = p2
-                                pho2_id = Phos_id[i2]
-                                break
-         if pho1 !=0 and pho2 != 0: break              
-
-      dipho = pho1+pho2
-      if dipho == 0: return 0
-      else: return [dipho, pho1, pho1_id, pho2, pho2_id]
-
-   def MakeTriggerSelection_v2(self, Phos, Phos_id, R9, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
       #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
       pho1 = 0
       pho1_id = -99
@@ -715,45 +795,7 @@ class SkimmedTreeTools:
       return arr
 
 
- 
-   #def MakePairing_3gamma(self, Phos):
-      #minDM = 100000
-      #P1 = 0
-      #iP1 = -99
-      #P2 = 0
-      #iP2 = -99
-      #P3 = 0
-      #iP3 = -99
-      #Dipho1 = 0
-      #for i1,p1 in enumerate(Phos):
-         #for i2,p2 in enumerate(Phos):
-            #if i2 <= i1: continue
-            #for i3,p3 in enumerate(Phos):
-               #if i3 == i2 or i3 == i1: continue
-                  #dipho12 = p1+p2
-                  #dipho13 = p1+p3
-                  #dipho23 = p2+p3
-                  #Mass = dipho.M()
-                  #deltaM_12_13 = abs(dipho12.M() - dipho13.M())
-                  #deltaM_12_23 = abs(dipho12.M() - dipho23.M())
-                  #if(DEBUG): print deltaM, i1, i2, i3, i4
-                  #if deltaM_12_13 < deltaM_12_23:
-                     
-                     #iP1 = i1
-                     #P2 = p2
-                     #iP2 = i2
-                     #P3 = p3
-                     #iP3 = i3
-                     #P4 = p4
-                     #iP4 = i4
-                     #print "Photon 1 M : " , p1.M()
-                     #Max_mass = max(((p1.M()+p2.M()),(p1.M()+p3.M()),(p1.M()+p4.M()),(p2.M()+p3.M()),(p2.M()+p4.M()),(p3.M()+p4.M())))
-                     #print Max_mass
-                     #Dipho1 = dipho1 if ((p1.Pt() + p2.Pt()) > (p3.Pt() + p4.Pt())) else dipho2
-                     #Dipho2 = dipho2 if ((p1.Pt() + p2.Pt()) > (p3.Pt() + p4.Pt())) else dipho1
-      #if(DEBUG): print 'minDr:', abs(Dipho1.M() - Dipho2.M()), iP1, iP2, iP3, iP4
-      #arr = [[Dipho1, P1, iP1, P2, iP2], [Dipho2, P3, iP3, P4, iP4]]
-      #return arr
+
 
 
 
