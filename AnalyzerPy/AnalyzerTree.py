@@ -232,13 +232,13 @@ def main(argv):
 
 
 
-         if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+         if (pho1.Pt() < 15 or abs(pho1.Eta()) > 2.5):
             pho1out.append(1)
-         if (pho2.Pt() < 18 or abs(pho2.Eta()) > 2.5):
+         if (pho2.Pt() < 15 or abs(pho2.Eta()) > 2.5):
             pho2out.append(1)
-         if (pho3.Pt() < 10 or abs(pho3.Eta()) > 2.5):
+         if (pho3.Pt() < 15 or abs(pho3.Eta()) > 2.5):
             pho3out.append(1)
-         if (pho4.Pt() < 10 or abs(pho4.Eta()) > 2.5):
+         if (pho4.Pt() < 15 or abs(pho4.Eta()) > 2.5):
             pho4out.append(1)
 
          Genmaker.Pho1out[0] = len(pho1out)
@@ -288,11 +288,11 @@ def main(argv):
 
            Genmaker.tp_mass_case2[0] = (pho1+pho2+pho3).M()
 
-           if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+           if (pho1.Pt() < 15 or abs(pho1.Eta()) > 2.5):
               fatphoout.append(1)
-           if (pho2.Pt() < 18 or abs(pho2.Eta()) > 2.5):
+           if (pho2.Pt() < 15 or abs(pho2.Eta()) > 2.5):
               isopho1out.append(1)
-           if (pho3.Pt() < 10 or abs(pho3.Eta()) > 2.5):
+           if (pho3.Pt() < 15 or abs(pho3.Eta()) > 2.5):
               isopho2out.append(1)
 
            Genmaker.Fatphoout[0] = len(fatphoout)
@@ -327,9 +327,9 @@ def main(argv):
            Genmaker.fatpho2_mass_case3[0] = pho2.M()
            Genmaker.tp_mass_case3[0] = (pho1+pho2).M()
 
-           if (pho1.Pt() < 30 or abs(pho1.Eta()) > 2.5):
+           if (pho1.Pt() < 15 or abs(pho1.Eta()) > 2.5):
                fatpho1out.append(1)
-           if (pho2.Pt() < 18 or abs(pho1.Eta()) > 2.5):
+           if (pho2.Pt() < 15 or abs(pho1.Eta()) > 2.5):
                fatpho2out.append(1)
 
            Genmaker.Fatpho1out[0] = len(fatpho1out)
