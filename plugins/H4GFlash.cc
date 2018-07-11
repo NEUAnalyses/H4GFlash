@@ -16,7 +16,7 @@
 
 
 // system include files
-// #include <memory>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,7 +48,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "flashgg/H4GFlash/interface/H4GTools.h"
-// #include "PreselTools.cc"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "flashgg/Taggers/interface/GlobalVariablesDumper.h"
@@ -102,7 +101,7 @@ public:
     //Out tree elements:
     edm::Service<TFileService> fs;
     TTree* outTree;
-    int n_pho, run, lumi, evtnum, passTrigger,nicematch;
+    int n_pho, run, lumi, evtnum, passTrigger,nicematch,presel,passMVA;
     double rho;
     std::vector<H4GTools::H4G_DiPhoton> v_h4g_diphos;
     std::vector<H4GTools::H4G_TetraPhoton> v_h4g_tetraphos;
@@ -338,7 +337,8 @@ public:
     std::vector<std::map<std::string, int>> v_pho_cutid;
     std::vector<float> v_pho_mva;
     std::map<std::string, int> myTriggerResults;
-
+    std::vector<float> v_fatpho_number;
+    std::vector<float> v_matchreco_count;
     std::vector<float> v_genmatch_full5x5_r9;
     std::vector<float> v_genmatch_chargedHadronIso;
     std::vector<float> v_genmatch_hadronicOverEm;
@@ -356,6 +356,7 @@ public:
     std::vector<float> v_genmatch_int;
     std::vector<float> v_nicematch;
     std::vector<float> v_genpho_id;
+    std::vector<float>  v_genrecoPt_ratio;
     // gen mother information
     std::vector<LorentzVector> v_genmother_p4;
     std::vector<float> v_genmother_pt;
@@ -370,15 +371,10 @@ public:
     std::vector<LorentzVector> v_mergedpho_p4;
     std::vector<LorentzVector> v_fatpho_p4;
     std::vector<LorentzVector> v_genlevelphoton_p4;
+    std::vector<LorentzVector> v_fatpho_collection;
+    std::vector<float> v_reco_genmatchcount;
     std::vector<float> v_fatpho_energy;
-<<<<<<< HEAD
-    std::vector<float> v_fatpho_pt;
     std::vector<float> v_genmatch_ver2;
-    std::vector<float> v_fatpho_deltar;
-    std::vector<float> v_pho_matchcountnumber;
-=======
-    std::vector<float> v_genmatch_ver2;
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
     double genTotalWeight;
     //Parameters
     std::vector<std::string> myTriggers;
@@ -406,7 +402,6 @@ private:
 //
 H4GFlash::H4GFlash(const edm::ParameterSet& iConfig):
 diphotonsToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "diphotons", edm::InputTag( "flashggDiPhotons" ) ) ) ),
-//genPhotonsToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genphotons", edm::InputTag( "prunedGenParticles" ) ) ) ),
 genPhotonsToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genphotons", edm::InputTag( "flashggGenPhotons" ) ) ) ),
 genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genparticles", edm::InputTag( "flashggPrunedGenParticles" ) ) ) ),
 //singlephotonviewToken_( ( iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) ) ) )
@@ -428,17 +423,18 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     double lumiWeight_ = ( iConfig.getParameter<double>( "lumiWeight" ) );
     globVar_->dumpLumiFactor(lumiWeight_);
     //double maxGenDeltaR_ = (iConfig.getParameter<double> ("maxGenDeltaR"));
-    //std::cout << "maxGenDeltaR " << maxGenDeltaR_ << std::endl;
     usesResource("TFileService");
     //   edm::Service<TFileService> fs;
     outTree = fs->make<TTree> ("H4GTree", "Tree for h->4g analysis");
 
-    //   outTree->Branch("run", &run, "run/I");
-    //   outTree->Branch("lumi", &lumi, "lumi/I");
-    //   outTree->Branch("evtnum", &evtnum, "evtnum/I");
+    outTree->Branch("run", &run, "run/I");
+    outTree->Branch("lumi", &lumi, "lumi/I");
+    outTree->Branch("evtnum", &evtnum, "evtnum/I");
 
     outTree->Branch("rho", &rho, "rho/D");
     outTree->Branch("passTrigger", &passTrigger, "passTrigger/I");
+    outTree->Branch("presel", &presel, "presel/I");
+    outTree->Branch("passMVA", &passMVA, "passMVA/I");
     outTree->Branch("nicematch", &nicematch, "rho/I");
     outTree->Branch("v_h4g_diphos", &v_h4g_diphos);
     //outTree->Branch("v_h4g_tetraphos", &v_h4g_tetraphos);
@@ -663,10 +659,13 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("genTotalWeight", &genTotalWeight, "genTotalWeight/D");
     outTree->Branch("v_genpho_dr", &v_genpho_dr);
     outTree->Branch("myTriggerResults", &myTriggerResults);
+    outTree->Branch("v_fatpho_number", &v_fatpho_number);
+    outTree->Branch("v_matchreco_count", &v_matchreco_count);
     outTree->Branch("v_dr_genreco",&v_dr_genreco);
     outTree->Branch("v_genmatching",&v_genmatching);
     outTree->Branch("v_genmatch_int",&v_genmatch_int);
     outTree->Branch("v_nicematch",&v_nicematch);
+    outTree->Branch("v_genrecoPt_ratio",&v_genrecoPt_ratio);
     outTree->Branch("v_genmother_p4",&v_genmother_p4);
     outTree->Branch("v_genmother_pt",&v_genmother_pt);
     outTree->Branch("v_genmother_eta",&v_genmother_eta);
@@ -682,14 +681,8 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     outTree->Branch("v_mergedpho_p4",&v_mergedpho_p4);
     outTree->Branch("v_fatpho_p4",&v_fatpho_p4);
     outTree->Branch("v_fatpho_energy",&v_fatpho_energy);
-<<<<<<< HEAD
-    outTree->Branch("v_fatpho_pt",&v_fatpho_pt);
     outTree->Branch("v_genmatch_ver2",&v_genmatch_ver2);
-    outTree->Branch("v_fatpho_deltar",&v_fatpho_deltar);
-    outTree->Branch("v_pho_matchcountnumber",&v_pho_matchcountnumber);
-=======
-    outTree->Branch("v_genmatch_ver2",&v_genmatch_ver2);
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
+    outTree->Branch("v_reco_genmatchcount",&v_reco_genmatchcount);
     std::map<std::string, std::string> replacements;
     globVar_->bookTreeVariables(outTree, replacements);
 
@@ -723,11 +716,7 @@ void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-<<<<<<< HEAD
-    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
-=======
     if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
     counter++;
 
     using namespace edm;
@@ -770,6 +759,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Initialize tree variables
     genTotalWeight = 1.0;
+    presel = -999;
+    passMVA = -999;
     n_pho = 0;
     v_pho_p4.clear();
     v_genpho_p4.clear();
@@ -969,6 +960,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_p4.clear();
     v_fatpho1_p4.clear();
     v_fatpho1_pt.clear();
+    v_fatpho_number.clear();
+    v_matchreco_count.clear();
     v_genreco_dR.clear();
     v_genreco_ptdiff.clear();
     v_genmatch_passElectronVeto.clear();
@@ -986,6 +979,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_genmatch_trackIso.clear();
     v_genmatching.clear();
     v_genmatch_int.clear();
+    v_genrecoPt_ratio.clear();
     v_nicematch.clear();
     v_genmother_p4.clear();
     v_genmother_pt.clear();
@@ -995,37 +989,73 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     v_daughter_id.clear();
     v_daughter_p4.clear();
     v_4case.clear();
+    v_reco_genmatchcount.clear();
     v_daughterofa_p4.clear();
     v_photonDaughters_p4.clear();
     v_genlevelphoton_p4.clear();
     v_mergedpho_p4.clear();
     v_fatpho_p4.clear();
     v_fatpho_energy.clear();
-<<<<<<< HEAD
-    v_fatpho_pt.clear();
     v_genmatch_ver2.clear();
-    v_fatpho_deltar.clear();
-    v_pho_matchcountnumber.clear();
-=======
-    v_genmatch_ver2.clear();
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
     //Create a list pf photons from diphotons
-    std::vector<const flashgg::DiPhotonCandidate> diphotonCollection;
     std::vector<const flashgg::Photon*> phosTemp;
     std::vector<const flashgg::Photon*> extra;
     std::vector<const flashgg::Photon*> fat1;
     edm ::Ptr<reco::Vertex> vtx;
     edm::Ptr<reco::Vertex> vtx_to_use;
     vtx_to_use = vertex->ptrAt(0);
+    // bool isPreselected = false;
+
+    // Calculate  MC Weights here
+    edm::Handle<GenEventInfoProduct> genEvtInfo;
+    if( ! iEvent.isRealData() ) {
+        iEvent.getByToken(genInfoToken_, genEvtInfo);
+        genTotalWeight = genEvtInfo->weight();
+    } else {
+        genTotalWeight = 1;
+    }
     for (size_t i = 0; i < (diphotons->size()); ++i){
         edm::Ptr<flashgg::DiPhotonCandidate> dipho = diphotons->ptrAt(i);
         vtx = diphotons->ptrAt(i)->vtx();
         const flashgg::Photon * pho1 = dipho->leadingPhoton();
         const flashgg::Photon * pho2 = dipho->subLeadingPhoton();
-<<<<<<< HEAD
-        diphotonCollection.push_back(dipho);
-=======
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
+        // 2016 pre-selection requirements (based on the OR of two low mass H->gg analysis)
+        if ( ( dipho->leadingPhoton()->full5x5_r9() > 0.8
+                   || dipho->leadingPhoton()->egChargedHadronIso() < 20
+                   || dipho->leadingPhoton()->egChargedHadronIso()/dipho->leadingPhoton()->pt() < 0.3 )
+                 &&
+                 ( dipho->subLeadingPhoton()->full5x5_r9() > 0.8
+                   || dipho->subLeadingPhoton()->egChargedHadronIso() < 20
+                   || dipho->subLeadingPhoton()->egChargedHadronIso()/dipho->subLeadingPhoton()->pt() < 0.3)
+                 &&
+                   (((fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 && dipho->leadingPhoton()->hadronicOverEm() < 0.07)
+                   ||(fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 && dipho->leadingPhoton()->hadronicOverEm() < 0.035))
+                   && ((fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442 &&  dipho->subLeadingPhoton()->hadronicOverEm() < 0.07)
+                   ||(fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566 && dipho->subLeadingPhoton()->hadronicOverEm() < 0.035) ))
+                &&
+                   (dipho->leadingPhoton()->pt() >30.0 && dipho->subLeadingPhoton()->pt() > 18.0)
+                &&
+                  (fabs(dipho->leadingPhoton()->superCluster()->eta()) < 2.5 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 2.5)
+                &&
+                  (fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 || fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 )
+                &&
+                  (fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442 || fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566)
+                &&
+                  ( (fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442)
+                  || (fabs(dipho->leadingPhoton()->superCluster()->eta()) < 1.4442 && dipho->leadingPhoton()->full5x5_r9()>0.85 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566 && dipho->subLeadingPhoton()->full5x5_r9()>0.90 )
+                  || (fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 && dipho->leadingPhoton()->full5x5_r9()>0.90 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) < 1.4442 && dipho->subLeadingPhoton()->full5x5_r9()>0.85 )
+                  || (fabs(dipho->leadingPhoton()->superCluster()->eta()) > 1.566 && dipho->leadingPhoton()->full5x5_r9()>0.90 && fabs(dipho->subLeadingPhoton()->superCluster()->eta()) > 1.566 && dipho->subLeadingPhoton()->full5x5_r9()>0.90 ) )
+                && dipho->mass() > 55
+                && (dipho->leadingPhoton()->pt() > 0.47*dipho->mass() && dipho->subLeadingPhoton()->pt() > 0.28*dipho->mass())
+                && (!dipho->leadingPhoton()->hasPixelSeed()) && (!dipho->subLeadingPhoton()->hasPixelSeed())
+              ){
+        	    presel = 1;
+              if (  (dipho->leadPhotonId() > -0.9 && dipho->subLeadPhotonId() > -0.9)
+                 ){
+                  passMVA  = 1; // this is evaluated for diphotons that have passed pre-selection
+                 }
+               }
+
 
         if ( phosTemp.size() == 0 ){
             phosTemp.push_back(pho1);
@@ -1053,285 +1083,39 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 phosTemp.push_back(pho2);
             }
         }
-<<<<<<< HEAD
     }
 
-// Trigger preselection on diphoton candidates:
-vector<flashgg::DiPhotonCandidate> PreSelDipho;
-PreSelDipho = H4GTools::DiPhotonPreselection(diphotonCollection);
-
-//     // Calculate  MC Weights here
-//     edm::Handle<GenEventInfoProduct> genEvtInfo;
-//     if( ! iEvent.isRealData() ) {
-//         iEvent.getByToken(genInfoToken_, genEvtInfo);
-//         genTotalWeight = genEvtInfo->weight();
-//     } else {
-//         genTotalWeight = 1;
-//     }
-//
-//
-//
-//     std::vector<int> mylist1;
-//     std::vector<int> mylist2;
-//     std::vector<int> mergedphos;
-//     std::vector<float> reco_gen1;
-//     std::vector<float> reco_gen2;
-//     std::vector<float> reco_gen3;
-//     std::vector<float> reco_gen4;
-//     std::vector<float> matchcountnumber;
-//     std::vector<float> deltarvalue;
-//
-//     edm::Handle<edm::View<reco::GenParticle> > genParticles;
-//     iEvent.getByToken(genParticlesToken_,genParticles);
-//     if( ! iEvent.isRealData() ) {
-//         for(size_t g=0; g < genParticles->size(); g++) {
-//             auto gen = genParticles->ptrAt(g);
-//             if( gen->isPromptFinalState() == 0 ) continue;
-//             if( gen->pdgId() != 22) continue;
-//             if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)  // for matching -- only consider events with 4 gen photons ???
-//             {
-//                 v_genpho_p4.push_back( gen->p4() );
-//             }
-//
-//         }
-//     }
-//
-//
-//     if( ! iEvent.isRealData() ) {
-//         for (size_t gp=0; gp<genParticles->size(); gp++) {
-//             auto gen = genParticles->ptrAt(gp);
-//             int type = gen->pdgId();
-//             if ( abs(type) == 25 || abs(type) == 54 ){ //---- pseudoscalar "a"
-//
-//                 v_genlevelphoton_p4.push_back(gen->daughter(0)->p4());
-//                 v_genlevelphoton_p4.push_back(gen->daughter(1)->p4());
-//                 auto gen_pho1 = genParticles->ptrAt(0);  // a1
-//                 auto gen_pho2 = genParticles->ptrAt(1);  // a2
-//                 auto daughter1 = gen_pho1->daughter(0);
-//                 auto daughter2 = gen_pho1->daughter(1);
-//                 auto daughter3 = gen_pho2->daughter(0);
-//                 auto daughter4 = gen_pho2->daughter(1);
-//                 v_photonDaughters_p4.push_back(daughter1->p4());
-//                 v_photonDaughters_p4.push_back(daughter2->p4());
-//                 v_photonDaughters_p4.push_back(daughter3->p4());
-//                 v_photonDaughters_p4.push_back(daughter4->p4());
-//                 v_daughter_id.push_back(gen->daughter(0)->pdgId());
-//                 v_daughter_p4.push_back(gen->daughter(0)->p4());
-//
-//                 v_gen_a_mass .push_back(gen->mass());
-//                 v_gen_a_pt .push_back(gen->pt());
-//                 v_gen_a_phi.push_back(gen->phi());
-//                 v_gen_a_eta.push_back(gen->eta());
-//                 v_gen_a_id .push_back(1. * type);
-//             }
-//             if ( abs(type) == 35 ) { //---- X
-//                 v_gen_X_mass .push_back(gen->mass());
-//                 v_gen_X_pt .push_back(gen->pt());
-//                 v_gen_X_phi.push_back(gen->phi());
-//                 v_gen_X_eta.push_back(gen->eta());
-//                 v_gen_X_id .push_back(1. * type);
-//             }
-//             if (( abs(type) == 11 || abs(type) == 13 || abs(type) == 15 ) && (gen->isPromptFinalState() == 1)) {//---- leptons (only prompt)
-//                 v_genlep_p4.push_back( gen->p4() );
-//             }
-//         }
-//     }
-//
-//     // collection of gen photons that are close to each other within deltaR cone of 0.15
-//     float deltar =0;
-//     for( size_t p = 0; p < v_genlevelphoton_p4.size(); p++) {
-//         LorentzVector genpho1 = v_genlevelphoton_p4[p];
-//         for ( size_t p2 = 0; p2 < v_genlevelphoton_p4.size(); p2++) {
-//             LorentzVector genpho2 = v_genlevelphoton_p4[p2];
-//             if( p2 != p  and p2>p) {
-//                 deltar = deltaR(genpho1, genpho2);
-//                 v_fatpho_deltar.push_back(deltar);
-//                 if (deltar < 0.15) {
-//                     mergedphos.push_back(1);
-//                     LorentzVector fatpho = genpho1+genpho2;
-//                     v_fatpho_p4.push_back(fatpho);
-//                     v_fatpho_pt.push_back(fatpho.pt());
-//                     std::cout << " fat pho pt " << fatpho.pt() << std::endl;
-//                     v_fatpho_energy.push_back(fatpho.E());
-//                     v_mergedpho_p4.push_back( genpho1);
-//                     float maxGenDeltaR = 0.3;
-//                     unsigned int best = INT_MAX;
-//                     float mindeltar = 99e15;
-//                     for (int i=0; i< (int)phosTemp.size(); ++i) {
-//                         const flashgg::Photon * pho = phosTemp[i];
-//                         float dR = deltaR(*pho,fatpho);
-//                         // std::cout << " delta r b/w reco and fat photon " << dR << std::endl;
-//                         if (dR > maxGenDeltaR){continue;}
-//                         //  std::cout << " is less than 0.15 " << std::endl;
-//
-//                         if (dR < mindeltar) {
-//                           mindeltar = dR;
-//                           best = i;
-//                         }
-//                              //best = i;   // best is the index of the reco photon that has been matched w/ 2 gen photons(or a fat photon)
-//                     }
-//
-//                     mylist2.push_back(best);
-//
-//                 }
-//             }
-//         }
-//     }
-//
-//     std::cout << " how many fat photons " << v_fatpho_p4.size() << std::endl;
-//     for (int l = 0 ; l<(int)mylist2.size() ; ++l){
-//       std::cout << mylist2[l] << std::endl;
-//     }
-//     for (int b = 0; b < (int)phosTemp.size(); ++b) {
-//         // std::cout << " which reco photon " << b << std::endl;
-//         const flashgg::Photon * phomatch = phosTemp[b];
-//         bool found = (std::find(mylist2.begin(), mylist2.end(), b) != mylist2.end());
-//         v_matchflag.push_back(found);
-//         if(found ==1) {
-//              std::cout << " check the reco pho again " << b << std::endl;
-//              std::cout << "matched reco pt " << phomatch->pt() << std::endl;
-//             v_genmatch_pt.push_back( phomatch->pt() );
-//             v_genmatch_p4.push_back(phomatch->p4());
-//             v_genmatch_eta.push_back(phomatch->eta());
-//         }
-//         else {v_genmatch_pt.push_back(-999);
-//             v_genmatch_eta.push_back(-999);}
-//
-//
-//     }
-//
-//      for (int r=0; r< (int)phosTemp.size(); ++r) {
-//           const flashgg::Photon * pho = phosTemp[r];
-//             for( size_t g = 0; g < v_fatpho_p4.size(); g++) {
-//               LorentzVector fatpho = v_genlevelphoton_p4[g];
-//               // std::cout << " delta r b.w reco " << r << "  and gen " << g << " " <<  deltaR(*pho,genpho) << std::endl;
-//               if (deltaR(*pho,fatpho) < 0.15){
-//                 matchcountnumber.push_back(1);
-//               }
-//
-//             }
-//      }
-//     //  std::cout << "how many times does the match happen ?" << matchcountnumber.size() << std::endl;
-//      v_pho_matchcountnumber.push_back(matchcountnumber.size());
-//
-// // std::cout << "how many times did the match happen ? " << matchcount.size() << std::endl;
-//
-//     for (int k = 0; k < (int)phosTemp.size(); ++k) {
-//         const flashgg::Photon * recopho = phosTemp[k];
-//         if (deltaR(v_genlevelphoton_p4[0],*recopho) < 0.15){
-//         reco_gen1.push_back(deltaR(v_genlevelphoton_p4[0],*recopho));}
-//         if (deltaR(v_genlevelphoton_p4[1],*recopho) < 0.15){
-//         reco_gen1.push_back(deltaR(v_genlevelphoton_p4[1],*recopho));}
-//         if (deltaR(v_genlevelphoton_p4[2],*recopho) < 0.15){
-//         reco_gen1.push_back(deltaR(v_genlevelphoton_p4[2],*recopho));}
-//         if (deltaR(v_genlevelphoton_p4[3],*recopho) < 0.15){
-//         reco_gen1.push_back(deltaR(v_genlevelphoton_p4[3],*recopho));}
-//
-//
-//     }
-//
-//
-//     int index1 = 0;
-//     for (int a = 0; a < (int)reco_gen1.size(); ++a) {
-//         if (reco_gen1[a] < reco_gen1[index1])
-//         index1 = a;
-//     }
-//
-//     int index2 = 0;
-//     for (int b = 0; b < (int)reco_gen2.size(); ++b) {
-//         if (reco_gen2[b] < reco_gen2[index2])
-//         index2 = b;
-//     }
-//
-//     int index3 = 0;
-//     for (int c = 0; c < (int)reco_gen3.size(); ++c) {
-//         if (reco_gen3[c] < reco_gen3[index3])
-//         index3 = c;
-//     }
-//
-//     int index4 = 0;
-//     for (int d = 0; d < (int)reco_gen4.size(); ++d) {
-//         if (reco_gen4[d] < reco_gen4[index4])
-//         index4 = d;
-//     }
-//
-//     for (int n = 0; n < (int)phosTemp.size(); ++n) {
-//
-//         const flashgg::Photon * fatpho1match = phosTemp[n];
-//         if((n == index1 && index1 == index2) || (n == index3 && index3 == index4)) {
-//           v_fatpho1_p4.push_back(fatpho1match->p4());
-//           v_fatpho1_pt.push_back(fatpho1match->pt());
-//         }
-//         else {
-//           v_fatpho1_pt.push_back(-999);
-//         }
-//     }
-
-=======
-    }
-
-    // Calculate  MC Weights here
-    edm::Handle<GenEventInfoProduct> genEvtInfo;
-    if( ! iEvent.isRealData() ) {
-        iEvent.getByToken(genInfoToken_, genEvtInfo);
-        genTotalWeight = genEvtInfo->weight();
-    } else {
-        genTotalWeight = 1;
-    }
-
-
-
-    std::vector<int> mylist1;
-    std::vector<int> mylist2;
-    std::vector<int> mergedphos;
-    std::vector<float> reco_gen1;
-    std::vector<float> reco_gen2;
-    std::vector<float> reco_gen3;
-    std::vector<float> reco_gen4;
-
+    std::vector<int> mylist;
+    std::vector<int> mylistfat;
+    std::vector<int> fatcount;
+    std::vector<int> matchreco_count;
+    std::vector<int> reco_fat_count;
     edm::Handle<edm::View<reco::GenParticle> > genParticles;
     iEvent.getByToken(genParticlesToken_,genParticles);
+
     if( ! iEvent.isRealData() ) {
         for(size_t g=0; g < genParticles->size(); g++) {
             auto gen = genParticles->ptrAt(g);
             if( gen->isPromptFinalState() == 0 ) continue;
             if( gen->pdgId() != 22) continue;
-            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)  // for matching -- only consider events with 4 gen photons ???
+            if( gen->mother(0)->pdgId() == 25 || gen->mother(0)->pdgId() == 54)  // for matching -- this is the pseudoscalar "a"
             {
                 v_genpho_p4.push_back( gen->p4() );
             }
-
         }
-    }
 
 
-    if( ! iEvent.isRealData() ) {
         for (size_t gp=0; gp<genParticles->size(); gp++) {
             auto gen = genParticles->ptrAt(gp);
             int type = gen->pdgId();
             if ( abs(type) == 25 || abs(type) == 54 ){ //---- pseudoscalar "a"
-
-                v_genlevelphoton_p4.push_back(gen->daughter(0)->p4());
-                v_genlevelphoton_p4.push_back(gen->daughter(1)->p4());
-                auto gen_pho1 = genParticles->ptrAt(0);
-                auto gen_pho2 = genParticles->ptrAt(1);
-
-                auto daughter1 = gen_pho1->daughter(0);
-                auto daughter2 = gen_pho1->daughter(1);
-                auto daughter3 = gen_pho2->daughter(0);
-                auto daughter4 = gen_pho2->daughter(1);
-                v_photonDaughters_p4.push_back(daughter1->p4());
-                v_photonDaughters_p4.push_back(daughter2->p4());
-                v_photonDaughters_p4.push_back(daughter3->p4());
-                v_photonDaughters_p4.push_back(daughter4->p4());
-                v_daughter_id.push_back(gen->daughter(0)->pdgId());
-                v_daughter_p4.push_back(gen->daughter(0)->p4());
-
                 v_gen_a_mass .push_back(gen->mass());
                 v_gen_a_pt .push_back(gen->pt());
                 v_gen_a_phi.push_back(gen->phi());
                 v_gen_a_eta.push_back(gen->eta());
                 v_gen_a_id .push_back(1. * type);
+                v_genlevelphoton_p4.push_back(gen->daughter(0)->p4());  // v_genlevelphoton_p4 is collection of the 4 final state photons
+                v_genlevelphoton_p4.push_back(gen->daughter(1)->p4());
             }
             if ( abs(type) == 35 ) { //---- X
                 v_gen_X_mass .push_back(gen->mass());
@@ -1344,114 +1128,76 @@ PreSelDipho = H4GTools::DiPhotonPreselection(diphotonCollection);
                 v_genlep_p4.push_back( gen->p4() );
             }
         }
-    }
 
 
-    // collection of gen photons that are close to each other within deltaR cone of 0.15
-    float deltar =0;
-    for( size_t p = 0; p < v_photonDaughters_p4.size(); p++) {
-        LorentzVector genpho1 = v_photonDaughters_p4[p];
-        for ( size_t p2 = 0; p2 < v_photonDaughters_p4.size(); p2++) {
-            LorentzVector genpho2 = v_photonDaughters_p4[p2];
-            if( p2 != p  and p2>p) {
-                deltar = deltaR(genpho1, genpho2);
+    // identifying merged photons @ Gen-level
+    float deltar_a1 = 0;
+    float deltar_a2 = 0;
+    deltar_a1 =  deltaR(v_genlevelphoton_p4[0],v_genlevelphoton_p4[1]);
+    deltar_a2 =  deltaR(v_genlevelphoton_p4[2],v_genlevelphoton_p4[3]);
+    if (deltar_a1 < 0.15)
+      { LorentzVector fatpho1 = v_genlevelphoton_p4[0] + v_genlevelphoton_p4[1];
+        v_fatpho_p4.push_back(fatpho1);
+        fatcount.push_back(1);
+      }
+    if (deltar_a2 < 0.15)
+      { LorentzVector fatpho2 = v_genlevelphoton_p4[2] + v_genlevelphoton_p4[3];
+        v_fatpho_p4.push_back(fatpho2);
+        fatcount.push_back(1);
+      }
+    v_fatpho_number.push_back(fatcount.size());
+// now that we have identified merged photons @ gen-level, we can start identifying reco photons
+   unsigned int bestgenfat = INT_MAX;
+   for( size_t f = 0; f < v_fatpho_p4.size(); f++) {
+       LorentzVector fatpho_temp = v_fatpho_p4[f];
+       float maxDeltaR = 0.15;
+       float bestdRdiff = 99e15;
+       unsigned int bestreco = INT_MAX;
+       for (int i=0; i< (int)phosTemp.size(); ++i) {
+           const flashgg::Photon * pho = phosTemp[i];
+           float dR = deltaR(*pho,fatpho_temp);
+           if (dR > maxDeltaR){continue;}
+           matchreco_count.push_back(1);
+           if (dR < bestdRdiff) {
+              bestdRdiff = dR;
+              bestreco = i;   // best is the index of the reco photon that matches with the gen-level fat photon
+              bestgenfat = f;
+              v_genrecoPt_ratio.push_back(pho->pt()/fatpho_temp.pt());
+           }
+       }
+       mylist.push_back(bestreco);
+       mylistfat.push_back(bestgenfat);
+   }
+   v_matchreco_count.push_back(matchreco_count.size());  // counts the number of reco photons that are within a cone of deltar < 0.15 of the gen level fat photon
 
-                if (deltar < 0.15) {
-                    mergedphos.push_back(1);
-                    LorentzVector fatpho = genpho1+genpho2;
-                    v_fatpho_energy.push_back(fatpho.E());
-                    v_fatpho_p4.push_back(fatpho);
-                    v_mergedpho_p4.push_back( genpho1);
-                    float maxGenDeltaR = 0.1;
-                    float bestptdiff = 99e15;
-                    unsigned int best = INT_MAX;
-                    for (int i=0; i< (int)phosTemp.size(); ++i) {
-                        const flashgg::Photon * pho = phosTemp[i];
-                        v_genmatch_ver2.push_back(pho->hasUserInt("genMatchType") );
+   // now saving information of the matched reco photon
+   for (int r = 0; r < (int)phosTemp.size(); ++r) {
+       const flashgg::Photon * phomatch = phosTemp[r];
+       bool found = (std::find(mylist.begin(), mylist.end(), r) != mylist.end());
+       v_matchflag.push_back(found);
+       if(found == 1) {v_genmatch_pt.push_back( phomatch->pt() );
+           v_genmatch_p4.push_back(phomatch->p4()); // this reco photon is fat
+           v_genmatch_eta.push_back(phomatch->eta());
+       }
+       else {v_genmatch_pt.push_back(-999); // this reco photon is resolved
+           v_genmatch_eta.push_back(-999);}
+   }
+   // now doing matching the other way around, i.e start from reco photons and look for a fat photon within a cone of deltar < 0.15
 
-                        float dR = deltaR(*pho,fatpho);
-                        if (dR > maxGenDeltaR){continue;}
-                        float ptdiff =  fabs(fatpho.pt()-pho->pt());
-                        if ( ptdiff < bestptdiff ) {
-                            bestptdiff = ptdiff;
-                            best = i;   // best is the index of the reco photon that has been matched w/ 2 gen photons(or a fat photon)
-                        }
-                    }
-                    mylist2.push_back(best);
-                    for (int k=0; k<(int)mergedphos.size(); ++k) {
-                    }
-                }
-                else {mergedphos.push_back(0);}
-            }
-        }
-    }
+   for (int s = 0; s < (int)phosTemp.size(); ++s) {
+     const flashgg::Photon * pho_temp = phosTemp[s];
+     for( size_t f1 = 0; f1 < v_fatpho_p4.size(); f1++) {
+       LorentzVector fatpho_temp1 = v_fatpho_p4[f1];
+       if (deltaR(*pho_temp,fatpho_temp1) < 0.15){
+           reco_fat_count.push_back(1); // how many times is there a fat photon within dR < 0.15 of a reco photon ?
+       }
+     }
+   }
+   v_reco_genmatchcount.push_back(reco_fat_count.size());
 
-    for (int b = 0; b < (int)phosTemp.size(); ++b) {
-
-        const flashgg::Photon * phomatch = phosTemp[b];
-        bool found = (std::find(mylist2.begin(), mylist2.end(), b) != mylist2.end());
-        v_matchflag.push_back(found);
-        if(found ==1) {v_genmatch_pt.push_back( phomatch->pt() );
-            v_genmatch_p4.push_back(phomatch->p4());
-            v_genmatch_eta.push_back(phomatch->eta());
-        }
-        else {v_genmatch_pt.push_back(-999);
-            v_genmatch_eta.push_back(-999);}
-
-
-    }
-
-    for (int k = 0; k < (int)phosTemp.size(); ++k) {
-        const flashgg::Photon * recopho = phosTemp[k];
-        reco_gen1.push_back(deltaR(v_genlevelphoton_p4[0],*recopho));
-        reco_gen2.push_back(deltaR(v_genlevelphoton_p4[1],*recopho));
-        reco_gen3.push_back(deltaR(v_genlevelphoton_p4[2],*recopho));
-        reco_gen4.push_back(deltaR(v_genlevelphoton_p4[3],*recopho));
-
-    }
-
-
-    int index1 = 0;
-    for (int a = 0; a < (int)reco_gen1.size(); ++a) {
-        if (reco_gen1[a] < reco_gen1[index1])
-        index1 = a;
-    }
-
-    int index2 = 0;
-    for (int b = 0; b < (int)reco_gen2.size(); ++b) {
-        if (reco_gen2[b] < reco_gen2[index2])
-        index2 = b;
-    }
-
-    int index3 = 0;
-    for (int c = 0; c < (int)reco_gen3.size(); ++c) {
-        if (reco_gen3[c] < reco_gen3[index3])
-        index3 = c;
-    }
-
-    int index4 = 0;
-    for (int d = 0; d < (int)reco_gen4.size(); ++d) {
-        if (reco_gen4[d] < reco_gen4[index4])
-        index4 = d;
-    }
-
-    for (int n = 0; n < (int)phosTemp.size(); ++n) {
-
-        const flashgg::Photon * fatpho1match = phosTemp[n];
-        if((n == index1 && index1 == index2) || (n == index3 && index3 == index4)) {
-          v_fatpho1_p4.push_back(fatpho1match->p4());
-          v_fatpho1_pt.push_back(fatpho1match->pt());
-        }
-        else {
-          v_fatpho1_pt.push_back(-999);
-        }
-    }
-
->>>>>>> 8d449ce2657c8fdcb1b29470c7d54ac547e06b9d
-
+}
     for (int i = 0; i < (int)phosTemp.size(); ++i) {
         const flashgg::Photon * pho = phosTemp[i];
-
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") );
         v_pho_pt.push_back( pho->pt() );
@@ -1692,3 +1438,4 @@ H4GFlash::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(H4GFlash);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
