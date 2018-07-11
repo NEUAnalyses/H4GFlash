@@ -12,6 +12,7 @@
 #pragma link C++ class std::vector<H4GTools::H4G_DiPhoton>+;
 #pragma link C++ class H4GTools::H4G_TetraPhoton+;
 #pragma link C++ class std::vector<H4GTools::H4G_TetraPhoton>+;
+#pragma link C++ class std::vector<H4GTools::H4G_TetraPhoton>+;
 #endif
 
 namespace {

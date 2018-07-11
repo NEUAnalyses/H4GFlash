@@ -6,8 +6,8 @@ from array import array
 from H4GSkimTools import *
 
 def main(argv):
-   inputfiles = '/eos/user/t/twamorka/2018/Feb2018/sig60.root'
-   outputfile = 'Feb5_2018/Eff60.root'
+   inputfiles = '/eos/user/t/twamorka/FatPho0p1_Match0p15/sig60.root'
+   outputfile = 'test.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -58,6 +58,20 @@ def main(argv):
    cut9 = n.zeros(1, dtype=float)  # 3 photon category photons
    cut10 = n.zeros(1, dtype=float) # 2 photon category photons
    cut11 = n.zeros(1, dtype=float) # 4 photon category photons
+   cut12 = n.zeros(1, dtype=float)
+   cut13 = n.zeros(1, dtype=float)
+   cut14 = n.zeros(1, dtype=float)
+   cut15 = n.zeros(1, dtype=float)
+   cut16 = n.zeros(1, dtype=float)
+   cut17 = n.zeros(1, dtype=float)
+   cut18 = n.zeros(1, dtype=float)
+   cut19 = n.zeros(1, dtype=float)
+   cut20 = n.zeros(1, dtype=float)
+   cuta = n.zeros(1, dtype=float)
+   cutb = n.zeros(1, dtype=float)
+   cutc = n.zeros(1, dtype=float)
+   cutd = n.zeros(1, dtype=float)
+   cute = n.zeros(1, dtype=float)
 
    outTree.Branch('totevs', totevs, 'totevs/D')
    outTree.Branch('cut0', cut0, 'cut0/D')
@@ -72,7 +86,20 @@ def main(argv):
    outTree.Branch('cut9', cut9, 'cut9/D')
    outTree.Branch('cut10', cut10, 'cut10/D')
    outTree.Branch('cut11', cut11, 'cut11/D')
-
+   outTree.Branch('cut12', cut12, 'cut12/D')
+   outTree.Branch('cut13', cut13, 'cut13/D')
+   outTree.Branch('cut14', cut14, 'cut14/D')
+   outTree.Branch('cut15', cut15, 'cut15/D')
+   outTree.Branch('cut16', cut16, 'cut16/D')
+   outTree.Branch('cut17', cut17, 'cut17/D')
+   outTree.Branch('cut18', cut18, 'cut18/D')
+   outTree.Branch('cut19', cut19, 'cut19/D')
+   outTree.Branch('cut20', cut20, 'cut20/D')
+   outTree.Branch('cuta',cuta,'cuta/D')
+   outTree.Branch('cutb',cutb,'cutb/D')
+   outTree.Branch('cutc',cutc,'cutc/D')
+   outTree.Branch('cutd',cutd,'cutd/D')
+   outTree.Branch('cute',cute,'cute/D')
    evtCounter = 0
    totevs[0] = tree.GetEntries()
 
@@ -96,7 +123,20 @@ def main(argv):
       cut9[0] = 0
       cut10[0] = 0
       cut11[0] = 0
-
+      cut12[0] = 0
+      cut13[0] = 0
+      cut14[0] = 0
+      cut15[0] = 0
+      cut16[0] = 0
+      cut17[0] = 0
+      cut18[0] = 0
+      cut19[0] = 0
+      cut20[0] = 0
+      cuta[0] = 0
+      cutb[0] = 0
+      cutc[0] = 0
+      cutd[0] = 0
+      cute[0] = 0
       Phos = []
       Phos_id = []
 
@@ -112,36 +152,86 @@ def main(argv):
            Phos.append(p4)
            Phos_id.append(p)
 
-      if len(Phos) > 0:
-         cut0[0] = 1
-      if len(Phos) > 1:
-         cut1[0] = 1
-      if len(Phos) > 2:
-         cut2[0] = 1
-      if len(Phos) > 3:
-         cut3[0] = 1
+#if len(Phos) > 0:
+#cut0[0] = 1
+#if len(Phos) > 1:
+#cut1[0] = 1
+#if len(Phos) > 2:
+#cut2[0] = 1
+#if len(Phos) > 3:  ## acceptance for 4g cat
+#cut3[0] = 1
+#if len(Phos) == 2: ## acceptance for 2g cat
+#cut4[0] = 1
+#if len(Phos) == 3: ## acceptance for 3g cat
+#cut5[0] = 1
 
-      Phos.sort(key=lambda x: x.Pt(), reverse=True)   
+      Phos.sort(key=lambda x: x.Pt(), reverse=True)
+          #if tree.passTrigger==1:
+#cut0[0] = 1
+
+# tPhos,tPhos_id = treeSkimmer.triggerpass(Phos, Phos_id ,tree.passTrigger)
+#      if len(tPhos) == 2:
+#         cuta[0] = 1
+#      elif len(tPhos) == 3:
+#         cutb[0] = 1
+#         nicematch_1 = []
+#         match_1 = 0
+#         for g in range(0,tree.v_genmatch_pt.size()):
+#             if tree.v_genmatch_pt[g] > 0:
+#                match_1 = 1
+#                nicematch_1.append(1)
+#         if nicematch_1.count(1) == 4:
+#            cutc[0] = 1
+#         else: cutd[0] = 1
+#      elif len(tPhos) > 3:
+#         cute[0] = 1
+      #print " passtrigger value ", tree.passTrigger   
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
+#     if len(sPhos) >0:
+      cut0[0] = 1
 
-      if len(sPhos) > 0:
-         cut4[0] = 1
-      if len(sPhos) > 1:
-         cut5[0] = 1
-      if len(sPhos) > 2:
-         cut6[0] = 1
-      if len(sPhos) > 3:
-         cut7[0] = 1
-         
-      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_chargedHadronIso, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+
+#if len(sPhos) > 0:
+#cut6[0] = 1
+#if len(sPhos) > 1:
+#cut7[0] = 1
+#if len(sPhos) > 2:
+#cut8[0] = 1
+#if len(sPhos) > 3: ## MVA for 4g cat
+#cut9[0] = 1
+#if len(sPhos) == 2: ## MVA for 2g cat
+#cut10[0] = 1
+#if len(sPhos) == 3: ## MVA for 3g cat
+#cut11[0] = 1
+
+      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9,  tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
+#      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
       if triggeredDipho != 0:  #no diphoton triggered
-         cut8[0] = 1
-         if len(sPhos)==3:
-            cut9[0] = 1
-         elif len(sPhos)==2:
-            cut10[0] = 1
-         elif len(sPhos) >3:
-            cut11[0] = 1
+         cut1[0] = 1
+#         if len(sPhos)==2:
+#            cut3[0] = 1
+#         elif len(sPhos)==3:
+#            cut4[0] = 1
+            #nicematch = []
+            #match = 0
+            #for g in range(0,tree.v_genmatch_pt.size()):
+            #if tree.v_genmatch_pt[g] > 0:
+            #match = 1
+            #nicematch.append(1)
+            #if nicematch.count(1) == 0:
+            #cut15[0] = 1
+            #elif nicematch.count(1) == 1 :
+            #cut16[0] = 1
+            #elif nicematch.count(1) == 2:
+            #cut17[0] = 1
+            #elif nicematch.count(1) ==3 :
+            #cut18[0] = 1
+            #elif nicematch.count(1) == 4:
+            #cut19[0] = 1
+         if len(sPhos) > 3:
+            cut2[0] = 1
+
+      #print "ratio 2 photon ", cut8/cut11
 
       evtCounter += 1
 

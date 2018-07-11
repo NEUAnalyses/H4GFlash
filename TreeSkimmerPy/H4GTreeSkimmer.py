@@ -5,7 +5,7 @@ import sys, getopt
 from array import array
 from H4GSkimTools import *
 def main(argv):
-   inputfiles = '/eos/user/t/twamorka/FatPho0p1_Match0p15/sig60.root'
+   inputfiles = '/eos/cms/store/user/twamorka/Signal_HADD/signal_60.root'
    outputfile = 'test.root'
    maxEvts = -1
    nfakes = 0
@@ -68,21 +68,26 @@ def main(argv):
       treeSkimmer.lumi[0] = tree.lumi
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
-      
+
       #treeSkimmer.passTrigger[0] = tree.passTrigger
-      #treeSkimmer.nicematch[0] = tree.nicematch       
- 
+      #treeSkimmer.nicematch[0] = tree.nicematch
+
       Phos = []
       Phos_id = []
       resolvedcount = []
+      mergedcount = []
+      fatpho1count = []
+      fatpho2count = []
       outofptcount = []
       outofetacount = []
+      fatphocount_revised = []
+      resolvedcount_revised = []
       pho1out = []
       pho2out = []
       pho3out = []
       pho4out = []
       #p0_pt_test = []
-      
+
       for p in range(0,tree.n_pho ):
         p4 = TLorentzVector(0,0,0,0)
         p4.SetPtEtaPhiM( tree.v_pho_pt[p], tree.v_pho_eta[p], tree.v_pho_phi[p], 0 )
@@ -94,7 +99,7 @@ def main(argv):
         if minDR > 0.001:   ## ~~ this is to avoid double counting of photons that have almost overlapping hits in the ECAL SC
            Phos.append(p4)
            Phos_id.append(p)
-      
+
       Phos.sort(key=lambda x: x.Pt(), reverse=True)
 
       nPhos,nPhos_id = treeSkimmer.PhotonCollection(Phos,Phos_id)  ## collection of photons with no selection applied
@@ -115,15 +120,23 @@ def main(argv):
           treeSkimmer.p0_fulle5x5[0] = tree.v_pho_full5x5_e5x5[nPhos_id[r]]
           treeSkimmer.p0_passTrigger[0] = tree.passTrigger
 
-
+          if tree.v_fatpho1_pt[nPhos_id[r]] > 0:
+             fatphocount_revised.append(1)
+          if tree.v_fatpho1_pt[nPhos_id[r]] < 0:
+             resolvedcount_revised.append(1)
           if tree.v_genmatch_pt[nPhos_id[r]] < 0:
              resolvedcount.append(1)
+          if tree.v_genmatch_pt[nPhos_id[r]] > 0:
+             mergedcount.append(1)
           if abs(Phos[r].Eta()) > 2.5:
              outofetacount.append(1)
-      
+
+      treeSkimmer.p0_fatcount_revised[0] = len(fatphocount_revised)
+      treeSkimmer.p0_resolvedcount_revised[0] = len(resolvedcount_revised)
       treeSkimmer.p0_resolvedcount[0] = len(resolvedcount)
+      treeSkimmer.p0_mergedcount[0] = len(mergedcount)
       treeSkimmer.p0_outofetacount[0] = len(outofetacount)
-      
+
 
       if len(nPhos) == 2:
           if nPhos[0].Pt() < 30 or abs(Phos[0].Eta()) > 2.5:
@@ -158,7 +171,7 @@ def main(argv):
 
       #Make photon selection first because the triggered photons *must* be selected
       sPhos,sPhos_id = treeSkimmer.MakePhotonSelection(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
-      
+
 
       if nfakes > 0 :
          fPhos, fPhos_id = treeSkimmer.SelectWithFakes(Phos, Phos_id, tree.v_pho_mva, tree.v_pho_passElectronVeto)
@@ -175,7 +188,7 @@ def main(argv):
          sPhos = [x[0] for x in totmatrix]
          sPhos_id = [x[1] for x in totmatrix]
 
-     
+
 
       triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
 
@@ -183,7 +196,7 @@ def main(argv):
       treeSkimmer.p_npho[0] = len(sPhos)
       listdr = []
       for m in range(0, len(sPhos)):
-          
+
           treeSkimmer.p_pt[0] =  sPhos[m].Pt()
           treeSkimmer.p_M[0] = sPhos[m].M()
           treeSkimmer.p_eta[0] = sPhos[m].Eta()
@@ -210,7 +223,7 @@ def main(argv):
                  listdr.append(dr)
       treeSkimmer.p_drmin[0] = min(listdr)
       treeSkimmer.p_drmax[0] = max(listdr)
- 
+
       outTree_all.Fill()
 
 # Split into 3 categories here
@@ -279,7 +292,7 @@ def main(argv):
          treeSkimmer.p1_full5x5_sigmaEtaEta_3[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[0]]
          treeSkimmer.p2_full5x5_sigmaEtaEta_3[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[1]]
          treeSkimmer.p3_full5x5_sigmaEtaEta_3[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[2]]
-         
+
          treeSkimmer.p1_matchpho_pt_3[0] = tree.v_genmatch_pt[sPhos_id[0]]
          treeSkimmer.p2_matchpho_pt_3[0] = tree.v_genmatch_pt[sPhos_id[1]]
          treeSkimmer.p3_matchpho_pt_3[0] = tree.v_genmatch_pt[sPhos_id[2]]
@@ -297,13 +310,13 @@ def main(argv):
          treeSkimmer.p1_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
          treeSkimmer.p2_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
          treeSkimmer.p3_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[2]]
- 
+
          treeSkimmer.p1_match_3[0] = tree.v_matchflag[sPhos_id[0]]
          treeSkimmer.p2_match_3[0] = tree.v_matchflag[sPhos_id[1]]
          treeSkimmer.p3_match_3[0] = tree.v_matchflag[sPhos_id[2]]
 
          treeSkimmer.genTotalWeight_3[0] = tree.genTotalWeight
-  
+
          treeSkimmer.p_mindr_3[0] = min(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          treeSkimmer.p_maxdr_3[0] = max(sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[2]))
          P12 = sPhos[0] + sPhos[1]
@@ -312,15 +325,15 @@ def main(argv):
 
 
          treeSkimmer.dphigh_mass_3[0] = P12.M()
-         treeSkimmer.p_maxmass_3[0] = max(P12.M(),P13.M(),P23.M()) 
-        
+         treeSkimmer.p_maxmass_3[0] = max(P12.M(),P13.M(),P23.M())
 
-          
+
+
          Pgggg = sPhos[0] + sPhos[1] + sPhos[2]
          treeSkimmer.tp_pt_3[0] = Pgggg.Pt()
          treeSkimmer.tp_eta_3[0] = Pgggg.Eta()
          treeSkimmer.tp_phi_3[0] = Pgggg.Phi()
-         treeSkimmer.tp_mass_3[0] = Pgggg.M()         
+         treeSkimmer.tp_mass_3[0] = Pgggg.M()
          #treeSkimmer.nicematch[0] = nicematch
          outTree_3.Fill()
 
@@ -335,7 +348,7 @@ def main(argv):
          treeSkimmer.p2_M_2[0] = sPhos[1].M()
          treeSkimmer.p1_mva_2[0] = tree.v_pho_mva[sPhos_id[0]]
          treeSkimmer.p2_mva_2[0] = tree.v_pho_mva[sPhos_id[1]]
- 
+
          treeSkimmer.p1_r9_2[0] = tree.v_pho_r9[sPhos_id[0]]
          treeSkimmer.p2_r9_2[0] = tree.v_pho_r9[sPhos_id[1]]
          treeSkimmer.p1_full5x5_r9_2[0] = tree.v_pho_full5x5_r9[sPhos_id[0]]
@@ -358,36 +371,36 @@ def main(argv):
 
          treeSkimmer.p1_hadronicOverEm_2[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
          treeSkimmer.p2_hadronicOverEm_2[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
-         
+
          treeSkimmer.p1_match_2[0] = tree.v_matchflag[sPhos_id[0]]
          treeSkimmer.p2_match_2[0] = tree.v_matchflag[sPhos_id[1]]
 
          treeSkimmer.p1_matchpho_pt_2[0] = tree.v_genmatch_pt[sPhos_id[0]]
          treeSkimmer.p2_matchpho_pt_2[0] = tree.v_genmatch_pt[sPhos_id[1]]
-         
+
          treeSkimmer.p1_conversion_2[0] = tree.v_pho_conversion[sPhos_id[0]]
          treeSkimmer.p2_conversion_2[0] = tree.v_pho_conversion[sPhos_id[1]]
-         
+
          treeSkimmer.p1_e5x5_2[0] = tree.v_pho_e5x5[sPhos_id[0]]
          treeSkimmer.p2_e5x5_2[0] = tree.v_pho_e5x5[sPhos_id[1]]
          treeSkimmer.p1_fulle5x5_2[0] = tree.v_pho_full5x5_e5x5[sPhos_id[0]]
          treeSkimmer.p2_fulle5x5_2[0] = tree.v_pho_full5x5_e5x5[sPhos_id[1]]
 
          treeSkimmer.p_mindr_2[0] = sPhos[0].DeltaR(sPhos[1])
-         
+
          treeSkimmer.genTotalWeight_2[0] = tree.genTotalWeight
-         
+
          Pgggg = sPhos[0] + sPhos[1]
          treeSkimmer.tp_pt_2[0] = Pgggg.Pt()
          treeSkimmer.tp_eta_2[0] = Pgggg.Eta()
          treeSkimmer.tp_phi_2[0] = Pgggg.Phi()
          treeSkimmer.tp_mass_2[0] = Pgggg.M()
-       
+
          outTree_2.Fill()
 
       elif len(sPhos) >3: #ntotpho, i.e total number of photons should always be =4
           mvalist = []
-     
+
           treeSkimmer.p1_pt[0] = sPhos[0].Pt()
           treeSkimmer.p2_pt[0] = sPhos[1].Pt()
           treeSkimmer.p3_pt[0] = sPhos[2].Pt()
@@ -430,18 +443,18 @@ def main(argv):
           treeSkimmer.p2_r9[0] = tree.v_pho_r9[sPhos_id[1]]
           treeSkimmer.p3_r9[0] = tree.v_pho_r9[sPhos_id[2]]
           treeSkimmer.p4_r9[0] = tree.v_pho_r9[sPhos_id[3]]
-     
-          
+
+
           treeSkimmer.p1_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[0]]
           treeSkimmer.p2_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[1]]
           treeSkimmer.p3_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[2]]
-          treeSkimmer.p4_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[3]]  
-      
+          treeSkimmer.p4_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[3]]
+
           treeSkimmer.p1_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[0]]
           treeSkimmer.p2_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[1]]
           treeSkimmer.p3_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[2]]
           treeSkimmer.p4_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[3]]
-      
+
           treeSkimmer.p1_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[0]]
           treeSkimmer.p2_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[1]]
           treeSkimmer.p3_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[2]]
@@ -455,18 +468,18 @@ def main(argv):
           treeSkimmer.p1_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[0]]
           treeSkimmer.p2_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[1]]
           treeSkimmer.p3_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[2]]
-          treeSkimmer.p4_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[3]]      
+          treeSkimmer.p4_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[3]]
 
           treeSkimmer.p1_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
           treeSkimmer.p2_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
           treeSkimmer.p3_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[2]]
           treeSkimmer.p4_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[3]]
-      
+
           treeSkimmer.p1_genmatch[0] = tree.v_pho_genmatch[sPhos_id[0]]
           treeSkimmer.p2_genmatch[0] = tree.v_pho_genmatch[sPhos_id[1]]
           treeSkimmer.p3_genmatch[0] = tree.v_pho_genmatch[sPhos_id[2]]
           treeSkimmer.p4_genmatch[0] = tree.v_pho_genmatch[sPhos_id[3]]
-    
+
           treeSkimmer.p1_match[0] = tree.v_matchflag[sPhos_id[0]]
           treeSkimmer.p2_match[0] = tree.v_matchflag[sPhos_id[1]]
           treeSkimmer.p3_match[0] = tree.v_matchflag[sPhos_id[2]]
@@ -476,7 +489,7 @@ def main(argv):
           treeSkimmer.p2_conversion[0] = tree.v_pho_conversion[sPhos_id[1]]
           treeSkimmer.p3_conversion[0] = tree.v_pho_conversion[sPhos_id[2]]
           treeSkimmer.p4_conversion[0] = tree.v_pho_conversion[sPhos_id[3]]
-          
+
           treeSkimmer.p1_e5x5[0] = tree.v_pho_e5x5[sPhos_id[0]]
           treeSkimmer.p2_e5x5[0] = tree.v_pho_e5x5[sPhos_id[1]]
           treeSkimmer.p3_e5x5[0] = tree.v_pho_e5x5[sPhos_id[2]]
@@ -485,26 +498,26 @@ def main(argv):
           treeSkimmer.p2_fulle5x5[0] = tree.v_pho_full5x5_e5x5[sPhos_id[1]]
           treeSkimmer.p3_fulle5x5[0] = tree.v_pho_full5x5_e5x5[sPhos_id[2]]
           treeSkimmer.p4_fulle5x5[0] = tree.v_pho_full5x5_e5x5[sPhos_id[3]]
-          
+
           treeSkimmer.genTotalWeight[0] = tree.genTotalWeight
-          
+
           treeSkimmer.p1_passTrigger[0] = tree.passTrigger
 
-          treeSkimmer.p_mindr[0] = min( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3])) 
-          treeSkimmer.p_maxdr[0] = max( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]) )      
+          treeSkimmer.p_mindr[0] = min( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]))
+          treeSkimmer.p_maxdr[0] = max( sPhos[0].DeltaR(sPhos[1]), sPhos[0].DeltaR(sPhos[2]), sPhos[0].DeltaR(sPhos[3]), sPhos[1].DeltaR(sPhos[2]), sPhos[1].DeltaR(sPhos[3]), sPhos[2].DeltaR(sPhos[3]) )
           P12 = sPhos[0] + sPhos[1]
           P13 = sPhos[0] + sPhos[2]
           P14 = sPhos[0] + sPhos[3]
           P23 = sPhos[1] + sPhos[2]
           P24 = sPhos[1] + sPhos[3]
           P34 = sPhos[2] + sPhos[3]
- 
+
           treeSkimmer.dphigh_mass[0] = P12.M()
           treeSkimmer.p_maxmass[0] = max((P12.M(),P13.M(),P14.M(),P23.M(),P24.M(),P34.M()))
           pairedDiphos = treeSkimmer.MakePairing(sPhos)
           PP1 = pairedDiphos[0][0]
           PP2 = pairedDiphos[1][0]
-     
+
           treeSkimmer.dp1_p1i[0] = pairedDiphos[0][2]
           treeSkimmer.dp1_p2i[0] = pairedDiphos[0][4]
           treeSkimmer.dp2_p1i[0] = pairedDiphos[1][2]
@@ -527,9 +540,9 @@ def main(argv):
           treeSkimmer.tp_eta[0] = Pgggg.Eta()
           treeSkimmer.tp_phi[0] = Pgggg.Phi()
           treeSkimmer.tp_mass[0] = Pgggg.M()
-          
+
           outTree.Fill()
-   
+
       evtCounter += 1
 
    #end of event loop!
@@ -541,11 +554,9 @@ def main(argv):
    outTree_3.Write()
    outTree_2.Write()
    outRoot.Close()
-   
+
    #outTree_3.Write()
-	
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-
-

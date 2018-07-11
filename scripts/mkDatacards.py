@@ -128,7 +128,7 @@ if __name__ == '__main__':
     #
     trees_data = {}  ## again initialize dictionary
     for data in datas :  ## for every data sample in "datas" list
-      print "The number of Data files ",  len(samples[data]['name']) ##  just get the "name" of the root file as input -- very clever python thing and basically just printing out how many files there 
+      print "The number of Data files ",  len(samples[data]['name'])
       for itree in range(len(samples[data]['name'])):  ## looping over all the different input data files
         chain = ROOT.TChain('H4GSel')
         chain.Add(samples[data]['name'][itree])
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     
     dict_trees_background = {}
     for background in backgrounds :
-      print "The number of backgorunds ", len(samples[background]['name'])
+      print "The number of backgrounds ", len(samples[background]['name'])
       trees_background = {}
       for itree in range(len(samples[background]['name'])):
         chain = ROOT.TChain('H4GSel')
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     trees_signal = {}  ## again initialize dictionary
     for signal in signals :  ## for every data sample in "datas" list
-      print "The number of Signal files ",  len(samples[signal]['name']) ##  just get the "name" of the root file as input -- very clever python thing and basically just printing out how many files there 
+      print "The number of Signal files ",  len(samples[signal]['name'])
       for itree in range(len(samples[signal]['name'])):  ## looping over all the different input data files
         chain = ROOT.TChain('H4GSel')
         chain.Add(samples[signal]['name'][itree])
@@ -227,14 +227,14 @@ if __name__ == '__main__':
     if not os.path.isdir (opt.outputDirDatacard + "/" + cutName + "/" + "shapes/") :
       os.mkdir(opt.outputDirDatacard + "/" + cutName + "/" + "shapes/")
     
-    name_root_file_with_workspace = "/afs/cern.ch/user/t/twamorka/CMSSW_8_1_0/src/HiggsAnalysis/CombinedLimit/t4gamma-supercut/shapes/w_t4gamma-supercut.root"
+    name_root_file_with_workspace = "w_prelimcut.root"
 
     root_file_with_workspace = ROOT.TFile (name_root_file_with_workspace, "RECREATE")
     
     w = ROOT.RooWorkspace("w")
     # create the variable
     w.factory( "tp_mass[100, 180]" )
-    w.var( "tp_mass" ).SetTitle("tp_mass")
+    w.var( "tp_mass" ).SetTitle("CMS_hgg_mass")
     w.var( "tp_mass" ).setUnit("GeV")
     #w.var( "tp_mass").setRange("reg1",100,115) 
     #w.var( "tp_mass").setRange("reg2",135,180)
@@ -247,11 +247,14 @@ if __name__ == '__main__':
     #frame = w.var( "tp_mass" ).frame()
     treeVars.add( w.var("dp1_mass") )    
     treeVars.add( w.var("dp2_mass") )
+
+    w.factory( "tp_pt[0,800]")
+    treeVars.add( w.var("tp_pt"))
     #treeVars.add( w.var("mean") )
-    w.factory( "p1_full5x5_r9[0,5]")
-    treeVars.add( w.var("p1_full5x5_r9") )
+    #w.factory( "p1_full5x5_r9[0,5]")
+    #treeVars.add( w.var("p1_full5x5_r9") )
     
-    data_RooDataSet = ROOT.RooDataSet( "data", "data", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
+    data_RooDataSet = ROOT.RooDataSet( "Data_13TeV_UntaggedTag_0", "Data_13TeV_UntaggedTag_0", ROOT.RooArgSet( w.var( "tp_mass" ) ) )
     data_RooDataSet_sig = ROOT.RooDataSet( "sig", "sig", ROOT.RooArgSet( w.var("tp_mass" ) ) )
     #RooArgList *mypdfs
     #print "HELLOO", len(trees_data['trees'])
@@ -382,32 +385,32 @@ if __name__ == '__main__':
     #treeVars.add( w.var("cheb") )
     #w.factory( "Chebychev:bkg_cheb_pdf(tp_mass,cheb)")
     #w.factory( "Polynomial:bkg_cheb_pdf(tp_mass,cheb)") 
-    w.factory("cheb1[0.01,-10.,10.]")
-    w.factory("cheb2[0.01,-10.,10.]") 
-    w.factory("cheb3[0.01,-10.,10.]")     
-    treeVars.add(w.var("cheb1"))
-    treeVars.add(w.var("cheb2"))
-    treeVars.add(w.var("cheb3"))
-    w.factory("Chebychev:bkg_cheb_pdf(tp_mass,{cheb1,cheb2,cheb3})")
+    #w.factory("cheb1[0.01,-10.,10.]")
+    #w.factory("cheb2[0.01,-10.,10.]") 
+    #w.factory("cheb3[0.01,-10.,10.]")     
+    #treeVars.add(w.var("cheb1"))
+    #treeVars.add(w.var("cheb2"))
+    #treeVars.add(w.var("cheb3"))
+    #w.factory("Chebychev:bkg_cheb_pdf(tp_mass,{cheb1,cheb2,cheb3})")
 
     # ~ Single Exponential
-    w.factory ("lambda[-0.001,-0.01,0.01]")
-    treeVars.add(w.var("lambda"))
-    w.factory("Exponential:bkg_exp_pdf(tp_mass,lambda)")
+    #w.factory ("lambda[-0.001,-0.01,0.01]")
+    #treeVars.add(w.var("lambda"))
+    #w.factory("Exponential:bkg_exp_pdf(tp_mass,lambda)")
 
     # ~ exponential
-    w.factory( "lambda1[4.03336e-02, 0.0001, 10]")
-    treeVars.add( w.var("lambda1") )
-    w.factory( "lambda3[4.88218e-01, 0.0001, 10]")
-    treeVars.add( w.var("lambda3") )    
-    w.factory("Exponential:bkg_exp1_pdf(tp_mass,lambda1)")
-    w.factory("Exponential:bkg_exp2_pdf(tp_mass,lambda3)")
+    #w.factory( "lambda1[4.03336e-02, 0.0001, 10]")
+    #treeVars.add( w.var("lambda1") )
+    #w.factory( "lambda3[4.88218e-01, 0.0001, 10]")
+    #treeVars.add( w.var("lambda3") )    
+    #w.factory("Exponential:bkg_exp1_pdf(tp_mass,lambda1)")
+    #w.factory("Exponential:bkg_exp2_pdf(tp_mass,lambda3)")
     #w.factory("SUM:bkg_sumexp_pdf(bkg_exp1_pdf, frac2[-4.29406e-03, -100, 0.0001]*bkg_exp2_pdf )")
   
     # ~ Power Law
-    w.factory( "pow[2., -10, 10.00001]")
-    treeVars.add(w.var("pow"))
-    w.factory("PowerLaw:bkg_pow_pdf(tp_mass,pow)")   
+    #w.factory( "pow[2., -10, 10.00001]")
+    #treeVars.add(w.var("pow"))
+    #w.factory("PowerLaw:bkg_pow_pdf(tp_mass,pow)")   
  
     #w.factory( "var[-0.001,-0.01,0.01]")
     #treeVars.add( w.var("var"))
@@ -429,7 +432,7 @@ if __name__ == '__main__':
     #FitResults.append(['bkg_exp2_pdf', "Exponential:bkg_exp2_pdf(tp_mass,lambda3)",kCyan-7])
     #FitResults.append(['bkg_sumexp_pdf',"SUM:bkg_sumexp_pdf(bkg_exp1_pdf, frac2[-4.29406e-03, -100, 0.0001]*bkg_exp2_pdf )",kOrange+5])
     #FitResults.append(['bkg_pow_pdf',  "PowerLaw:bkg_pow_pdf(tp_mass,pow)",kRed])
-    FitResults.append(['bkg_cheb_pdf',"Chebychev pol:bkg_cheb_pdf(tp_mass,{cheb1,cheb2,cheb3})",kRed])
+    #FitResults.append(['bkg_cheb_pdf',"Chebychev pol:bkg_cheb_pdf(tp_mass,{cheb1,cheb2,cheb3})",kRed])
     c1 = TCanvas('c1','PDF Fits',200,10,700,500)
     leg = TLegend(0.5,0.55,0.92,0.88)
     tpmass_high = 180
@@ -488,20 +491,20 @@ if __name__ == '__main__':
     c1.SaveAs("test.png")
     cat = ROOT.RooCategory('pdf_index','index of the active pdf')
 
-    mypdfs = ROOT.RooArgList()
+#mypdfs = ROOT.RooArgList()
     #mypdfs.add(w.factory( "Bernstein:bkg_bern1_pdf(tp_mass,{bern1_p0,bern1_p1})"))
     #mypdfs.add(w.factory( "Bernstein:bkg_bern2_pdf(tp_mass,{bern2_p0,bern2_p1,bern2_p2})"))
     #mypdfs.add(w.factory( "Bernstein:bkg_bern3_pdf(tp_mass,{bern3_p0,bern3_p1,bern3_p2,bern3_p3})"))
     #mypdfs.add(w.factory( "Bernstein:bkg_bern4_pdf(tp_mass,{bern4_p0,bern4_p1,bern4_p2,bern4_p3,bern4_p4})"))
     #mypdfs.add(w.factory( "Bernstein:bkg_bern5_pdf(tp_mass,{bern5_p0,bern5_p1,bern5_p2,bern5_p3,bern5_p4,bern5_p5})"))
     #mypdfs.add(w.factory( "Bernstein:bkg_bern6_pdf(tp_mass,{bern6_p0,bern6_p1,bern6_p2,bern6_p3,bern6_p4,bern6_p5,bern6_p6})"))
-    mypdfs.add(w.factory( "Exponential:bkg_exp_pdf(tp_mass,lambda)"))
+#    mypdfs.add(w.factory( "Exponential:bkg_exp_pdf(tp_mass,lambda)"))
     #mypdfs.add(w.factory( "Exponential:bkg_exp1_pdf(tp_mass,lambda1)"))
     #mypdfs.add(w.factory( "Exponential:bkg_exp2_pdf(tp_mass,lambda3)"))
     #mypdfs.add(w.factory( "SUM:bkg_sumexp_pdf(bkg_exp1_pdf, frac2[-4.29406e-03, -100, 0.0001]*bkg_exp2_pdf )"))
     #mypdfs.add(w.factory( "Polynomial:bkg_cheb_pdf(tp_mass,cheb)"))
-    mypdfs.add(w.factory("Chebychev:bkg_cheb_pdf(tp_mass,cheb1,cheb2,cheb3)"))
-    multipdf = ROOT.RooMultiPdf("multipdf","multipdf",cat,mypdfs)  
+#    mypdfs.add(w.factory("Chebychev:bkg_cheb_pdf(tp_mass,cheb1,cheb2,cheb3)"))
+#    multipdf = ROOT.RooMultiPdf("multipdf","multipdf",cat,mypdfs)
     #w.import(multipdf) 
     frame.Draw()
     #c1.SaveAs("test.png") 
@@ -572,8 +575,8 @@ if __name__ == '__main__':
     frame.Draw()
     c2.SaveAs("sig.png")
 
-    getattr(w,'import')(cat) 
-    getattr(w,'import')(multipdf)  
+#getattr(w,'import')(cat)
+#getattr(w,'import')(multipdf)
     #getattr(w,'import')(sig)
    # save the workspace
     w.Write()

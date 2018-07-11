@@ -30,9 +30,10 @@
 
 using namespace RooFit;
 
-int colors[] = {kBlue, 632, 417, 616, 432, 800, 820, 840, 860};
+int colors[] = {kBlue, kMagenta, kRed, kGreen+1, kOrange+7, kAzure+10, 820, 840, 860};
 int styles[] = {1,2, 3, 5, 6, 7, 8, 9};
-
+int mgggg_low = 100;
+int mgggg_high = 180;
 void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
 		std::vector<std::string> functionsToFit, std::vector<std::string> legends,
 		std::vector<H4GFittingTools::FitRes> fitResults, RooDataSet* data, std::string sVar,
@@ -42,7 +43,7 @@ void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
     if(isBkg) data->plotOn(frame, DataError(RooAbsData::SumW2));
     else { 
        std::cout << "Plotting signal model..." << std::endl;
-       data->plotOn(frame, MarkerStyle(25), DataError(RooAbsData::SumW2));
+       data->plotOn(frame, MarkerStyle(25), DataError(RooAbsData::SumW2),CutRange("cut"));
     }
     int funcCounter = 0;
 
@@ -69,6 +70,7 @@ void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
                 components.push_back( ((TObjString*) sComponents->At(comp) )->String().Data() );
             }
         }
+        //std::cout << "HEEYYOOO" << std::endl;
         std::cout << "Fitting model: " << modelName << std::endl;
         if(components.size() > 0) std::cout << "\t including " << components.size() << " components" << std::endl;
         
@@ -79,6 +81,7 @@ void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
                 break;
             }
         }
+        //std::cout<<"I am here"<<fitResults.size()<<std::endl;
         //If there's only one, then it's signal
         if( fitResults.size() == 1)
 		fitResult = fitResults[0].result;
@@ -87,14 +90,16 @@ void H4GFittingTools::PlotCurves(std::string plotTitle, RooWorkspace* w,
             std::cout << "Problem finding fit result!" << std::endl;
             return;
         }
-        
+        RooRealVar *tp_mass;
+        //tp_mass->setRange("unblindreg_1",mgggg_low,115);
+        //tp_mass->setRange("unblindreg_2",135,mgggg_high); 
         w->pdf( modelName )->plotOn(frame, LineColor( colors[funcCounter] ), LineStyle(styles[funcCounter]), Name(modelName), MoveToBack(), Precision(0.00001));
-        
-        if(error == 1){
+        //std::cout<< "HIHIIII"<< error <<std::endl; 
+        /*if(error == 1){
             w->pdf( modelName )->plotOn(frame, FillColor( colors[funcCounter]-9 ), VisualizeError(*fitResult, 2, kFALSE));
             w->pdf( modelName )->plotOn(frame, FillColor( colors[funcCounter]-168 ), VisualizeError(*fitResult, 1, kFALSE));
             w->pdf( modelName )->plotOn(frame, LineColor( colors[funcCounter] ), Name(modelName));
-        }
+        }*/
         
         for (unsigned int comp = 0; comp < components.size(); comp++){
             std::cout << "Plotting model component: " << components[comp] << std::endl;
@@ -173,7 +178,8 @@ std::vector<H4GFittingTools::FitRes> H4GFittingTools::FitFunctions(RooWorkspace*
         double chi2_val = Chi2.getVal(); 
         double finalchi2_val = chi2_val/((float) nParams);
         double minNLL = fitResult->minNll();
-        
+        //int status = fitResult->status();
+        std::cout << "LUKE I AM YOUR FATHER" << minNLL << std::endl; 
         H4GFittingTools::FitRes thisResult;
 
         thisResult.function = modelName;
@@ -181,6 +187,7 @@ std::vector<H4GFittingTools::FitRes> H4GFittingTools::FitFunctions(RooWorkspace*
         thisResult.chi2 = finalchi2_val;
         thisResult.minNLL = minNLL;
         thisResult.result = fitResult;
+        //thisResult.status = status;
         fitresults.push_back(thisResult);
         
 //        delete nll;

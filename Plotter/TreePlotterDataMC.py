@@ -1,4 +1,4 @@
-## code to produce Data MC compariosn plots with signal on top
+## code to produce Data MC comparison plots with signal on top
 
 from PlotterToolsDataMC import *
 from ROOT import *
@@ -19,29 +19,29 @@ for v in Vars:
       ch.Add(f[0])
       hname = v[1]+'_'+str(fi)
       h = TH1F(hname, v[2], v[3], v[4], v[5])
-      ch.Draw(v[0]+'>>'+hname,TCut(genCut)) ## add cut based on what you want to plot, blind or unblind or anything else
-      #total1 = h.Integral
-      #print total1
+      ch.Draw(v[0]+'>>'+hname)#,TCut(BlindBack)) ## add cut based on what you want to plot, blind or unblind or anything else
       h.Scale(float(f[4]),"nosw2")
-      #h.Scale(1/float(h.Integral()))
       h.SetLineColor(f[2])
       h.SetLineWidth(2)
       h.SetFillColor(f[3])
       h.Sumw2()
-      mc_copy = h.Clone("copy")
+      mc_copy = h.Clone("mc_copy")
+      hists2.append([mc_copy])
       hists.append([h,ch,f[1]])
       if h.GetMaximum() > Max:
          Max = h.GetMaximum()
-      #hnew = h.Clone("hnew")
+      hnew = h.Clone("hnew")
       #hnew.Add(hnew)
       #print "Scale Factor",h.Integral()
    #hnew = h[1].Clone("hnew")
-   for ai,a in enumerate(hists):
-       if ai==0 :
-           hnew = a[0].Clone("hnew")
-           hnew.Draw()      
+   #for ai,a in enumerate(hists):
+       #if ai==0 :
+           #hnew = a[0].Clone("hnew")
+           #hnew.Draw()      
 
-
+   #h_sum = TH1F("h_sum", v[2], v[3], v[4], v[5])
+   #for mi, m in enumerate(hists):
+       #h_sum.Add(m[0])
  
    for di,d in enumerate(Data):  ## now get data
       ch2 = TChain('H4GSel')
@@ -59,7 +59,7 @@ for v in Vars:
       ch3.Add(s[0])
       hname3 = v[1]+'_'+str(si)
       h3 = TH1F(hname3,v[2],v[3],v[4],v[5])
-      ch3.Draw(v[0]+'>>'+hname3)#,TCut(genCut))
+      ch3.Draw(v[0]+'>>'+hname3,TCut(genCutSig))
       #h3.Sumw2()
       #total2 = h3.Integral()
       #print total2
@@ -128,7 +128,17 @@ for v in Vars:
    
    #p1.cd()
    #p1.SetBottomMargin(0)
+
+
+   h_sum = TH1F("h_sum",v[2], v[3], v[4], v[5])
+   for mi,m in enumerate(hists):
+      h_sum.Add(m[0]) 
+
+   #h_sum.Draw()
    
+   #for mi, m in enumerate(hists):
+      #m[0].Draw()
+
    s = THStack("s","")
    for fi,hh in enumerate(hists):
       #leg.AddEntry(hh[0], hh[2], 'lf')
@@ -151,19 +161,25 @@ for v in Vars:
       #h_err.Add(hh[1])
       #h_err.Add(hh[2])
    #s.Add(h3)   
-   s.Draw("hist E2")
+   s.Draw("hist")
+#   s.Draw("hist E2")
    s.GetXaxis().SetTitle(v[6])
    s.GetYaxis().SetTitle('Normalized Yields')
+   s.SetMinimum(1)
    s.GetYaxis().SetTitleOffset(1.6)
-   s.SetMaximum(100000)
-   h2.Draw('p same')
+   s.SetMaximum(100)
+
+   h_sum.SetFillStyle(3005)
+   h_sum.SetFillColor(kBlack)
+   h_sum.Draw("E2 same")
+   #h2.Draw('p same')
    #mc_copy.Draw('same') 
    #ratio.Draw('p')
    #mc_copy.Draw()
    h3.Draw('same')
-   h4.Draw('same')
-   h5.Draw('same')
-   h6.Draw('same')
+   #h4.Draw('same')
+   #h5.Draw('same')
+   #h6.Draw('same')
    ## add text on top of the plot
    #l = TPaveText(-0.9,0.5,0.9,0.95)
    #l.AddText('Blah')
@@ -174,9 +190,9 @@ for v in Vars:
    
    #leg.AddEntry(h2,"Data",'lp')
    leg.AddEntry(h3,"SigX10 m(a)=60GeV",'lf')
-   leg.AddEntry(h4,"SigX10 m(a)=45GeV",'lf')
-   leg.AddEntry(h5,"SigX10 m(a)=25GeV",'lf')
-   leg.AddEntry(h6,"SigX10 m(a)=10GeV",'lf')
+   #leg.AddEntry(h4,"SigX10 m(a)=45GeV",'lf')
+   #leg.AddEntry(h5,"SigX10 m(a)=25GeV",'lf')
+   #leg.AddEntry(h6,"SigX10 m(a)=10GeV",'lf')
 
    leg.SetTextFont(42)
    #leg.SetTextSize(0.2)
@@ -192,12 +208,12 @@ for v in Vars:
    tlatex.SetTextSize(25)
    tlatex.DrawLatex(0.11,0.91,"CMS")
    tlatex.SetTextFont(53)
-   tlatex.DrawLatex(0.18,0.91,"Simulation")
+   tlatex.DrawLatex(0.18,0.91,"Preliminary")
    tlatex.SetTextFont(43)
    tlatex.SetTextSize(23)
    Lumi = "35.87" + " fb^{-1} (13TeV)"
    tlatex.SetTextAlign(31)
-   #tlatex.DrawLatex(0.9,0.91,Lumi)
+   tlatex.DrawLatex(0.9,0.91,Lumi)
    tlatex.SetTextAlign(11)  
    c0.Update()
    #c0.SetBatch(kTrue) 

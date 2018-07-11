@@ -22,16 +22,16 @@ print "I'M HERE 1"
 print "1.01"
 
 process.source = cms.Source("PoolSource",
-    # replace 'myfile.root' with the source file you want to use
-    fileNames = cms.untracked.vstring("test.root")
-)
+                            # replace 'myfile.root' with the source file you want to use
+                            fileNames = cms.untracked.vstring("test.root")
+                            )
 
 print "1.1"
 
 process.TFileService = cms.Service("TFileService",
-      fileName = cms.string("out.root"),
-      closeFileFast = cms.untracked.bool(True)
-  )
+                                   fileName = cms.string("out.root"),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
 
 print "2"
 
@@ -43,8 +43,8 @@ print "2.1"
 
 # to check which triggers are present ---remove if not needed
 #process.TriggerAnalyzer = cms.EDAnalyzer("MiniAODTriggerAnalyzer",
-      #bits = cms.InputTag("TriggerResults","","HLT")
-      #)
+#bits = cms.InputTag("TriggerResults","","HLT")
+#)
 #process.TriggerAnalyzerPath = cms.Path(process.TriggerAnalyzer)
 
 # ----------
@@ -59,10 +59,10 @@ customize.setDefault("targetLumi",2.58e+3)
 print "2.2"
 
 customize.register('PURW',
-				True,
-				VarParsing.VarParsing.multiplicity.singleton,
-				VarParsing.VarParsing.varType.bool,
-				"Do PU reweighting?")
+                   True,
+                   VarParsing.VarParsing.multiplicity.singleton,
+                   VarParsing.VarParsing.varType.bool,
+                   "Do PU reweighting?")
 
 
 # call the customization
@@ -72,31 +72,31 @@ print "3"
 #vtxTag              = cms.InputTag("goodPrimaryVertices")
 process.h4gflash.puReWeight=cms.bool( customize.PURW )
 if customize.PURW == False:
-	process.h4gflash.puTarget = cms.vdouble()
+    process.h4gflash.puTarget = cms.vdouble()
 
 maxEvents = 5
 if customize.maxEvents:
-        maxEvents = int(customize.maxEvents)
+    maxEvents = int(customize.maxEvents)
 
 if customize.inputFiles:
-        inputFile = customize.inputFiles
+    inputFile = customize.inputFiles
 
 if customize.outputFile:
-        outputFile = customize.outputFile
+    outputFile = customize.outputFile
 
 print "4"
- 
-print "  __    __    _______   _______   _______   _______ "                                                  
+
+print "  __    __    _______   _______   _______   _______ "
 print " |  |  |  |  /  _____| /  _____| /  _____| /  _____|"
 print " |  |__|  | |  |  __  |  |  __  |  |  __  |  |  __  "
 print " |   __   | |  | |_ | |  | |_ | |  | |_ | |  | |_ | "
 print " |  |  |  | |  |__| | |  |__| | |  |__| | |  |__| | "
-print " |__|  |__|  \______|  \______|  \______|  \______| " 
-                                                   
+print " |__|  |__|  \______|  \______|  \______|  \______| "
+
 
 #if customize.processId == "Data":
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
+process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring(#"HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*",
                                                                 "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*",
                                                                 "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v*"
                                                                 ))
