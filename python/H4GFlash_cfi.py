@@ -12,8 +12,10 @@ h4gflash = cms.EDAnalyzer('H4GFlash',
 					   #"HLT_Diphoton30PV",
 					   #"HLT_Diphoton30_18_Solid",
 					   #"HLT_Diphoton30EB"
+                                       #"HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90",
 					   "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v7",
                                            "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55_v7"
+                                           #"HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90"
                                           ),
 	triggerTag = cms.InputTag("TriggerResults", "", "HLT")
 )

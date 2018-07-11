@@ -10,8 +10,7 @@ samples['data']  = {
             'isData': 1,
             
             'name': [
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/data.root',
-              
+              '/tmp/twamorka/Data_all.root',
               ],
             
            }
@@ -24,10 +23,9 @@ samples['sig']  = {
             'isSignal': 1,
 
             'name': [
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/sig60_skim.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/sig45_skim.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/sig25_skim.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/sig10_skim.root',
+              '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/TreeSkimmerPy/FlatTrees/FatPho0p1_Match0p15/signal_m_60.root',
+                     #'/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/TreeSkimmerPy/for4Gamma_ver2/sig45.root',
+                     #'/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/TreeSkimmerPy/for4Gamma_ver2/sig25.root',
               ],
             
             'weight' : '1',  
@@ -49,26 +47,26 @@ samples['bkg']  = {
             'isSignal': 0,
 
             'name': [
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/DiphoJets80_Inf_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/DiphoJets40_80_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/GJets20_40_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/GJets20_Inf_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/GJets40_Inf_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/QCD30_40_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/QCD40_Inf_gen.root',
-              '/eos/cms/store/user/twamorka/4gamma/skimtrees/QCD30_Inf_gen.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/DiPhoJets80toInf.root',
+              '/afs/cern.ch/work/t/twamorka/CMSSW_8_0_26_patch1/src/flashgg/H4GFlash/TreeSkimmerPy/FlatTrees/QCD40toInf.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/GJets20to40.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/GJets20toInf.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/GJets40toInf.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/QCD30to40.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/DiPho40to80.root',
+              '/eos/cms/store/user/twamorka/FlatTrees/QCD30toInf.root',
               ],
             
             'weight' : '1',  
             
             'weights' :  [
-                       '0.111', 
+                       '197.866',
                        '3.030',
                        '0.316',
                        '3.106',
                        '0.423',
                        '44.197',
-                       '197.866',
+                       '0.111',
                        '249.667', 
                         ],
            }

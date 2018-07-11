@@ -265,6 +265,7 @@ int main(int argc, const char* argv[])
       RooWorkspace bW("Analysis2D", "Analysis2D");
 
       RooCategory pdf_index("pdf_index","Index of Pdf which is active");
+      //std::cout<< "This is the pdf index   "<< pdf_index << std::endl;
       RooArgList mypdfs;
       std::vector<RooRealVar> norms;
       for( unsigned int bias = 0; bias < biasFunctions.size(); bias++){
@@ -276,7 +277,7 @@ int main(int argc, const char* argv[])
           norms.push_back(thisNorm);
           bW.import(norms[norms.size() - 1]);
       }
-//      RooMultiPdf multipdf("roomultipdf", "All Pdfs", pdf_index, mypdfs);
+      //RooMultiPdf multipdf("roomultipdf", "All Pdfs", pdf_index, mypdfs);
       RooRealVar norm("roomultipdf_norm", "Number of background events", bkgNorm, bkgNorm_down, bkgNorm_up);
 //      RooRealVar norm("roomultipdf_norm", "Number of background events", 0.000001, 5000000);
       
