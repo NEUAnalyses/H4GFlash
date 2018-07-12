@@ -7,5 +7,6 @@
 	<use name="rootcore"/>
 	<use name="roofitcore"/>
 	<use name="roostats"/>
+        <use name="clhep"/>
 	<use name="flashgg/H4GFlash"/>
 </bin>                                                                        
