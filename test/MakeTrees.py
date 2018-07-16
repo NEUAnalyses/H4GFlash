@@ -1,8 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 import flashgg.Taggers.flashggTags_cff as flashggTags
+#from flashgg.H4GFlash.flashggPreselectedDiPhotons_LowMass_cfi import flashggPreselectedDiPhotonsLowMass
+from flashgg.Taggers.flashggPreselectedDiPhotons_LowMass_cfi import flashggPreselectedDiPhotonsLowMass
+#from flashgg.H4GFlash.flashggPreselectedDiPhotons_LowMass_cfi import flashggPreselectedDiPhotonsLowMass
+from flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi import flashggUpdatedIdMVADiPhotons
 
 process = cms.Process("h4gflash")
 process.load("flashgg.H4GFlash.H4GFlash_cfi")
+# process.load("flashgg.H4GFlash.flashggPreselectedDiPhotons_LowMass_cfi")
 
 process.h4gflash.rho = cms.InputTag('fixedGridRhoAll')
 process.h4gflash.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
@@ -111,8 +116,11 @@ process.dataRequirements += process.eeBadScFilter
 
 
 process.load("flashgg.Taggers.flashggTags_cff")
+process.load("flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi")
+#from flashgg.Taggers.flashggPreselectedDiPhotons_cfi import flashggPreselectedDiPhotons
+from flashgg.H4GFlash.flashggPreselectedDiPhotons_LowMass_cfi import flashggPreselectedDiPhotonsLowMass
 process.h4gflash.OutFileName = cms.untracked.string(outputFile)
 
 print "5"
 
-process.p = cms.Path(flashggTags.flashggUnpackedJets*process.h4gflash)
+process.p = cms.Path(process.flashggUpdatedIdMVADiPhotons*process.flashggPreselectedDiPhotonsLowMass*flashggTags.flashggUnpackedJets*process.h4gflash)
