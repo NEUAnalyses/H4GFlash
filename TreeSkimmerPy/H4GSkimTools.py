@@ -1,5 +1,12 @@
+#!/usr/bin/python
+
 from ROOT import *
+import sys, getopt
+from array import array
 import numpy as n
+import math
+
+#import random
 
 DEBUG = 0
 
@@ -12,6 +19,7 @@ class SkimmedTreeTools:
       self.p0_mva = n.zeros(1, dtype=float)
       self.p0_conversion = n.zeros(1, dtype=float)
       self.p0_passTrigger = n.zeros(1, dtype=float)
+      self.p0_passpresel = n.zeros(1, dtype=float)
       self.p0_r9 = n.zeros(1, dtype=float)
       self.p0_full5x5_r9 = n.zeros(1, dtype=float)
       self.p0_full5x5_sigmaetaeta = n.zeros(1, dtype=float)
@@ -30,6 +38,9 @@ class SkimmedTreeTools:
       self.p0_Pho4out = n.zeros(1, dtype=float)
       self.p0_resolvedcount_revised = n.zeros(1, dtype=float)
       self.p0_fatcount_revised = n.zeros(1, dtype=float)
+      self.p0_catflag = n.zeros(1, dtype=float)
+      self.p0_preselcatflag = n.zeros(1, dtype=float)
+      self.p0_preselectedsize = n.zeros(1, dtype=float)
       #self.p0_pt_test = n.zeros(1, dtype=float)
 
       self.p_pt = n.zeros(1, dtype=float)
@@ -157,6 +168,18 @@ class SkimmedTreeTools:
       self.tp_eta = n.zeros(1, dtype=float)
       self.tp_phi = n.zeros(1, dtype=float)
       self.tp_mass = n.zeros(1, dtype=float)
+      self.CosTheta_h_a1 = n.zeros(1, dtype=float)
+      self.CosTheta_h_a2 = n.zeros(1, dtype=float)
+      self.CosTheta_a1_gamma1 = n.zeros(1, dtype=float)
+      self.CosTheta_a1_gamma2 = n.zeros(1, dtype=float)
+      self.CosTheta_a2_gamma3 = n.zeros(1, dtype=float)
+      self.CosTheta_a2_gamma4 = n.zeros(1, dtype=float)
+      self.CosTheta_a1_a2 = n.zeros(1, dtype=float)
+      self.CosTheta_a2_a1 = n.zeros(1, dtype=float)
+      self.CosThetaStar_CS = n.zeros(1, dtype=float)
+      self.Phi_a1 = n.zeros(1, dtype=float)
+      self.Phi_a2 = n.zeros(1, dtype=float)
+      self.Phi1_a1 = n.zeros(1, dtype=float)
       self.dphigh_mass = n.zeros(1, dtype=float)
       self.initialEvents = n.zeros(1, dtype=float)
       self.event = n.zeros(1,dtype=int)
@@ -296,6 +319,7 @@ class SkimmedTreeTools:
        outTree_0.Branch('p0_eta',self.p0_eta,'p0_eta/D')
        outTree_0.Branch('p0_mva',self.p0_mva,'p0_mva/D')
        outTree_0.Branch('p0_passTrigger',self.p0_passTrigger, 'p0_passTrigger/D')
+       outTree_0.Branch('p0_passpresel',self.p0_passpresel, 'p0_passpresel/D')
        outTree_0.Branch('p0_conversion',self.p0_conversion, 'p0_conversion/D')
        outTree_0.Branch('p0_r9',self.p0_r9,'p0_r9/D')
        outTree_0.Branch('p0_full5x5_r9',self.p0_full5x5_r9,'p0_full5x5_r9/D')
@@ -315,6 +339,9 @@ class SkimmedTreeTools:
        outTree_0.Branch('p0_Pho4out',self.p0_Pho4out,'p0_Pho4out/D')
        outTree_0.Branch('p0_fatcount_revised',self.p0_fatcount_revised,'p0_fatcount_revised/D')
        outTree_0.Branch('p0_resolvedcount_revised',self.p0_resolvedcount_revised,'p0_resolvedcount_revised/D')
+       outTree_0.Branch('p0_catflag',self.p0_catflag,'p0_catflag/D')
+       outTree_0.Branch('p0_preselcatflag',self.p0_preselcatflag,'p0_preselcatflag/D')
+       outTree_0.Branch('p0_preselectedsize',self.p0_preselectedsize,'p0_preselectedsize/D')
 
 
        return outTree_0
@@ -448,6 +475,18 @@ class SkimmedTreeTools:
       outTree.Branch('tp_eta', self.tp_eta, 'tp_eta/D')
       outTree.Branch('tp_phi', self.tp_phi, 'tp_phi/D')
       outTree.Branch('tp_mass', self.tp_mass, 'tp_mass/D')
+      outTree.Branch('CosTheta_h_a1',self.CosTheta_h_a1, 'CosTheta_h_a1/D')
+      outTree.Branch('CosTheta_h_a2',self.CosTheta_h_a2, 'CosTheta_h_a2/D')
+      outTree.Branch('CosTheta_a1_gamma1',self.CosTheta_a1_gamma1, 'CosTheta_a1_gamma1/D')
+      outTree.Branch('CosTheta_a1_gamma2',self.CosTheta_a1_gamma2, 'CosTheta_a1_gamma2/D')
+      outTree.Branch('CosTheta_a2_gamma3',self.CosTheta_a2_gamma3, 'CosTheta_a2_gamma3/D')
+      outTree.Branch('CosTheta_a2_gamma4',self.CosTheta_a2_gamma4, 'CosTheta_a2_gamma4/D')
+      outTree.Branch('CosTheta_a1_a2',self.CosTheta_a1_a2, 'CosTheta_a1_a2/D')
+      outTree.Branch('CosTheta_a2_a1',self.CosTheta_a2_a1, 'CosTheta_a2_a1/D')
+      outTree.Branch('CosThetaStar_CS',self.CosThetaStar_CS, 'CosThetaStar_CS/D')
+      outTree.Branch('Phi_a1',self.Phi_a1, 'Phi_a1/D')
+      outTree.Branch('Phi_a2',self.Phi_a2, 'Phi_a2/D')
+      outTree.Branch('Phi1_a1',self.Phi1_a1, 'Phi1_a1/D')
       outTree.Branch('dphigh_mass', self.dphigh_mass, 'dphigh_mass/D')
       outTree.Branch('initialEvents', self.initialEvents, 'initialEvents/D')
       outTree.Branch('event', self.event, 'event/I')
@@ -662,7 +701,7 @@ class SkimmedTreeTools:
 
       return fPhos, fPhos_id
 
-   def MakeTriggerSelection(self, Phos, Phos_id, R9, HoE, PSeed, ECALIso , SigmaIEtaIEta, trackIso):
+   def MakeTriggerSelection(self, Phos, Phos_id):
       #based on trigger: HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55
       pho1 = 0
       pho1_id = -99
@@ -672,82 +711,83 @@ class SkimmedTreeTools:
       for i1,p1 in enumerate(Phos):
          for i2,p2 in enumerate(Phos):
             if(i2 <=i1): continue
-            if p1.Pt() < 30: continue  # pt of leading photon
-            if p2.Pt() < 18: continue  # pt of subleading photon
-            if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
-            if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
 
-            if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479:
-               if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 1 : EB EB (OR path) , when R9 > 0.85
-                  if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                     if PSeed[Phos_id[i1]] == 1: continue
-                     if PSeed[Phos_id[i2]] == 1: continue
-                     thisDipho = p1+p2
-                     if thisDipho.M() < 55: continue
-                     pho1 = p1
-                     pho1_id = Phos_id[i1]
-                     pho2 = p2
-                     pho2_id = Phos_id[i2]
-                     break
-
-                  elif SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:  #Case 2 : EB EB , R9 > 0.85 (AND path)
-                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                          if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
-                                 if PSeed[Phos_id[i1]] == 1: continue
-                                 if PSeed[Phos_id[i2]] == 1: continue
-                                 thisDipho = p1+p2
-                                 if thisDipho.M() < 55: continue
-                                 pho1 = p1
-                                 pho1_id = Phos_id[i1]
-                                 pho2 = p2
-                                 pho2_id = Phos_id[i2]
-                                 break
-               elif R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i1]] < 0.85:  # Case 3 : EB EB (OR path) , when R9 < 0.85
-                    if R9[Phos_id[i2]] > 0.5 and R9[Phos_id[i2]] < 0.85:
-                       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                          if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                             if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                                if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
-                                   if PSeed[Phos_id[i1]] == 1: continue
-                                   if PSeed[Phos_id[i2]] == 1: continue
-                                   thisDipho = p1+p2
-                                   if thisDipho.M() < 55: continue
-                                   pho1 = p1
-                                   pho1_id = Phos_id[i1]
-                                   pho2 = p2
-                                   pho2_id = Phos_id[i2]
-                                   break
-            elif (abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479) : # Case 4 : EE EB
-                 if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.85:
-                    if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
-                          if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt() :
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt() :
-                                if PSeed[Phos_id[i1]] == 1: continue
-                                if PSeed[Phos_id[i2]] == 1: continue
-                                thisDipho = p1+p2
-                                if thisDipho.M() < 55: continue
-                                pho1 = p1
-                                pho1_id = Phos_id[i1]
-                                pho2 = p2
-                                pho2_id = Phos_id[i2]
-                                break
-            elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) > 1.479: # Case 5 : EE EE (AND path)
-                 if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:
-                    if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
-                       if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.035:
-                          if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
-                             if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
-                                if PSeed[Phos_id[i1]] == 1: continue
-                                if PSeed[Phos_id[i2]] == 1: continue
-                                thisDipho = p1+p2
-                                if thisDipho.M() < 55: continue
-                                pho1 = p1
-                                pho1_id = Phos_id[i1]
-                                pho2 = p2
-                                pho2_id = Phos_id[i2]
-                                break
+            # if p1.Pt() < 30: continue  # pt of leading photon
+            # if p2.Pt() < 18: continue  # pt of subleading photon
+            # if abs(p1.Eta()) > 1.4442 and abs(p1.Eta()) < 1.566: continue # avoid the EB-EE gap
+            # if abs(p2.Eta()) > 1.4442 and abs(p2.Eta()) < 1.566: continue
+            #
+            # if abs(p1.Eta()) < 1.479 and abs(p2.Eta()) < 1.479:
+            #    if R9[Phos_id[i1]] > 0.85 and R9[Phos_id[i2]] > 0.85:  # Case 1 : EB EB (OR path) , when R9 > 0.85
+            #       if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+            #          if PSeed[Phos_id[i1]] == 1: continue
+            #          if PSeed[Phos_id[i2]] == 1: continue
+            #          thisDipho = p1+p2
+            #          if thisDipho.M() < 55: continue
+            #          pho1 = p1
+            #          pho1_id = Phos_id[i1]
+            #          pho2 = p2
+            #          pho2_id = Phos_id[i2]
+            #          break
+            #
+            #       elif SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:  #Case 2 : EB EB , R9 > 0.85 (AND path)
+            #            if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+            #               if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
+            #                  if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
+            #                      if PSeed[Phos_id[i1]] == 1: continue
+            #                      if PSeed[Phos_id[i2]] == 1: continue
+            #                      thisDipho = p1+p2
+            #                      if thisDipho.M() < 55: continue
+            #                      pho1 = p1
+            #                      pho1_id = Phos_id[i1]
+            #                      pho2 = p2
+            #                      pho2_id = Phos_id[i2]
+            #                      break
+            #    elif R9[Phos_id[i1]] > 0.5 and R9[Phos_id[i1]] < 0.85:  # Case 3 : EB EB (OR path) , when R9 < 0.85
+            #         if R9[Phos_id[i2]] > 0.5 and R9[Phos_id[i2]] < 0.85:
+            #            if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+            #               if SigmaIEtaIEta[Phos_id[i1]] < 0.0105 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+            #                  if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
+            #                     if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
+            #                        if PSeed[Phos_id[i1]] == 1: continue
+            #                        if PSeed[Phos_id[i2]] == 1: continue
+            #                        thisDipho = p1+p2
+            #                        if thisDipho.M() < 55: continue
+            #                        pho1 = p1
+            #                        pho1_id = Phos_id[i1]
+            #                        pho2 = p2
+            #                        pho2_id = Phos_id[i2]
+            #                        break
+            # elif (abs(p1.Eta()) > 1.479 and abs(p2.Eta()) < 1.479) : # Case 4 : EE EB
+            #      if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.85:
+            #         if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+            #            if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.0105:
+            #               if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt() :
+            #                  if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt() :
+            #                     if PSeed[Phos_id[i1]] == 1: continue
+            #                     if PSeed[Phos_id[i2]] == 1: continue
+            #                     thisDipho = p1+p2
+            #                     if thisDipho.M() < 55: continue
+            #                     pho1 = p1
+            #                     pho1_id = Phos_id[i1]
+            #                     pho2 = p2
+            #                     pho2_id = Phos_id[i2]
+            #                     break
+            # elif abs(p1.Eta()) > 1.479 and abs(p2.Eta()) > 1.479: # Case 5 : EE EE (AND path)
+            #      if R9[Phos_id[i1]] > 0.9 and R9[Phos_id[i2]] > 0.9:
+            #         if HoE[Phos_id[i1]] < 0.08 and HoE[Phos_id[i2]] < 0.08:
+            #            if SigmaIEtaIEta[Phos_id[i1]] < 0.035 and SigmaIEtaIEta[Phos_id[i2]] < 0.035:
+            #               if ECALIso[Phos_id[i1]] < 6.0 + 0.012*p1.Pt() and ECALIso[Phos_id[i2]] < 6.0 + 0.012*p2.Pt():
+            #                  if trackIso[Phos_id[i1]] < 6.0 + 0.002*p1.Pt() and trackIso[Phos_id[i2]] < 6.0 + 0.002*p2.Pt():
+            #                     if PSeed[Phos_id[i1]] == 1: continue
+            #                     if PSeed[Phos_id[i2]] == 1: continue
+            #                     thisDipho = p1+p2
+            #                     if thisDipho.M() < 55: continue
+            #                     pho1 = p1
+            #                     pho1_id = Phos_id[i1]
+            #                     pho2 = p2
+            #                     pho2_id = Phos_id[i2]
+            #                     break
          if pho1 !=0 and pho2 != 0: break
 
       dipho = pho1+pho2
@@ -803,7 +843,30 @@ class SkimmedTreeTools:
       return arr
 
 
+   def HelicityCosTheta(self, Booster, Boosted):
+       BoostVector = TVector3(Booster.BoostVector())
+       Boosted.Boost( -BoostVector.x(), -BoostVector.y(), -BoostVector.z() )
+       return Boosted.CosTheta()
 
+   def norm_planes(self, Photons, vector2):
+       BoostHiggs = TVector3(-vector2.BoostVector())
+       Photons_Vect = []
+       for x in range(0,len(Photons)):
+           Photons[x].Boost(BoostHiggs)
+           Photons_Vect.append(Photons[x].Vect().Unit())
+
+       NormVect = []
+       R = TRandom()
+       R.SetSeed(0)
+       rndm = R.Uniform(1)
+       if (rndm > 0.5):
+           NormVect.append((Photons_Vect[0].Cross(Photons_Vect[1])).Unit())
+           NormVect.append((Photons_Vect[2].Cross(Photons_Vect[3])).Unit())
+       else:
+           NormVect.append(-1*(Photons_Vect[0].Cross(Photons_Vect[1])).Unit())
+           NormVect.append(-1*(Photons_Vect[2].Cross(Photons_Vect[3])).Unit())
+
+       return NormVect
 
 
 

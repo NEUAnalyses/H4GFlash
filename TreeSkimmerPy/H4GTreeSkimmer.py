@@ -4,9 +4,12 @@ from ROOT import *
 import sys, getopt
 from array import array
 from H4GSkimTools import *
+import math as m
+
+
 def main(argv):
-   inputfiles = '/eos/cms/store/user/twamorka/Signal_HADD/signal_60.root'
-   outputfile = 'test.root'
+   inputfiles = '/eos/cms/store/user/twamorka/2016_Signal/signal_m_60.root'
+   outputfile = 'output.root'
    maxEvts = -1
    nfakes = 0
    ntotpho = 4
@@ -62,15 +65,11 @@ def main(argv):
        #for evt in range(0,eventsToRun):
       if evt%1000 == 0: print "## Analyzing event ", evt
       tree.GetEntry(evt)
-
       treeSkimmer.event[0] = tree.event
       treeSkimmer.run[0] = tree.run
       treeSkimmer.lumi[0] = tree.lumi
       treeSkimmer.nvtx[0] = tree.nvtx
       treeSkimmer.npu[0] = tree.npu
-
-      #treeSkimmer.passTrigger[0] = tree.passTrigger
-      #treeSkimmer.nicematch[0] = tree.nicematch
 
       Phos = []
       Phos_id = []
@@ -86,25 +85,19 @@ def main(argv):
       pho2out = []
       pho3out = []
       pho4out = []
-      #p0_pt_test = []
 
       for p in range(0,tree.n_pho ):
         p4 = TLorentzVector(0,0,0,0)
         p4.SetPtEtaPhiM( tree.v_pho_pt[p], tree.v_pho_eta[p], tree.v_pho_phi[p], 0 )
         minDR = 999
-        for Pho in Phos:
-           dr = Pho.DeltaR(p4)
-           if dr < minDR:
-              minDR = dr
-        if minDR > 0.001:   ## ~~ this is to avoid double counting of photons that have almost overlapping hits in the ECAL SC
-           Phos.append(p4)
-           Phos_id.append(p)
-
+        Phos.append(p4)
+        Phos_id.append(p)
       Phos.sort(key=lambda x: x.Pt(), reverse=True)
 
       nPhos,nPhos_id = treeSkimmer.PhotonCollection(Phos,Phos_id)  ## collection of photons with no selection applied
 
       treeSkimmer.p0_npho[0] = len(nPhos)
+
       for r in range (0,len(nPhos)):
           treeSkimmer.p0_pt[0] = nPhos[r].Pt()
           treeSkimmer.p0_eta[0] = Phos[r].Eta()
@@ -119,11 +112,11 @@ def main(argv):
           treeSkimmer.p0_e5x5[0] = tree.v_pho_e5x5[nPhos_id[r]]
           treeSkimmer.p0_fulle5x5[0] = tree.v_pho_full5x5_e5x5[nPhos_id[r]]
           treeSkimmer.p0_passTrigger[0] = tree.passTrigger
+          treeSkimmer.p0_passpresel[0] = tree.passpresel
 
-          if tree.v_fatpho1_pt[nPhos_id[r]] > 0:
+
+          if tree.v_genmatch_pt[nPhos_id[r]] > 0:
              fatphocount_revised.append(1)
-          if tree.v_fatpho1_pt[nPhos_id[r]] < 0:
-             resolvedcount_revised.append(1)
           if tree.v_genmatch_pt[nPhos_id[r]] < 0:
              resolvedcount.append(1)
           if tree.v_genmatch_pt[nPhos_id[r]] > 0:
@@ -131,7 +124,6 @@ def main(argv):
           if abs(Phos[r].Eta()) > 2.5:
              outofetacount.append(1)
 
-      treeSkimmer.p0_fatcount_revised[0] = len(fatphocount_revised)
       treeSkimmer.p0_resolvedcount_revised[0] = len(resolvedcount_revised)
       treeSkimmer.p0_resolvedcount[0] = len(resolvedcount)
       treeSkimmer.p0_mergedcount[0] = len(mergedcount)
@@ -189,42 +181,42 @@ def main(argv):
          sPhos_id = [x[1] for x in totmatrix]
 
 
-
-      triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id, tree.v_pho_full5x5_r9, tree.v_pho_hadronicOverEm, tree.v_pho_hasPixelSeed, tree.v_pho_ecalPFClusterIso, tree.v_pho_sigmaIetaIeta, tree.v_pho_trackIso)
-
-      if triggeredDipho == 0: continue
-      treeSkimmer.p_npho[0] = len(sPhos)
-      listdr = []
-      for m in range(0, len(sPhos)):
-
-          treeSkimmer.p_pt[0] =  sPhos[m].Pt()
-          treeSkimmer.p_M[0] = sPhos[m].M()
-          treeSkimmer.p_eta[0] = sPhos[m].Eta()
-          treeSkimmer.p_phi[0] = sPhos[m].Phi()
-          treeSkimmer.p_mva[0] = tree.v_pho_mva[sPhos_id[m]]
-          treeSkimmer.p_r9[0] = tree.v_pho_r9[sPhos_id[m]]
-          treeSkimmer.p_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[m]]
-          treeSkimmer.p_sigmaEtaEta[0] = tree.v_pho_sigmaEtaEta[sPhos_id[m]]
-          treeSkimmer.p_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[m]]
-          treeSkimmer.p_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[m]]
-          treeSkimmer.p_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[m]]
-          treeSkimmer.p_genmatch[0] = tree.v_pho_genmatch[sPhos_id[m]]
-          treeSkimmer.p_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[m]]
-          treeSkimmer.p_matchpho_pt[0] = tree.v_genmatch_pt[sPhos_id[m]]
-          treeSkimmer.p_conversion[0] = tree.v_pho_conversion[sPhos_id[m]]
-          treeSkimmer.p_match[0] = tree.v_matchflag[sPhos_id[m]]
-          treeSkimmer.p_e5x5[0] = tree.v_pho_e5x5[sPhos_id[m]]
-          treeSkimmer.p_fulle5x5[0] = tree.v_pho_full5x5_e5x5[sPhos_id[m]]
-          treeSkimmer.p_passTrigger[0] = tree.passTrigger
-
-          for n in range(0, len(sPhos)):
-              if (n!=m and n>m):
-                 dr = sPhos[m].DeltaR(sPhos[n])
-                 listdr.append(dr)
-      treeSkimmer.p_drmin[0] = min(listdr)
-      treeSkimmer.p_drmax[0] = max(listdr)
-
-      outTree_all.Fill()
+      if tree.passpresel != 1: continue  ## only continue with pre-selected diphotons
+    #   triggeredDipho = treeSkimmer.MakeTriggerSelection(sPhos, sPhos_id)
+      #
+    #   if triggeredDipho == 0: continue
+    #   treeSkimmer.p_npho[0] = len(sPhos)
+    #   listdr = []
+    #   for m in range(0, len(sPhos)):
+      #
+    #       treeSkimmer.p_pt[0] =  sPhos[m].Pt()
+    #       treeSkimmer.p_M[0] = sPhos[m].M()
+    #       treeSkimmer.p_eta[0] = sPhos[m].Eta()
+    #       treeSkimmer.p_phi[0] = sPhos[m].Phi()
+    #       treeSkimmer.p_mva[0] = tree.v_pho_mva[sPhos_id[m]]
+    #       treeSkimmer.p_r9[0] = tree.v_pho_r9[sPhos_id[m]]
+    #       treeSkimmer.p_full5x5_r9[0] = tree.v_pho_full5x5_r9[sPhos_id[m]]
+    #       treeSkimmer.p_sigmaEtaEta[0] = tree.v_pho_sigmaEtaEta[sPhos_id[m]]
+    #       treeSkimmer.p_full5x5_sigmaEtaEta[0] = tree.v_pho_full5x5_sigmaEtaEta[sPhos_id[m]]
+    #       treeSkimmer.p_full5x5_sigmaIetaIeta[0] = tree.v_pho_full5x5_sigmaIetaIeta[sPhos_id[m]]
+    #       treeSkimmer.p_sigmaIphiIphi[0] = tree.v_pho_sigmaIphiIphi[sPhos_id[m]]
+    #       treeSkimmer.p_genmatch[0] = tree.v_pho_genmatch[sPhos_id[m]]
+    #       treeSkimmer.p_hadronicOverEm[0] = tree.v_pho_hadronicOverEm[sPhos_id[m]]
+    #       treeSkimmer.p_matchpho_pt[0] = tree.v_genmatch_pt[sPhos_id[m]]
+    #       treeSkimmer.p_conversion[0] = tree.v_pho_conversion[sPhos_id[m]]
+    #       treeSkimmer.p_match[0] = tree.v_matchflag[sPhos_id[m]]
+    #       treeSkimmer.p_e5x5[0] = tree.v_pho_e5x5[sPhos_id[m]]
+    #       treeSkimmer.p_fulle5x5[0] = tree.v_pho_full5x5_e5x5[sPhos_id[m]]
+    #       treeSkimmer.p_passTrigger[0] = tree.passTrigger
+      #
+    #       for n in range(0, len(sPhos)):
+    #           if (n!=m and n>m):
+    #              dr = sPhos[m].DeltaR(sPhos[n])
+    #              listdr.append(dr)
+    #   treeSkimmer.p_drmin[0] = min(listdr)
+    #   treeSkimmer.p_drmax[0] = max(listdr)
+      #
+    #   outTree_all.Fill()
 
 # Split into 3 categories here
       if len(sPhos) == 3:
@@ -301,12 +293,6 @@ def main(argv):
          treeSkimmer.p2_conversion_3[0] = tree.v_pho_conversion[sPhos_id[1]]
          treeSkimmer.p3_conversion_3[0] = tree.v_pho_conversion[sPhos_id[2]]
 
-
-
-         #treeSkimmer.p1_genmatch_3[0] = tree.v_pho_genmatch[sPhos_id[0]]
-         #treeSkimmer.p2_genmatch_3[0] = tree.v_genmatch_ver2[sPhos_id[1]]
-         #treeSkimmer.p3_genmatch_3[0] = tree.v_genmatch_ver2[sPhos_id[2]]
-
          treeSkimmer.p1_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[0]]
          treeSkimmer.p2_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[1]]
          treeSkimmer.p3_hadronicOverEm_3[0] = tree.v_pho_hadronicOverEm[sPhos_id[2]]
@@ -334,7 +320,6 @@ def main(argv):
          treeSkimmer.tp_eta_3[0] = Pgggg.Eta()
          treeSkimmer.tp_phi_3[0] = Pgggg.Phi()
          treeSkimmer.tp_mass_3[0] = Pgggg.M()
-         #treeSkimmer.nicematch[0] = nicematch
          outTree_3.Fill()
 
       elif len(sPhos) == 2:
@@ -541,6 +526,85 @@ def main(argv):
           treeSkimmer.tp_phi[0] = Pgggg.Phi()
           treeSkimmer.tp_mass[0] = Pgggg.M()
 
+          ## Cos theta angles
+          Boosted_a1 = TLorentzVector(0,0,0,0)
+          Boosted_a1.SetPtEtaPhiE(PP1.Pt(),PP1.Eta(),PP1.Phi(),PP1.E())
+          Boosted_a2 = TLorentzVector(0,0,0,0)
+          Boosted_a2.SetPtEtaPhiE(PP2.Pt(),PP2.Eta(),PP2.Phi(),PP2.E())
+          h_forboost = TLorentzVector(0,0,0,0)
+          h_forboost.SetPtEtaPhiE(Pgggg.Pt(),Pgggg.Eta(),Pgggg.Phi(),Pgggg.E())
+          treeSkimmer.CosTheta_h_a1[0] = treeSkimmer.HelicityCosTheta(h_forboost,Boosted_a1) ## Cos theta b/w a1 and higgs(rest)
+          treeSkimmer.CosTheta_h_a2[0] = treeSkimmer.HelicityCosTheta(h_forboost,Boosted_a2) ## Cos theta b/w a2 and higgs(rest)
+
+          Boosted_gamma1 = TLorentzVector(0,0,0,0)
+          Boosted_gamma1.SetPtEtaPhiE(pairedDiphos[0][1].Pt(),pairedDiphos[0][1].Eta(),pairedDiphos[0][1].Phi(),pairedDiphos[0][1].E())
+          Boosted_gamma2 = TLorentzVector(0,0,0,0)
+          Boosted_gamma2.SetPtEtaPhiE(pairedDiphos[0][3].Pt(),pairedDiphos[0][3].Eta(),pairedDiphos[0][3].Phi(),pairedDiphos[0][3].E())
+          Boosted_gamma3 = TLorentzVector(0,0,0,0)
+          Boosted_gamma3.SetPtEtaPhiE(pairedDiphos[1][1].Pt(),pairedDiphos[1][1].Eta(),pairedDiphos[1][1].Phi(),pairedDiphos[1][1].E())
+          Boosted_gamma4 = TLorentzVector(0,0,0,0)
+          Boosted_gamma4.SetPtEtaPhiE(pairedDiphos[1][3].Pt(),pairedDiphos[1][3].Eta(),pairedDiphos[1][3].Phi(),pairedDiphos[1][3].E())
+          treeSkimmer.CosTheta_a1_gamma1[0] = treeSkimmer.HelicityCosTheta(Boosted_a1,Boosted_gamma1) ## Cos theta b/w gamma1 and a1(rest)
+          treeSkimmer.CosTheta_a1_gamma2[0] = treeSkimmer.HelicityCosTheta(Boosted_a1,Boosted_gamma2) ## Cos theta b/w gamma2 and a1(rest)
+          treeSkimmer.CosTheta_a2_gamma3[0] = treeSkimmer.HelicityCosTheta(Boosted_a2,Boosted_gamma3) ## Cos theta b/w gamma3 and a2(rest)
+          treeSkimmer.CosTheta_a2_gamma4[0] = treeSkimmer.HelicityCosTheta(Boosted_a2,Boosted_gamma4) ## Cos theta b/w gamma4 and a2(rest)
+          treeSkimmer.CosTheta_a1_a2[0] = treeSkimmer.HelicityCosTheta(Boosted_a1,Boosted_a2) ## Cos theta b/w a2 and a1(rest)
+          treeSkimmer.CosTheta_a2_a1[0] = treeSkimmer.HelicityCosTheta(Boosted_a2,Boosted_a1) ## Cos theta b/w a1 and a2(rest)
+
+          ## Defining a1 and a2 direction
+          BoostedHiggs = TVector3(-Pgggg.BoostVector())
+          PP1.Boost(BoostedHiggs)
+          PP2.Boost(BoostedHiggs)
+          PP1_vect = PP1.Vect().Unit()
+          PP2_vect = PP2.Vect().Unit()
+
+          Photons= []
+          Photons.append(sPhos[0])
+          Photons.append(sPhos[1])
+          Photons.append(sPhos[2])
+          Photons.append(sPhos[3])
+
+          ## Calculate normal to a1 and a2 decay plane
+          NormVect = treeSkimmer.norm_planes(Photons,Pgggg)
+
+          ## Calculate phi
+          if (abs(PP1_vect.Dot(NormVect[1].Cross(NormVect[0])))) !=0:
+             dsign_a1 = PP1_vect.Dot(NormVect[1].Cross(NormVect[0]))/(abs(PP1_vect.Dot(NormVect[1].Cross(NormVect[0]))))
+          if (abs(PP2_vect.Dot(NormVect[1].Cross(NormVect[0])))) !=0:
+             dsign_a2 = PP2_vect.Dot(NormVect[1].Cross(NormVect[0]))/(abs(PP2_vect.Dot(NormVect[1].Cross(NormVect[0]))))
+          if (-1 <= NormVect[0].Dot(NormVect[1]) <= 1):
+              treeSkimmer.Phi_a1[0] = dsign_a1*(-1)*m.acos((NormVect[0].Dot(NormVect[1])))
+              treeSkimmer.Phi_a2[0] = dsign_a2*(-1)*m.acos((NormVect[0].Dot(NormVect[1])))
+
+          ## Define z direction
+          p1 = TLorentzVector(0,0,6500,6500)
+          z_vect = TVector3(p1.Vect().Unit())
+          ## Calculate the normal of the two diphotons
+          zzprime_a1 = TVector3(z_vect.Cross(PP1_vect).Unit())
+          zzprime_a2 = TVector3(z_vect.Cross(PP2_vect).Unit())
+
+          ## Calculate Phi1
+          if (abs(PP1_vect.Dot(zzprime_a1.Cross(NormVect[0])))) !=0:
+             dsignprime_a1 = PP1_vect.Dot(zzprime_a1.Cross(NormVect[0]))/(abs(PP1_vect.Dot(zzprime_a1.Cross(NormVect[0]))))
+             treeSkimmer.Phi1_a1[0] = dsignprime_a1*m.acos(zzprime_a1.Dot(NormVect[0]))
+
+          ## Calculate Cos Theta star in the Collins Soper frame
+          vec1 = TLorentzVector(0,0,0,0)
+          vec2 = TLorentzVector(0,0,0,0)
+          vec1.SetPxPyPzE(0,0,6500,6500)
+          vec1.SetPxPyPzE(0,0,-6500,6500)
+          vec1.Boost(BoostedHiggs)
+          vec2.Boost(BoostedHiggs)
+          PP1.Boost(BoostedHiggs)
+          PP2.Boost(BoostedHiggs)
+
+          CSaxis = TVector3(vec1.Vect().Unit() - vec2.Vect().Unit())
+          CSaxis.Unit()
+
+          treeSkimmer.CosThetaStar_CS = m.cos(CSaxis.Angle( PP1.Vect().Unit()))
+
+
+
           outTree.Fill()
 
       evtCounter += 1
@@ -556,7 +620,8 @@ def main(argv):
    outRoot.Close()
 
    #outTree_3.Write()
-
+        #   print dsign_a1
+        #   print dsign_a2
 
 if __name__ == "__main__":
    main(sys.argv[1:])
