@@ -592,7 +592,7 @@ def main(argv):
           vec1 = TLorentzVector(0,0,0,0)
           vec2 = TLorentzVector(0,0,0,0)
           vec1.SetPxPyPzE(0,0,6500,6500)
-          vec1.SetPxPyPzE(0,0,-6500,6500)
+          vec2.SetPxPyPzE(0,0,-6500,6500)
           vec1.Boost(BoostedHiggs)
           vec2.Boost(BoostedHiggs)
           PP1.Boost(BoostedHiggs)
@@ -601,7 +601,7 @@ def main(argv):
           CSaxis = TVector3(vec1.Vect().Unit() - vec2.Vect().Unit())
           CSaxis.Unit()
 
-          treeSkimmer.CosThetaStar_CS = m.cos(CSaxis.Angle( PP1.Vect().Unit()))
+          treeSkimmer.CosThetaStar_CS[0] = m.cos(CSaxis.Angle( PP1.Vect().Unit()))
 
 
 
