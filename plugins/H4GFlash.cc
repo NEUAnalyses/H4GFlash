@@ -1087,7 +1087,15 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-
+    for (int index1 = 0; index1 < (int)phosTemp.size(); ++index1) {
+      int smallestindex = index1;
+      for (int index2 = index1+1; index2 < (int)phosTemp.size(); ++index2){
+         if (phosTemp[index1]->pt() < phosTemp[index2]->pt()){
+           smallestindex  = index2;
+         }
+        std::swap(phosTemp[index1],phosTemp[smallestindex]);
+      }
+    }
     // trigger preselection on diphoton candidates
     if (diphotons->size() > 0 && PreselectedDiPhotons->size() > 0 ){
       h_efficiencies->Fill(3.0,genTotalWeight); // Efficiency Step 3
@@ -1216,6 +1224,7 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for (int i = 0; i < (int)phosTemp.size(); ++i) {
         const flashgg::Photon * pho = phosTemp[i];
+        std::cout << " sort check "<< pho->pt() << std::endl;
         v_pho_genmatch.push_back(pho->hasUserInt("genMatchType")  );
         v_pho_matchedgenphoton.push_back(pho->hasUserCand("matchedGenPhoton") );
         v_pho_pt.push_back( pho->pt() );
