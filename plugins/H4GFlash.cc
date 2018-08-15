@@ -1092,8 +1092,8 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (int index2 = index1+1; index2 < (int)phosTemp.size(); ++index2){
          if (phosTemp[index1]->pt() < phosTemp[index2]->pt()){
            smallestindex  = index2;
+           std::swap(phosTemp[index1],phosTemp[smallestindex]);
          }
-        std::swap(phosTemp[index1],phosTemp[smallestindex]);
       }
     }
     // trigger preselection on diphoton candidates
