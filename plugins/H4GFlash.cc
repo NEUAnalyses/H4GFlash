@@ -104,7 +104,6 @@ public:
     TTree* outTree;
     int n_pho, run, lumi, evtnum, passTrigger, nicematch, passpresel, passMVA, cat_flag, preselcat_flag ;
     double rho;
-    TH1F* h_efficiencies = new TH1F("h_efficiencies", "Efficiencies;Cut Level;Number of events", 13, 0, 13);
     std::vector<H4GTools::H4G_DiPhoton> v_h4g_diphos;
     std::vector<H4GTools::H4G_TetraPhoton> v_h4g_tetraphos;
     std::vector<LorentzVector> v_pho_p4;
@@ -411,7 +410,6 @@ private:
 //
 H4GFlash::H4GFlash(const edm::ParameterSet& iConfig):
 diphotonsToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "diphotons", edm::InputTag( "flashggDiPhotons" ) ) ) ),
-//AfterSelectiondiphotonsToken_( consumes<edm::View<flashgg::DiPhotonCandidate> >( iConfig.getUntrackedParameter<edm::InputTag> ( "PreselectedDiPhotons", edm::InputTag( "flashggPreselectedDiPhotonsLowMass" ) ) ) ),
 genPhotonsToken_( consumes<edm::View<pat::PackedGenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genphotons", edm::InputTag( "flashggGenPhotons" ) ) ) ),
 genParticlesToken_( consumes<edm::View<reco::GenParticle> >( iConfig.getUntrackedParameter<edm::InputTag>( "genparticles", edm::InputTag( "flashggPrunedGenParticles" ) ) ) ),
 //singlephotonviewToken_( ( iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) ) ) )
@@ -427,7 +425,6 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     genInfoToken_ = consumes<GenEventInfoProduct>( genInfoInputTag_ );
     vtxTag_ = iConfig.getUntrackedParameter<edm::InputTag>("vtxTag");
     vtxHT_  = consumes<reco::Vertex> (vtxTag_);
-
     //singlephotonviewToken_ = iConfig.getUntrackedParameter<edm::InputTag> ("singlephotonview", edm::InputTag("flashggSinglePhotonView" ) );
     //singlephotonviewToken_ = consumes<SinglePhotonView>(singlephotonviewTag_);
     globVar_ = new flashgg::GlobalVariablesDumper(iConfig, consumesCollector() );
@@ -437,11 +434,6 @@ vertexToken_(consumes<edm::View<reco::Vertex> >(iConfig.getUntrackedParameter<ed
     usesResource("TFileService");
     //   edm::Service<TFileService> fs;
     outTree = fs->make<TTree> ("H4GTree", "Tree for h->4g analysis");
-    h_efficiencies = fs->make<TH1F> ("h_efficiencies", "h_efficiencies",13,0,13);
-
-    //TFile* outFile;
-
-    outTree->Branch("h_efficiencies","TH1F",&h_efficiencies,32000,0);
     outTree->Branch("run", &run, "run/I");
     outTree->Branch("lumi", &lumi, "lumi/I");
     outTree->Branch("evtnum", &evtnum, "evtnum/I");
@@ -737,8 +729,7 @@ H4GFlash::~H4GFlash()
 void
 H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-    if(counter%1 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
+    if(counter%1000 == 0) std::cout << "[H4GFlash::analyzer] Analyzing event #" << counter << std::endl;
     counter++;
 
     using namespace edm;
@@ -762,7 +753,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<flashgg::DiPhotonCandidate> preseldipho;
 
     // Calculate  MC Weights here
-
     edm::Handle<GenEventInfoProduct> genEvtInfo;
     if( ! iEvent.isRealData() ) {
         iEvent.getByToken(genInfoToken_, genEvtInfo);
@@ -770,8 +760,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     } else {
         genTotalWeight = 1;
     }
-
-
     //Trigger
     myTriggerResults.clear();
     if (myTriggers.size() > 0){
@@ -779,12 +767,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken(triggerToken_, trigResults);
         const edm::TriggerNames &names = iEvent.triggerNames(*trigResults);
         myTriggerResults = H4GTools::TriggerSelection(myTriggers, names, trigResults);
-    }
-
-    h_efficiencies->Fill(0.0,genTotalWeight); // Efficiency Step 0
-
-    if (diphotons->size() > 0){
-      h_efficiencies->Fill(1.0,genTotalWeight); //Efficiency Step 1
     }
 
     int acceptedTriggers = 0;
@@ -800,8 +782,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     if (acceptedTriggers) passTrigger = 1;
     if (!acceptedTriggers) passTrigger = 0;
-
-   if (acceptedTriggers) h_efficiencies->Fill(2.0,genTotalWeight); // Efficiency Step 2
 
     //Initialize tree variables
     genTotalWeight = 1.0;
@@ -1098,7 +1078,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     // trigger preselection on diphoton candidates
     if (diphotons->size() > 0 && PreselectedDiPhotons->size() > 0 ){
-      h_efficiencies->Fill(3.0,genTotalWeight); // Efficiency Step 3
       passpresel = 1;
     }
    if (diphotons->size() > 0 && PreselectedDiPhotons->size() == 0){
@@ -1127,7 +1106,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
         }
 
-
         for (size_t gp=0; gp<genParticles->size(); gp++) {
             auto gen = genParticles->ptrAt(gp);
             int type = gen->pdgId();
@@ -1151,7 +1129,6 @@ H4GFlash::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 v_genlep_p4.push_back( gen->p4() );
             }
         }
-
 
     // identifying merged photons @ Gen-level
     float deltar_a1 = 0;
@@ -1443,7 +1420,6 @@ void
 H4GFlash::endJob()
 {
 
-    h_efficiencies->Write();
     std::cout << "============== Job stats ==============" << std::endl;
     std::cout << "\t Total number of events: " << counter << std::endl;
     std::cout << "\t Trigger stats: " << std::endl;
