@@ -1,13 +1,13 @@
 {
-   "data":"/eos/cms/store/user/twamorka/FlatTrees_2016/Data/DoubleEG.root",
+   "data":"DoubleEG.root",
    "signal":[
          {
             "name":"Pseudoscalar",
             "legend":"m_{a} = 10 GeV",
             "color":924,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_10.root",
+            "file":"signal_m_10.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -15,9 +15,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 15 GeV",
             "color":925,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_15.root",
+            "file":"signal_m_15.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -25,9 +25,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 20 GeV",
             "color":926,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_20.root",
+            "file":"signal_m_20.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -35,9 +35,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 25 GeV",
             "color":927,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_25.root",
+            "file":"signal_m_25.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -45,9 +45,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 30 GeV",
             "color":928,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_30.root",
+            "file":"signal_m_30.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -55,9 +55,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 35 GeV",
             "color":929,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_35.root",
+            "file":"signal_m_35.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -65,9 +65,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 40 GeV",
             "color":930,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_40.root",
+            "file":"signal_m_40.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -75,9 +75,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 45 GeV",
             "color":931,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_45.root",
+            "file":"signal_m_45.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -85,9 +85,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 50 GeV",
             "color":932,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_50.root",
+            "file":"signal_m_50.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -95,9 +95,9 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 55 GeV",
             "color":933,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_55.root",
+            "file":"signal_m_55.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
          },
@@ -105,84 +105,73 @@
             "name":"Pseudoscalar",
             "legend":"m_{a} = 60 GeV",
             "color":934,
-            "style":2,
+            "style":1,
             "weight":50000,
-            "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Signal/signal_m_60.root",
+            "file":"signal_m_60.root",
             "xsec" : 0.5,
             "sfactor" : 1.0
-         },
+         }
+
+
 
    ],
    "background":{
-      "DYJets":{
-         "position":3,
-         "legend":"Z/#gamma*+Jets",
-         "color":"#ffe74c",
-         "files":[
-            {
-               "file":"output_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root",
-               "xsec":6025.2,
-               "nevents":28730591,
-               "weight":451200807040.0,
-               "sfactor":1
-            }
-         ]
-      },
+
       "QCD":{
          "position":0,
          "legend":"QCD",
          "color":"#2B74BA",
          "files":[
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/QCD30to40.root",
+               "file":"QCD30to40.root",
+               "xsec":22110.0,
+               "nevents":18009301,
+               "weight":18009320.786133,
+               "sfactor":1
+            },
+            {
+               "file":"QCD30toInf.root",
+               "xsec":260500.0,
+               "nevents":37562075,
+               "weight":37562075,
+               "sfactor":1
+            },
+            {
+               "file":"QCD40toInf.root",
                "xsec":113400.0,
                "nevents":20632076,
                "weight":20632076,
                "sfactor":1
-            },
-            {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/QCD30toInf.root",
-               "xsec":22110.0,
-               "nevents":18009301,
-               "weight":18009301,
-               "sfactor":1
-            },
-            {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/QCD40toInf.root",
-               "xsec":22110.0,
-               "nevents":18009301,
-               "weight":18009301,
-               "sfactor":1
-            },
+            }
 
          ]
       },
       "GJets":{
          "position":2,
-         "legend":"j#gamma+Jets/jj+Jets",
+         "legend":"#gamma+Jets",
          "color":"#4aa6db",
          "files":[
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/GJet20to40.root",
-               "xsec":863.8,
-               "nevents":72358076,
-               "weight":72358076,
+               "file":"GJet20to40.root",
+               "xsec":220.0,
+               "nevents":24989649,
+               "weight":24989649,
                "sfactor":3.5
             },
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/GJet20toInf.root",
-               "xsec":218.0,
-               "nevents":24989649,
-               "weight":24989649,
+               "file":"GJet20toInf.root",
+               "xsec":3216.0,
+               "nevents":37274572,
+               "weight":37274572,
                "sfactor":27.0
             },
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/GJet40toInf.root",
-               "xsec":218.0,
-               "nevents":24989649,
-               "weight":24989649,
+               "file":"GJet40toInf.root",
+               "xsec":850.8,
+               "nevents":72299185,
+               "weight":72299185,
                "sfactor":27.0
-            },
+            }
 
          ]
       },
@@ -192,19 +181,19 @@
          "color":"#D0F1D8",
          "files":[
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/DiPho40to80.root",
-               "xsec":84.0,
-               "nevents":57924220,
-               "weight":27392795.9746933,
+               "file":"DiPho40to80.root",
+               "xsec":303.2,
+               "nevents":4764442.0,
+               "weight":3601376.531525,
                "sfactor":1.45
             },
             {
-               "file":"/eos/cms/store/user/twamorka/FlatTrees_2016/Background/DiPho80toInf.root",
-               "xsec":84.0,
-               "nevents":57924220,
-               "weight":27392795.9746933,
+               "file":"DiPho80toInf.root",
+               "xsec":84.4,
+               "nevents":57861736.0,
+               "weight":27363279.712975,
                "sfactor":1.45
-            },
+            }
          ]
       }
    }
