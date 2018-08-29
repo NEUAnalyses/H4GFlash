@@ -1,0 +1,8 @@
+{
+"processes" : {
+        "SUSYGluGluToHToAA_AToGG_M-0p1_TuneCUETP8M1_13TeV_pythia8" : [
+            ["/SUSYGluGluToHToAA_AToGG_M-0p1_TuneCUETP8M1_13TeV_pythia8", {"args" : ["campaign=Jan_26_2016"]}]
+        ]
+        },
+        "cmdLine" : "campaign=Jan_26_2016 targetLumi=15e+3 PURW=False"
+}
