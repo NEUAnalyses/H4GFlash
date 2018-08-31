@@ -109,7 +109,24 @@ fggRunJobs.py --load Backjsons/GJets.json -D -P -n 500 -d /eos/user/t/twamorka/2
 fggRunJobs.py --load Backjsons/QCD.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Background/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
 
 ```
+For signal
+```
+fggRunJobs.py --load Sigjsons/Signal_2016.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Signal/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Sigjsons/Sig0p1.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Signal/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
 
+```
+For data
+```
+fggRunJobs.py --load Datajsons/DataB_1.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataB_2.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataC_1.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataC_2.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataD.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataE_F_G.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataH_1.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Datajsons/DataH_2.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Data/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+
+```
 
 
 Plot decay chain
