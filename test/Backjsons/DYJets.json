@@ -1,0 +1,8 @@
+{
+"processes" : {
+        "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8" : [
+            ["/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8", {"args" : ["campaign=RunIISummer16-2_4_1-25ns_Moriond17"]}]
+        ]
+         },
+        "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17 targetLumi=15e+3 PURW=False"
+}
