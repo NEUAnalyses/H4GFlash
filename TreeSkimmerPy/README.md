@@ -1,3 +1,9 @@
+Run the skimmer step on all ntuples (Data, Background and Signal):
+
+```
+Scripts are in the "scripts" folder
+```
+
 Event mixing
 ====
 
