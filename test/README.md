@@ -107,6 +107,7 @@ For background
 fggRunJobs.py --load Backjsons/DiPhoJets.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Background/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
 fggRunJobs.py --load Backjsons/GJets.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Background/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
 fggRunJobs.py --load Backjsons/QCD.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Background/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
+fggRunJobs.py --load Backjsons/DYMC_80x.json -D -P -n 500 -d /eos/user/t/twamorka/2016_Background/ -x cmsRun MakeTrees.py maxEvents=-1 -q 1nh --no-use-tarball
 
 ```
 For signal
